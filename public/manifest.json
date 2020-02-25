@@ -1,0 +1,8 @@
+{
+  "short_name": "master-project-artifact",
+  "name": "Master Project Artifact",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
