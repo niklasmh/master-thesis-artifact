@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import Markdown from 'markdown-to-jsx'
 import GridLayout from 'react-grid-layout'
@@ -100,21 +100,63 @@ const tasks = [
   },
 ]
 let currentTask = 1
-const margin = 32
+const margin = 64
 
 function App() {
+  const [layout, setLayout] = useState([
+    {
+      i: 'code-editor',
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 6,
+      minW: 2,
+      minH: 4,
+      maxH: 20,
+    },
+    { i: 'result', x: 2, y: 0, w: 2, h: 4, isResizable: false },
+    { i: 'goal', x: 4, y: 0, w: 2, h: 4, isResizable: false },
+  ])
   const [codeEditorSize, setCodeEditorSize] = useState({
-    w: 400 - margin * 2,
-    h: 480 - 120,
+    w: layout[0].w * 200 - margin * 2,
+    h: layout[0].h * (50 + margin) - margin * 1.75,
   })
   const [resultSize, setResultSize] = useState({
-    w: 400 - margin * 2,
-    h: 320 - 120,
+    w: layout[1].w * 200 - margin * 2,
+    h: layout[1].h * (50 + margin) - margin * 1.75,
   })
   const [goalSize, setGoalSize] = useState({
-    w: 400 - margin * 2,
-    h: 320 - 120,
+    w: layout[2].w * 200 - margin * 2,
+    h: layout[2].h * (50 + margin) - margin * 1.75,
   })
+  function updateLayout(layout) {
+    layout.forEach(e => {
+      switch (e.i) {
+        case 'code-editor':
+          setCodeEditorSize({
+            w: e.w * 200 - margin * 2,
+            h: e.h * (50 + margin) - margin * 1.75,
+          })
+          break
+        case 'result':
+          setResultSize({
+            w: e.w * 200 - margin * 2,
+            h: e.h * (50 + margin) - margin * 1.75,
+          })
+          break
+        case 'goal':
+          setGoalSize({
+            w: e.w * 200 - margin * 2,
+            h: e.h * (50 + margin) - margin * 1.75,
+          })
+          break
+      }
+    })
+  }
+  useEffect(() => {
+    updateLayout(layout)
+  }, [layout])
+
   return (
     <>
       <GlobalStyle />
@@ -137,46 +179,13 @@ function App() {
         </Tasks>
         <ModuleContainer
           className="layout"
-          layout={[
-            {
-              i: 'code-editor',
-              x: 0,
-              y: 0,
-              w: 2,
-              h: 6,
-              minW: 2,
-              minH: 4,
-              maxH: 20,
-            },
-            { i: 'result', x: 2, y: 0, w: 2, h: 4, isResizable: false },
-            { i: 'goal', x: 4, y: 0, w: 2, h: 4, isResizable: false },
-          ]}
+          layout={layout}
           cols={6}
           rowHeight={50}
           width={1200}
           margin={[margin, margin]}
           useCSSTransforms={false}
-          onResize={modules => {
-            modules.forEach(e => {
-              switch (e.i) {
-                case 'code-editor':
-                  setCodeEditorSize({
-                    w: e.w * 200 - margin * 2,
-                    h: e.h * 80 - 120,
-                  })
-                  break
-                case 'result':
-                  setResultSize({
-                    w: e.w * 200 - margin * 2,
-                    h: e.h * 80 - 120,
-                  })
-                  break
-                case 'goal':
-                  setGoalSize({ w: e.w * 200 - margin * 2, h: e.h * 80 - 120 })
-                  break
-              }
-            })
-          }}
+          onResize={updateLayout}
         >
           <CodeEditor key="code-editor" size={codeEditorSize} />
           <Result key="result" size={resultSize} />
