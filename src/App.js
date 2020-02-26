@@ -189,6 +189,8 @@ function App() {
             h: e.h * (50 + margin) - margin * 1.75,
           })
           break
+        default:
+          break
       }
     })
   }
