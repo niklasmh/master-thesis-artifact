@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import Markdown from 'markdown-to-jsx'
+import GridLayout from 'react-grid-layout'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 
 import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
@@ -16,6 +19,18 @@ const GlobalStyle = createGlobalStyle`
     font-size: 16px;
     background-color: #626262;
     color: #ddd;
+  }
+
+  button {
+    appearance: none;
+    background-color: #222;
+    box-shadow: 0 0 8px #0004;
+    color: white;
+    padding: 0.5em 1em;
+    margin: 1em;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
   }
 `
 
@@ -58,15 +73,16 @@ const TaskDescription = styled(Description)`
   }
 `
 
-const ModuleContainer = styled.div`
-  display: flex;
+const ModuleContainer = styled(GridLayout)`
+  /*display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  flex-flow: row wrap;
+  flex-flow: row wrap;*/
   flex: 1 0 auto;
   width: 100%;
   height: 100%;
   max-width: 1200px;
+  position: relative;
   margin-top: 2em;
 `
 
@@ -90,6 +106,10 @@ const tasks = [
 let currentTask = 1
 
 function App() {
+  const [codeEditorSize, setCodeEditorSize] = useState({
+    w: 400 - 64,
+    h: 320 - 120,
+  })
   return (
     <>
       <GlobalStyle />
@@ -102,15 +122,45 @@ function App() {
         </Description>
         <Tasks>
           {tasks.map((task, i) => (
-            <TaskDescription key={task.description} className={currentTask === i + 1 ? 'current' : ''}>
+            <TaskDescription
+              key={task.description}
+              className={currentTask === i + 1 ? 'current' : ''}
+            >
               {<Markdown>{`Oppgave ${i + 1}: ${task.description}`}</Markdown>}
             </TaskDescription>
           ))}
         </Tasks>
-        <ModuleContainer>
-          <CodeEditor />
-          <Result />
-          <Goal />
+        <ModuleContainer
+          className="layout"
+          layout={[
+            {
+              i: 'code-editor',
+              x: 0,
+              y: 0,
+              w: 2,
+              h: 4,
+              minW: 2,
+              minH: 4,
+              maxH: 20,
+            },
+            { i: 'result', x: 2, y: 0, w: 2, h: 4, isResizable: false },
+            { i: 'goal', x: 4, y: 0, w: 2, h: 4, isResizable: false },
+          ]}
+          cols={6}
+          rowHeight={50}
+          width={1200}
+          margin={[32, 32]}
+          onResize={modules => {
+            modules.forEach(e => {
+              if (e.i === 'code-editor') {
+                setCodeEditorSize({ w: e.w * 200 - 64, h: e.h * 80 - 120 })
+              }
+            })
+          }}
+        >
+          <CodeEditor key="code-editor" size={codeEditorSize} />
+          <Result key="result" />
+          <Goal key="goal" />
         </ModuleContainer>
       </AppContainer>
     </>

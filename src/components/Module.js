@@ -2,10 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 const ModuleContainer = styled.div`
-  display: flex;
-  flex: 1 1 300px;
-  flex-direction: column;
-  margin: 2em;
+  cursor: move;
 `
 
 const Title = styled.h1`
@@ -19,15 +16,23 @@ const ModuleContent = styled.div`
   background: #222;
   border-radius: 5px;
   box-shadow: 0 0 8px #0005;
-  overflow: hidden;
+  cursor: default;
 `
 
-function Module({ title, className = '', children, after = null }) {
+const ModuleResize = styled.span``
+
+function Module({ title, children, content = null, after = null, ...props }) {
   return (
-    <ModuleContainer>
+    <ModuleContainer {...props}>
       <Title>{title}</Title>
-      <ModuleContent className={className}>{children}</ModuleContent>
+      <ModuleContent
+        className="module-content"
+        onMouseDown={e => e.stopPropagation()}
+      >
+        {content}
+      </ModuleContent>
       {after}
+      {children}
     </ModuleContainer>
   )
 }
