@@ -1,14 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import styled from 'styled-components'
 import Editor from '@monaco-editor/react'
 import Module from '../../components/Module'
 import { preDefinedElements } from './predefinitions'
+import { CanvasContext } from '../../App'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
 
   .module-content {
-    box-shadow: none;
     background: none;
 
     & > section {
@@ -27,12 +27,47 @@ const Button = styled.button`
   align-self: center;
 `
 
-function CodeEditor({ code = '', size = {}, ...props }) {
+let currentState = {
+  dt: 0,
+  t_tot: 0,
+  elements: [],
+}
+
+function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
+  const { canvasContext, resultSize = { w: 0, h: 0 } } = useContext(
+    CanvasContext
+  )
+  const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
   const [isEditorReady, setIsEditorReady] = useState(false)
   const [isPyodideReady, setIsPyodideReady] = useState(false)
+  function renderToCanvas(ctx, result) {
+    if (ctx !== null) {
+      ctx.fillStyle = '#ddd'
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      const [cx, cy] = [ctx.canvas.width / 2, ctx.canvas.height / 2]
+      ctx.drawCircle = self => {
+        ctx.beginPath()
+        ctx.arc(self.x + cx, self.y + cy, self.r, 0, 2 * Math.PI, false)
+        ctx.fillStyle = self.color || '#0aa'
+        ctx.fill()
+      }
+      if ('elements' in result) {
+        result.elements.forEach(element => element.render(ctx))
+      }
+    }
+  }
   function runCode(value) {
-    window.pyodide.runPythonAsync(preDefinedElements + value).then(() => {})
+    window.pyodide.runPythonAsync(preDefinedElements + value).then(() => {
+      if (canvasContext !== null) {
+        currentState = {
+          dt: window.pyodide.globals.dt,
+          t_tot: window.pyodide.globals.t_tot,
+          elements: window.pyodide.globals.__elements__,
+        }
+        renderToCanvas(canvasContext, currentState)
+      }
+    })
   }
   function handleEditorDidMount(_valueGetter) {
     setIsEditorReady(true)
@@ -43,6 +78,18 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       setIsPyodideReady(true)
     })
   }, [])
+
+  useEffect(() => {
+    if (
+      canvasContext &&
+      canvasContext !== null &&
+      (prevResultSize.current.h !== resultSize.h ||
+        prevResultSize.current.w !== resultSize.w)
+    ) {
+      renderToCanvas(canvasContext, currentState)
+    }
+    prevResultSize.current = resultSize
+  }, [prevResultSize, resultSize, canvasContext])
 
   return (
     <StyledModule

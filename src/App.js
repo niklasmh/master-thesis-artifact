@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, createContext } from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import Markdown from 'markdown-to-jsx'
 import GridLayout from 'react-grid-layout'
@@ -8,6 +8,11 @@ import 'react-resizable/css/styles.css'
 import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
 import Goal from './modules/goal/Goal'
+
+export const CanvasContext = createContext({
+  canvasContext: null,
+  setCanvasContext: () => {},
+})
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
@@ -148,6 +153,15 @@ let currentTask = 1
 const margin = 64
 
 function App() {
+  let setState = () => {}
+  let state = {}
+  ;[state, setState] = useState({
+    canvasContext: null,
+    resultSize: { w: 0, h: 0 },
+    setCanvasContext: context => {
+      setState({ ...context, setCanvasContext: setState })
+    },
+  })
   const [layout] = useState([
     {
       i: 'code-editor',
@@ -192,7 +206,7 @@ function App() {
     w: layout[2].w * (50 + margin * 0.7) - margin,
     h: layout[2].h * (50 + margin) - margin * 1.75,
   })
-  function updateLayout(layout) {
+  const updateLayout = layout => {
     layout.forEach(e => {
       switch (e.i) {
         case 'code-editor':
@@ -202,10 +216,16 @@ function App() {
           })
           break
         case 'result':
-          setResultSize({
+          const size = {
             w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
-          })
+          }
+          setResultSize(size)
+          state.setCanvasContext(context => ({
+            ...context,
+            resultSize: size,
+            setCanvasContext: state.setCanvasContext,
+          }))
           break
         case 'goal':
           setGoalSize({
@@ -242,20 +262,27 @@ function App() {
             </TaskDescription>
           ))}
         </Tasks>
-        <ModuleContainer
-          className="layout"
-          layout={layout}
-          cols={12}
-          rowHeight={50}
-          width={1200}
-          margin={[margin, margin]}
-          useCSSTransforms={false}
-          onResize={updateLayout}
-        >
-          <CodeEditor key="code-editor" size={codeEditorSize} code={code} />
-          <Result key="result" size={resultSize} />
-          <Goal key="goal" size={goalSize} />
-        </ModuleContainer>
+        <CanvasContext.Provider value={state}>
+          <ModuleContainer
+            className="layout"
+            layout={layout}
+            cols={12}
+            rowHeight={50}
+            width={1200}
+            margin={[margin, margin]}
+            useCSSTransforms={false}
+            onResize={updateLayout}
+          >
+            <CodeEditor
+              key="code-editor"
+              size={codeEditorSize}
+              code={code}
+              goalSize={goalSize}
+            />
+            <Result key="result" size={resultSize} />
+            <Goal key="goal" size={goalSize} />
+          </ModuleContainer>
+        </CanvasContext.Provider>
       </AppContainer>
     </>
   )
