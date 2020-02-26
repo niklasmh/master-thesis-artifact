@@ -74,11 +74,7 @@ const TaskDescription = styled(Description)`
 `
 
 const ModuleContainer = styled(GridLayout)`
-  /*display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex-flow: row wrap;*/
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   width: 100%;
   height: 100%;
   max-width: 1200px;
@@ -150,6 +146,7 @@ function App() {
           rowHeight={50}
           width={1200}
           margin={[32, 32]}
+          useCSSTransforms={false}
           onResize={modules => {
             modules.forEach(e => {
               if (e.i === 'code-editor') {

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 const ModuleContainer = styled.div`
   cursor: move;
+  touch-action: none;
 `
 
 const Title = styled.h1`
