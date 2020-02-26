@@ -19,6 +19,7 @@ const ModuleContent = styled.div`
   background: #222;
   border-radius: 5px;
   box-shadow: 0 0 8px #0005;
+  overflow: hidden;
 `
 
 function Module({ title, className = '', children, after = null }) {

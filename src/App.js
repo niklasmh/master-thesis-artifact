@@ -102,7 +102,7 @@ function App() {
         </Description>
         <Tasks>
           {tasks.map((task, i) => (
-            <TaskDescription className={currentTask === i + 1 ? 'current' : ''}>
+            <TaskDescription key={task.description} className={currentTask === i + 1 ? 'current' : ''}>
               {<Markdown>{`Oppgave ${i + 1}: ${task.description}`}</Markdown>}
             </TaskDescription>
           ))}
