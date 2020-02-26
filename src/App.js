@@ -151,21 +151,39 @@ function App() {
       h: 6,
       minW: 4,
       minH: 4,
-      maxH: 20,
+      maxH: 10,
     },
-    { i: 'result', x: 6, y: 0, w: 3, h: 3, isResizable: false },
-    { i: 'goal', x: 9, y: 0, w: 3, h: 3, isResizable: false },
+    {
+      i: 'result',
+      x: 6,
+      y: 0,
+      w: 3,
+      h: 3,
+      minW: 2,
+      minH: 2,
+      maxH: 10,
+    },
+    {
+      i: 'goal',
+      x: 9,
+      y: 0,
+      w: 3,
+      h: 3,
+      minW: 2,
+      minH: 2,
+      maxH: 10,
+    },
   ])
   const [codeEditorSize, setCodeEditorSize] = useState({
-    w: layout[0].w * 200 - margin * 2,
+    w: layout[0].w * (50 + margin * 0.7) - margin,
     h: layout[0].h * (50 + margin) - margin * 1.75,
   })
   const [resultSize, setResultSize] = useState({
-    w: layout[1].w * 200 - margin * 2,
+    w: layout[1].w * (50 + margin * 0.7) - margin,
     h: layout[1].h * (50 + margin) - margin * 1.75,
   })
   const [goalSize, setGoalSize] = useState({
-    w: layout[2].w * 200 - margin * 2,
+    w: layout[2].w * (50 + margin * 0.7) - margin,
     h: layout[2].h * (50 + margin) - margin * 1.75,
   })
   function updateLayout(layout) {
@@ -173,19 +191,20 @@ function App() {
       switch (e.i) {
         case 'code-editor':
           setCodeEditorSize({
-            w: e.w * 200 - margin * 2,
+            w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
           })
           break
         case 'result':
+          console.log(e.w * (50 + margin * 0.7) - margin)
           setResultSize({
-            w: e.w * 200 - margin * 2,
+            w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
           })
           break
         case 'goal':
           setGoalSize({
-            w: e.w * 200 - margin * 2,
+            w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
           })
           break
