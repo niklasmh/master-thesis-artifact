@@ -26,7 +26,7 @@ const Button = styled.button`
   align-self: center;
 `
 
-function CodeEditor({ size = {}, ...props }) {
+function CodeEditor({ code = '', size = {}, ...props }) {
   return (
     <StyledModule
       title="Kode"
@@ -42,7 +42,7 @@ function CodeEditor({ size = {}, ...props }) {
           height={size.h + 'px'}
           language="python"
           theme="vs-dark"
-          value={'g = 9.81'}
+          value={code}
           options={{}}
           onChange={() => {}}
           editorDidMount={() => {}}

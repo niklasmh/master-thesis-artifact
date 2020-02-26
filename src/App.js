@@ -85,6 +85,45 @@ const ModuleContainer = styled(GridLayout)`
 const title = 'Kloss ned skråplan'
 const description =
   'Her skal du simulere en kloss som sklir ned et skråplan uten friksjon.'
+const code = `# Constants
+g = -9.81 # Gravity
+dt = 0.01 # Delta time in seconds
+t_tot = 5 # Total time (-1 is infinite)
+
+ball = Ball(x=0, y=0)
+ball_red = Ball(x=100, y=0, color='red')
+x, y = 0, 0
+vx, vy = 4, 0
+ax, ay = 0, g
+
+def loop(t):
+  # Make variables writable
+  global x, y, vx, vy
+
+  # Change velocity
+  vx += ax*dt
+  vy += ay*dt
+
+  # Change position
+  x += vx*dt
+  y += vy*dt
+
+  # Set ball position
+  ball.y = y * 100 + ball.y0
+  ball.x = x * 100 + ball.x0
+
+  if ball.y < -100 or ball.y > 100:
+    y -= vy*dt
+    vy = -vy
+  if ball.x < -190 or ball.x > 190:
+    x -= vx*dt
+    vx *= -1
+
+def end():
+  print("After", t_tot)
+  print("seconds: y =", y, 1/2*g*t_tot**2)
+  print("Ball y =", ball.y)
+`
 const tasks = [
   {
     description:
@@ -103,19 +142,19 @@ let currentTask = 1
 const margin = 64
 
 function App() {
-  const [layout, setLayout] = useState([
+  const [layout] = useState([
     {
       i: 'code-editor',
       x: 0,
       y: 0,
-      w: 2,
+      w: 6,
       h: 6,
-      minW: 2,
+      minW: 4,
       minH: 4,
       maxH: 20,
     },
-    { i: 'result', x: 2, y: 0, w: 2, h: 4, isResizable: false },
-    { i: 'goal', x: 4, y: 0, w: 2, h: 4, isResizable: false },
+    { i: 'result', x: 6, y: 0, w: 3, h: 3, isResizable: false },
+    { i: 'goal', x: 9, y: 0, w: 3, h: 3, isResizable: false },
   ])
   const [codeEditorSize, setCodeEditorSize] = useState({
     w: layout[0].w * 200 - margin * 2,
@@ -180,14 +219,14 @@ function App() {
         <ModuleContainer
           className="layout"
           layout={layout}
-          cols={6}
+          cols={12}
           rowHeight={50}
           width={1200}
           margin={[margin, margin]}
           useCSSTransforms={false}
           onResize={updateLayout}
         >
-          <CodeEditor key="code-editor" size={codeEditorSize} />
+          <CodeEditor key="code-editor" size={codeEditorSize} code={code} />
           <Result key="result" size={resultSize} />
           <Goal key="goal" size={goalSize} />
         </ModuleContainer>

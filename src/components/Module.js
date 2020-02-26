@@ -20,8 +20,6 @@ const ModuleContent = styled.div`
   cursor: default;
 `
 
-const ModuleResize = styled.span``
-
 function Module({ title, children, content = null, after = null, ...props }) {
   return (
     <ModuleContainer {...props}>
