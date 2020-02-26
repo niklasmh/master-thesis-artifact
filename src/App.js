@@ -100,10 +100,19 @@ const tasks = [
   },
 ]
 let currentTask = 1
+const margin = 32
 
 function App() {
   const [codeEditorSize, setCodeEditorSize] = useState({
-    w: 400 - 64,
+    w: 400 - margin * 2,
+    h: 480 - 120,
+  })
+  const [resultSize, setResultSize] = useState({
+    w: 400 - margin * 2,
+    h: 320 - 120,
+  })
+  const [goalSize, setGoalSize] = useState({
+    w: 400 - margin * 2,
     h: 320 - 120,
   })
   return (
@@ -134,7 +143,7 @@ function App() {
               x: 0,
               y: 0,
               w: 2,
-              h: 4,
+              h: 6,
               minW: 2,
               minH: 4,
               maxH: 20,
@@ -145,19 +154,33 @@ function App() {
           cols={6}
           rowHeight={50}
           width={1200}
-          margin={[32, 32]}
+          margin={[margin, margin]}
           useCSSTransforms={false}
           onResize={modules => {
             modules.forEach(e => {
-              if (e.i === 'code-editor') {
-                setCodeEditorSize({ w: e.w * 200 - 64, h: e.h * 80 - 120 })
+              switch (e.i) {
+                case 'code-editor':
+                  setCodeEditorSize({
+                    w: e.w * 200 - margin * 2,
+                    h: e.h * 80 - 120,
+                  })
+                  break
+                case 'result':
+                  setResultSize({
+                    w: e.w * 200 - margin * 2,
+                    h: e.h * 80 - 120,
+                  })
+                  break
+                case 'goal':
+                  setGoalSize({ w: e.w * 200 - margin * 2, h: e.h * 80 - 120 })
+                  break
               }
             })
           }}
         >
           <CodeEditor key="code-editor" size={codeEditorSize} />
-          <Result key="result" />
-          <Goal key="goal" />
+          <Result key="result" size={resultSize} />
+          <Goal key="goal" size={goalSize} />
         </ModuleContainer>
       </AppContainer>
     </>

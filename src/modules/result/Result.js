@@ -1,8 +1,14 @@
 import React from 'react'
 import Module from '../../components/Module'
 
-function Result(props) {
-  return <Module title="Resultat" {...props} content={'Grafikk'} />
+function Result({ size = {}, ...props }) {
+  return (
+    <Module
+      title="Resultat"
+      {...props}
+      content={<canvas width={size.w} height={size.h} />}
+    />
+  )
 }
 
 export default Result

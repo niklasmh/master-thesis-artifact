@@ -9,6 +9,11 @@ const StyledModule = styled(Module)`
   .module-content {
     box-shadow: none;
     background: none;
+
+    & > section {
+      background: #1e1e1e;
+      border-radius: 6px;
+    }
   }
 
   .monaco-editor,
@@ -34,14 +39,13 @@ function CodeEditor({ size = {}, ...props }) {
       content={
         <Editor
           width="100%"
-          height={(size.h || 400) + 'px'}
+          height={size.h + 'px'}
           language="python"
           theme="vs-dark"
           value={'g = 9.81'}
           options={{}}
           onChange={() => {}}
           editorDidMount={() => {}}
-          borderRadius="3px"
         />
       }
     ></StyledModule>
