@@ -20,17 +20,40 @@ const ModuleContent = styled.div`
   cursor: default;
 `
 
-function Module({ title, children, content = null, after = null, ...props }) {
+const TopElement = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`
+
+const BottomElement = styled(TopElement)`
+  position: absolute;
+  top: 100%;
+`
+
+function Module({
+  title,
+  children,
+  content = null,
+  before = null,
+  after = null,
+  ...props
+}) {
   return (
     <ModuleContainer {...props}>
       <Title>{title}</Title>
+      {before ? <TopElement>{before}</TopElement> : null}
       <ModuleContent
         className="module-content"
         onMouseDown={e => e.stopPropagation()}
       >
         {content}
       </ModuleContent>
-      {after}
+      {after ? <BottomElement>{after}</BottomElement> : null}
       {children}
     </ModuleContainer>
   )

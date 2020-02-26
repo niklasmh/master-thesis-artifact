@@ -123,6 +123,12 @@ def end():
   print("After", t_tot)
   print("seconds: y =", y, 1/2*g*t_tot**2)
   print("Ball y =", ball.y)
+
+blockPrint()
+for __i__ in range(1, 10 + 1):
+  loop(__i__ * dt)
+enablePrint()
+end()
 `
 const tasks = [
   {
@@ -196,7 +202,6 @@ function App() {
           })
           break
         case 'result':
-          console.log(e.w * (50 + margin * 0.7) - margin)
           setResultSize({
             w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
