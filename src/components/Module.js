@@ -15,7 +15,7 @@ const Title = styled.h1`
 const ModuleContent = styled.div`
   display: flex;
   background: #222;
-  border-radius: 5px;
+  border-radius: 6px;
   box-shadow: 0 0 8px #0005;
   cursor: default;
 `
