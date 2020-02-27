@@ -200,3 +200,39 @@ export const preDefinedVars = [
   'inf',
   'nan',
 ]
+
+export function createPrintFunction(write) {
+  const print = (...args) => {
+    const kwargs = args.pop()
+    let sep = ' '
+    let end = '\n'
+    if (typeof kwargs === 'object') {
+      if ('file' in kwargs) {
+        delete kwargs['file']
+      }
+      if ('sep' in kwargs) {
+        sep = kwargs['sep'] || null
+        delete kwargs['sep']
+        if (sep !== null) {
+          if (typeof sep !== 'string') {
+            throw new Error('sep must be None or a string')
+          }
+        }
+      }
+      const end = kwargs['end'] || null
+      if ('end' in kwargs) {
+        delete kwargs['end']
+        if (end !== null) {
+          if (typeof end !== 'string') {
+            throw new Error('end must be None or a string')
+          }
+        }
+      }
+      if (Object.keys(kwargs).length) {
+        throw new Error('invalid keyword arguments to print()')
+      }
+    }
+    write(args.join(sep) + end)
+  }
+  return print
+}

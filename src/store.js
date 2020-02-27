@@ -6,6 +6,8 @@ function reducer(
     goalCanvasSize: { w: 0, h: 0 },
     values: [],
     valuesSize: { w: 0, h: 0 },
+    logSize: { w: 0, h: 0 },
+    writeToLogFunction: () => {},
   },
   action
 ) {
@@ -47,6 +49,16 @@ function reducer(
       return {
         ...state,
         valuesSize: action.size,
+      }
+    case 'setLogSize':
+      return {
+        ...state,
+        logSize: action.size,
+      }
+    case 'setWriteToLogFunction':
+      return {
+        ...state,
+        writeToLogFunction: action.writeToLogFunction,
       }
     default:
       return {

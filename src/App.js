@@ -10,10 +10,9 @@ import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
 import Goal from './modules/goal/Goal'
 import Values from './modules/values/Values'
+import Log from './modules/log/Log'
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono&display=swap');
-
   body {
     margin: 0;
     padding: 0 2em 8em;
@@ -151,6 +150,7 @@ const margin = 64
 let prevResultCanvasSize = { w: 0, h: 0 }
 let prevGoalCanvasSize = { w: 0, h: 0 }
 let prevValuesSize = { w: 0, h: 0 }
+let prevLogSize = { w: 0, h: 0 }
 
 function App() {
   const dispatch = useDispatch()
@@ -194,7 +194,16 @@ function App() {
       minW: 2,
       minH: 2,
       maxH: 10,
-      isResizable: true,
+    },
+    {
+      i: 'log',
+      x: 0,
+      y: 7,
+      w: 6,
+      h: 3,
+      minW: 2,
+      minH: 2,
+      maxH: 10,
     },
   ])
 
@@ -260,6 +269,19 @@ function App() {
             prevValuesSize = valuesSize
           }
           break
+        case 'log':
+          const logSize = {
+            w: e.w * (50 + margin * 0.7) - margin,
+            h: e.h * (50 + margin) - margin * 2.25,
+          }
+          if (prevLogSize.w !== logSize.w || prevLogSize.h !== logSize.h) {
+            dispatch({
+              type: 'setLogSize',
+              size: logSize,
+            })
+            prevLogSize = logSize
+          }
+          break
         default:
           break
       }
@@ -300,6 +322,7 @@ function App() {
           <Result key="result" />
           <Goal key="goal" />
           <Values key="values" />
+          <Log key="log" />
         </ModuleContainer>
       </AppContainer>
     </>

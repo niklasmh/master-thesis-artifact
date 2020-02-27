@@ -3,7 +3,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import Editor from '@monaco-editor/react'
 import styled from 'styled-components'
 import Module from '../../components/Module'
-import { preDefinedElements, preDefinedVars } from './predefinitions'
+import {
+  preDefinedElements,
+  preDefinedVars,
+  createPrintFunction,
+} from './predefinitions'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -34,7 +38,11 @@ let currentState = {
 }
 
 function CodeEditor({ code = '', size = {}, ...props }) {
-  const { resultCanvasSize, resultCanvasContext } = useSelector(state => state)
+  const {
+    resultCanvasSize,
+    resultCanvasContext,
+    writeToLogFunction,
+  } = useSelector(state => state)
   const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
@@ -110,6 +118,12 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       })
     }
   }, [])
+
+  useEffect(() => {
+    if (isPyodideReady) {
+      window.pyodide.globals.print = createPrintFunction(writeToLogFunction)
+    }
+  }, [isPyodideReady, writeToLogFunction])
 
   useEffect(() => {
     if (
