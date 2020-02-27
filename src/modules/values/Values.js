@@ -17,6 +17,7 @@ const ValueList = styled.div`
   font-family: 'Roboto Mono', monospace;
   font-size: 0.8em;
   overflow-y: auto;
+  flex: 1 1 auto;
 `
 
 function Values(props) {
