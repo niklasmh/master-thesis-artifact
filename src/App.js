@@ -8,14 +8,17 @@ import 'react-resizable/css/styles.css'
 import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
 import Goal from './modules/goal/Goal'
+import Values from './modules/values/Values'
 
 export const CanvasContext = createContext({
   canvasContext: null,
+  resultSize: { w: 0, h: 0 },
+  values: [],
   setCanvasContext: () => {},
 })
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+  @import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono&display=swap');
 
   body {
     margin: 0;
@@ -158,6 +161,7 @@ function App() {
   ;[state, setState] = useState({
     canvasContext: null,
     resultSize: { w: 0, h: 0 },
+    values: [],
     setCanvasContext: context => {
       setState({ ...context, setCanvasContext: setState })
     },
@@ -192,6 +196,14 @@ function App() {
       minW: 2,
       minH: 2,
       maxH: 10,
+    },
+    {
+      i: 'values',
+      x: 6,
+      y: 5,
+      w: 3,
+      h: 2,
+      isResizable: false,
     },
   ])
   const [codeEditorSize, setCodeEditorSize] = useState({
@@ -281,6 +293,7 @@ function App() {
             />
             <Result key="result" size={resultSize} />
             <Goal key="goal" size={goalSize} />
+            <Values key="values" values={state.values} />
           </ModuleContainer>
         </CanvasContext.Provider>
       </AppContainer>

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useContext } from 'react'
 import styled from 'styled-components'
 import Editor from '@monaco-editor/react'
 import Module from '../../components/Module'
-import { preDefinedElements } from './predefinitions'
+import { preDefinedElements, preDefinedVars } from './predefinitions'
 import { CanvasContext } from '../../App'
 
 const StyledModule = styled(Module)`
@@ -34,9 +34,11 @@ let currentState = {
 }
 
 function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
-  const { canvasContext, resultSize = { w: 0, h: 0 } } = useContext(
-    CanvasContext
-  )
+  const {
+    canvasContext,
+    resultSize = { w: 0, h: 0 },
+    setCanvasContext,
+  } = useContext(CanvasContext)
   const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
   const [isEditorReady, setIsEditorReady] = useState(false)
@@ -57,6 +59,27 @@ function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
       }
     }
   }
+  function execAndGetCurrentVariableValues(runBefore = '', variables = null) {
+    if (variables === null) {
+      return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
+        .filter(k => preDefinedVars.indexOf(k) === -1)
+        .map(k => [k, window.pyodide.globals[k]])
+        .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
+      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+    } else if (variables === false) {
+      return window.pyodide.runPython(runBefore)
+    } else {
+      return Object.keys(
+        window.pyodide.runPython(
+          runBefore +
+            `\n{${Object.keys(variables)
+              .map(name => `"${name}":${name}`)
+              .join(',')}}`
+        )
+      ).map(k => [k, window.pyodide.globals[k]])
+      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+    }
+  }
   function runCode(value) {
     window.pyodide.runPythonAsync(preDefinedElements + value).then(() => {
       if (canvasContext !== null) {
@@ -67,6 +90,13 @@ function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
         }
         renderToCanvas(canvasContext, currentState)
       }
+      const variables = execAndGetCurrentVariableValues()
+      console.log(variables)
+      setCanvasContext(context => ({
+        ...context,
+        variables,
+        setCanvasContext,
+      }))
     })
   }
   function handleEditorDidMount(_valueGetter) {
