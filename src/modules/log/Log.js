@@ -23,6 +23,7 @@ const LogList = styled.div`
 
 const LogMessage = styled.div`
   color: white;
+  word-break: break-word;
 `
 
 const WarningMessage = styled(LogMessage)`
