@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 import Module from '../../components/Module'
-import { CanvasContext } from '../../App'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -12,20 +12,23 @@ const StyledModule = styled(Module)`
 `
 
 const ValueList = styled.div`
-  white-space: pre-wrap;
-  font-family: 'Roboto Mono', sans-serif;
+  white-space: pre;
+  text-align: left;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.8em;
+  overflow-y: auto;
 `
 
 function Values(props) {
-  const { values = [] } = useContext(CanvasContext)
+  const { values, valuesSize } = useSelector(state => state)
 
   return (
     <StyledModule
       title="Verdier"
       {...props}
       content={
-        <ValueList>
-          {values.map((key, value) => `${key} = ${value}`).join('\n')}
+        <ValueList style={{ height: valuesSize.h + 'px' }}>
+          {values.map(([key, value]) => `${key} = ${value}`).join('\n')}
         </ValueList>
       }
     />

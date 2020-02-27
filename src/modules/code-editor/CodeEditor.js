@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
-import styled from 'styled-components'
+import React, { useRef, useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import Editor from '@monaco-editor/react'
+import styled from 'styled-components'
 import Module from '../../components/Module'
 import { preDefinedElements, preDefinedVars } from './predefinitions'
-import { CanvasContext } from '../../App'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -33,16 +33,14 @@ let currentState = {
   elements: [],
 }
 
-function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
-  const {
-    canvasContext,
-    resultSize = { w: 0, h: 0 },
-    setCanvasContext,
-  } = useContext(CanvasContext)
+function CodeEditor({ code = '', size = {}, ...props }) {
+  const { resultCanvasSize, resultCanvasContext } = useSelector(state => state)
+  const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
   const [isEditorReady, setIsEditorReady] = useState(false)
   const [isPyodideReady, setIsPyodideReady] = useState(false)
+
   function renderToCanvas(ctx, result) {
     if (ctx !== null) {
       ctx.fillStyle = '#ddd'
@@ -59,6 +57,7 @@ function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
       }
     }
   }
+
   function execAndGetCurrentVariableValues(runBefore = '', variables = null) {
     if (variables === null) {
       return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
@@ -80,46 +79,49 @@ function CodeEditor({ code = '', size = {}, goalSize = {}, ...props }) {
       //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
     }
   }
+
   function runCode(value) {
     window.pyodide.runPythonAsync(preDefinedElements + value).then(() => {
-      if (canvasContext !== null) {
+      if (resultCanvasContext !== null) {
         currentState = {
           dt: window.pyodide.globals.dt,
           t_tot: window.pyodide.globals.t_tot,
           elements: window.pyodide.globals.__elements__,
         }
-        renderToCanvas(canvasContext, currentState)
+        renderToCanvas(resultCanvasContext, currentState)
       }
       const variables = execAndGetCurrentVariableValues()
-      console.log(variables)
-      setCanvasContext(context => ({
-        ...context,
-        variables,
-        setCanvasContext,
-      }))
+      dispatch({
+        type: 'setValues',
+        values: variables,
+      })
     })
   }
+
   function handleEditorDidMount(_valueGetter) {
     setIsEditorReady(true)
     editor.current = _valueGetter
   }
+
   useEffect(() => {
-    window.languagePluginLoader.then(() => {
-      setIsPyodideReady(true)
-    })
+    if (window.languagePluginLoader) {
+      window.languagePluginLoader.then(() => {
+        setIsPyodideReady(true)
+      })
+    }
   }, [])
 
   useEffect(() => {
     if (
-      canvasContext &&
-      canvasContext !== null &&
-      (prevResultSize.current.h !== resultSize.h ||
-        prevResultSize.current.w !== resultSize.w)
+      resultCanvasContext &&
+      resultCanvasContext !== null &&
+      (prevResultSize.current.h !== resultCanvasSize.h ||
+        prevResultSize.current.w !== resultCanvasSize.w)
     ) {
-      renderToCanvas(canvasContext, currentState)
+      renderToCanvas(resultCanvasContext, currentState)
     }
-    prevResultSize.current = resultSize
-  }, [prevResultSize, resultSize, canvasContext])
+    prevResultSize.current = resultCanvasSize
+  }, [prevResultSize, resultCanvasSize, resultCanvasContext])
 
   return (
     <StyledModule

@@ -1,0 +1,58 @@
+function reducer(
+  state = {
+    resultCanvasContext: null,
+    resultCanvasSize: { w: 0, h: 0 },
+    goalCanvasContext: null,
+    goalCanvasSize: { w: 0, h: 0 },
+    values: [],
+    valuesSize: { w: 0, h: 0 },
+  },
+  action
+) {
+  switch (action.type) {
+    case 'setResultCanvasContext':
+      return {
+        ...state,
+        resultCanvasContext: action.context,
+        resultCanvasSize: {
+          w: action.context.canvas.width,
+          h: action.context.canvas.height,
+        },
+      }
+    case 'setResultCanvasSize':
+      return {
+        ...state,
+        resultCanvasSize: action.size,
+      }
+    case 'setGoalCanvasContext':
+      return {
+        ...state,
+        goalCanvasContext: action.context,
+        goalCanvasSize: {
+          w: action.context.canvas.width,
+          h: action.context.canvas.height,
+        },
+      }
+    case 'setGoalCanvasSize':
+      return {
+        ...state,
+        goalCanvasSize: action.size,
+      }
+    case 'setValues':
+      return {
+        ...state,
+        values: action.values,
+      }
+    case 'setValuesSize':
+      return {
+        ...state,
+        valuesSize: action.size,
+      }
+    default:
+      return {
+        ...state,
+      }
+  }
+}
+
+export default reducer

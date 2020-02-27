@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useContext } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import Module from '../../components/Module'
-import { CanvasContext } from '../../App'
+import { useDispatch, useSelector } from 'react-redux'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -15,25 +15,31 @@ const StyledModule = styled(Module)`
   }
 `
 
-function Result({ size = {}, ...props }) {
+function Result({ ...props }) {
   const canvas = useRef(null)
-  const { setCanvasContext } = useContext(CanvasContext)
+  const dispatch = useDispatch()
+  const { resultCanvasSize } = useSelector(state => state)
 
   useEffect(() => {
     if (canvas.current !== null) {
-      setCanvasContext(context => ({
-        ...context,
-        canvasContext: canvas.current.getContext('2d'),
-        setCanvasContext,
-      }))
+      dispatch({
+        type: 'setResultCanvasContext',
+        context: canvas.current.getContext('2d'),
+      })
     }
-  }, [canvas, setCanvasContext])
+  }, [canvas, dispatch])
 
   return (
     <StyledModule
       title="Resultat"
       {...props}
-      content={<canvas ref={canvas} width={size.w} height={size.h} />}
+      content={
+        <canvas
+          ref={canvas}
+          width={resultCanvasSize.w}
+          height={resultCanvasSize.h}
+        />
+      }
     />
   )
 }

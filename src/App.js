@@ -1,28 +1,22 @@
-import React, { useState, useEffect, createContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled, { createGlobalStyle } from 'styled-components'
 import Markdown from 'markdown-to-jsx'
 import GridLayout from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { useDispatch } from 'react-redux'
 
 import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
 import Goal from './modules/goal/Goal'
 import Values from './modules/values/Values'
 
-export const CanvasContext = createContext({
-  canvasContext: null,
-  resultSize: { w: 0, h: 0 },
-  values: [],
-  setCanvasContext: () => {},
-})
-
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono&display=swap');
 
   body {
     margin: 0;
-    padding: 0 2em;
+    padding: 0 2em 8em;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     background-color: #626262;
@@ -154,19 +148,13 @@ const tasks = [
 ]
 let currentTask = 1
 const margin = 64
+let prevResultCanvasSize = { w: 0, h: 0 }
+let prevGoalCanvasSize = { w: 0, h: 0 }
+let prevValuesSize = { w: 0, h: 0 }
 
 function App() {
-  let setState = () => {}
-  let state = {}
-  ;[state, setState] = useState({
-    canvasContext: null,
-    resultSize: { w: 0, h: 0 },
-    values: [],
-    setCanvasContext: context => {
-      setState({ ...context, setCanvasContext: setState })
-    },
-  })
-  const [layout] = useState([
+  const dispatch = useDispatch()
+  const [layout, setLayout] = useState([
     {
       i: 'code-editor',
       x: 0,
@@ -202,23 +190,20 @@ function App() {
       x: 6,
       y: 5,
       w: 3,
-      h: 2,
-      isResizable: false,
+      h: 3,
+      minW: 2,
+      minH: 2,
+      maxH: 10,
+      isResizable: true,
     },
   ])
+
   const [codeEditorSize, setCodeEditorSize] = useState({
     w: layout[0].w * (50 + margin * 0.7) - margin,
     h: layout[0].h * (50 + margin) - margin * 1.75,
   })
-  const [resultSize, setResultSize] = useState({
-    w: layout[1].w * (50 + margin * 0.7) - margin,
-    h: layout[1].h * (50 + margin) - margin * 1.75,
-  })
-  const [goalSize, setGoalSize] = useState({
-    w: layout[2].w * (50 + margin * 0.7) - margin,
-    h: layout[2].h * (50 + margin) - margin * 1.75,
-  })
-  const updateLayout = layout => {
+
+  useEffect(() => {
     layout.forEach(e => {
       switch (e.i) {
         case 'code-editor':
@@ -228,31 +213,58 @@ function App() {
           })
           break
         case 'result':
-          const size = {
+          const resultSize = {
             w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
           }
-          setResultSize(size)
-          state.setCanvasContext(context => ({
-            ...context,
-            resultSize: size,
-            setCanvasContext: state.setCanvasContext,
-          }))
+          if (
+            prevResultCanvasSize.w !== resultSize.w ||
+            prevResultCanvasSize.h !== resultSize.h
+          ) {
+            dispatch({
+              type: 'setResultCanvasSize',
+              size: resultSize,
+            })
+            prevResultCanvasSize = resultSize
+          }
           break
         case 'goal':
-          setGoalSize({
+          const goalSize = {
             w: e.w * (50 + margin * 0.7) - margin,
             h: e.h * (50 + margin) - margin * 1.75,
-          })
+          }
+          if (
+            prevGoalCanvasSize.w !== goalSize.w ||
+            prevGoalCanvasSize.h !== goalSize.h
+          ) {
+            dispatch({
+              type: 'setGoalCanvasSize',
+              size: goalSize,
+            })
+            prevGoalCanvasSize = goalSize
+          }
+          break
+        case 'values':
+          const valuesSize = {
+            w: e.w * (50 + margin * 0.7) - margin,
+            h: e.h * (50 + margin) - margin * 2.25,
+          }
+          if (
+            prevValuesSize.w !== valuesSize.w ||
+            prevValuesSize.h !== valuesSize.h
+          ) {
+            dispatch({
+              type: 'setValuesSize',
+              size: valuesSize,
+            })
+            prevValuesSize = valuesSize
+          }
           break
         default:
           break
       }
     })
-  }
-  useEffect(() => {
-    updateLayout(layout)
-  }, [layout])
+  }, [layout, dispatch])
 
   return (
     <>
@@ -274,28 +286,21 @@ function App() {
             </TaskDescription>
           ))}
         </Tasks>
-        <CanvasContext.Provider value={state}>
-          <ModuleContainer
-            className="layout"
-            layout={layout}
-            cols={12}
-            rowHeight={50}
-            width={1200}
-            margin={[margin, margin]}
-            useCSSTransforms={false}
-            onResize={updateLayout}
-          >
-            <CodeEditor
-              key="code-editor"
-              size={codeEditorSize}
-              code={code}
-              goalSize={goalSize}
-            />
-            <Result key="result" size={resultSize} />
-            <Goal key="goal" size={goalSize} />
-            <Values key="values" values={state.values} />
-          </ModuleContainer>
-        </CanvasContext.Provider>
+        <ModuleContainer
+          className="layout"
+          layout={layout}
+          cols={12}
+          rowHeight={50}
+          width={1200}
+          margin={[margin, margin]}
+          useCSSTransforms={false}
+          onResize={setLayout}
+        >
+          <CodeEditor key="code-editor" size={codeEditorSize} code={code} />
+          <Result key="result" />
+          <Goal key="goal" />
+          <Values key="values" />
+        </ModuleContainer>
       </AppContainer>
     </>
   )
