@@ -167,7 +167,7 @@ function App() {
     },
     {
       i: 'result',
-      x: 6,
+      x: 9,
       y: 0,
       w: 3,
       h: 3,
@@ -178,7 +178,7 @@ function App() {
     {
       i: 'goal',
       x: 9,
-      y: 0,
+      y: 3,
       w: 3,
       h: 3,
       minW: 2,
@@ -188,7 +188,7 @@ function App() {
     {
       i: 'values',
       x: 6,
-      y: 5,
+      y: 3,
       w: 3,
       h: 3,
       minW: 2,
@@ -197,9 +197,9 @@ function App() {
     },
     {
       i: 'log',
-      x: 0,
-      y: 7,
-      w: 6,
+      x: 6,
+      y: 0,
+      w: 3,
       h: 3,
       minW: 2,
       minH: 2,

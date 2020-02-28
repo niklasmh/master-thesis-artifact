@@ -7,6 +7,7 @@ import {
   preDefinedElements,
   preDefinedVars,
   createPrintFunction,
+  createOnLogInputFunction,
 } from './predefinitions'
 
 const StyledModule = styled(Module)`
@@ -44,6 +45,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     writeToLogFunction,
     isPyodideReady,
     execAndGetCurrentVariableValues,
+    onLogInput,
   } = useSelector(state => state)
   const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
@@ -109,6 +111,12 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       window.pyodide.globals.print = createPrintFunction(writeToLogFunction)
     }
   }, [isPyodideReady, writeToLogFunction])
+
+  useEffect(() => {
+    if (isPyodideReady) {
+      window.pyodide.globals.input = createOnLogInputFunction(onLogInput)
+    }
+  }, [isPyodideReady, onLogInput])
 
   useEffect(() => {
     if (

@@ -9,6 +9,8 @@ function reducer(
     logSize: { w: 0, h: 0 },
     isPyodideReady: false,
     writeToLogFunction: () => {},
+    execAndGetCurrentVariableValues: () => {},
+    onLogInput: () => {},
   },
   action
 ) {
@@ -70,6 +72,11 @@ function reducer(
       return {
         ...state,
         execAndGetCurrentVariableValues: action.function,
+      }
+    case 'setOnLogInput':
+      return {
+        ...state,
+        onLogInput: action.onLogInput,
       }
     default:
       return {

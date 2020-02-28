@@ -280,3 +280,20 @@ export function createPrintFunction(write) {
   }
   return print
 }
+
+export function createOnLogInputFunction(write) {
+  const input = (...args) => {
+    let prompt = ''
+    if (args.length) {
+      const kwargs = args.pop()
+      if (typeof kwargs === 'object') {
+        throw new Error('input() takes no keyword arguments')
+      }
+      if (args.length) {
+        prompt = args[0]
+      }
+    }
+    return write(prompt)
+  }
+  return input
+}

@@ -37,6 +37,9 @@ const ErrorMessage = styled(LogMessage)`
   color: red;
   background-color: #f001;
 `
+const InputMessage = styled(LogMessage)`
+  color: orange;
+`
 
 const CommandContainer = styled.div`
   flex: 1 0 auto;
@@ -107,9 +110,29 @@ function Log(props) {
         ])
       }
     }
+    const onLogInput = message => {
+      setLog(log => [
+        ...log,
+        <InputMessage key={log.length}>{message}</InputMessage>,
+      ])
+      //const promise = new Promise(resolve => {
+      //  commandInputElement.current.focus()
+      //  commandInputElement.current.addEventListener('keydown', e => {
+      //    if (e.keyCode === 13) {
+      //      resolve(e.target.value)
+      //    }
+      //  })
+      //})
+      //const output = await promise
+      return window.prompt(message)
+    }
     dispatch({
       type: 'setWriteToLogFunction',
       writeToLogFunction,
+    })
+    dispatch({
+      type: 'setOnLogInput',
+      onLogInput,
     })
 
     /** /
@@ -168,7 +191,7 @@ function Log(props) {
       logToDisplay(args, 'error')
     })
     /**/
-  }, [dispatch])
+  }, [dispatch, commandInputElement])
 
   useEffect(() => {
     logListElement.current.scrollTop = logListElement.current.scrollHeight
