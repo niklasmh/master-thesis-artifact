@@ -53,7 +53,8 @@ const CommandContainer = styled.div`
 `
 
 const CommandInput = styled.input`
-  flex: 1 0 auto;
+  flex: 1 0 0;
+  width: 100%;
   appearance: none;
   background: none;
   border: none;
