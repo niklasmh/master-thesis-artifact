@@ -37,46 +37,13 @@ let currentState = {
   elements: [],
 }
 
-export function execAndGetCurrentVariableValues(
-  runBefore = '',
-  variables = null
-) {
-  try {
-    if (variables === null) {
-      return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
-        .filter(k => preDefinedVars.indexOf(k) === -1)
-        .map(k => [k, window.pyodide.globals[k]])
-        .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
-      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
-    } else if (variables === false) {
-      return window.pyodide.runPython(runBefore)
-    } else {
-      return Object.keys(
-        window.pyodide.runPython(
-          runBefore +
-            `\n{${Object.keys(variables)
-              .map(name => `"${name}":${name}`)
-              .join(',')}}`
-        )
-      ).map(k => [k, window.pyodide.globals[k]])
-      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
-    }
-  } catch (ex) {
-    console.error(ex.message.trim())
-    if (variables === false) {
-      return ''
-    } else {
-      return []
-    }
-  }
-}
-
 function CodeEditor({ code = '', size = {}, ...props }) {
   const {
     resultCanvasSize,
     resultCanvasContext,
     writeToLogFunction,
     isPyodideReady,
+    execAndGetCurrentVariableValues,
   } = useSelector(state => state)
   const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
@@ -118,7 +85,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           values: variables,
         })
       })
-      .catch(ex => console.error(ex.message.trim()))
+      .catch(ex => writeToLogFunction(ex.message.trim(), false, true))
   }
 
   function handleEditorDidMount(_valueGetter) {
@@ -154,6 +121,43 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     }
     prevResultSize.current = resultCanvasSize
   }, [prevResultSize, resultCanvasSize, resultCanvasContext])
+
+  useEffect(() => {
+    function execAndGetCurrentVariableValues(runBefore = '', variables = null) {
+      try {
+        if (variables === null) {
+          return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
+            .filter(k => preDefinedVars.indexOf(k) === -1)
+            .map(k => [k, window.pyodide.globals[k]])
+            .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
+          //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+        } else if (variables === false) {
+          return window.pyodide.runPython(runBefore)
+        } else {
+          return Object.keys(
+            window.pyodide.runPython(
+              runBefore +
+                `\n{${Object.keys(variables)
+                  .map(name => `"${name}":${name}`)
+                  .join(',')}}`
+            )
+          ).map(k => [k, window.pyodide.globals[k]])
+          //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+        }
+      } catch (ex) {
+        writeToLogFunction(ex.message.trim(), false, true)
+        if (variables === false) {
+          return ''
+        } else {
+          return []
+        }
+      }
+    }
+    dispatch({
+      type: 'setExecFunction',
+      function: execAndGetCurrentVariableValues,
+    })
+  }, [dispatch, writeToLogFunction])
 
   return (
     <StyledModule

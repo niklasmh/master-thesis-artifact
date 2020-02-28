@@ -66,6 +66,11 @@ function reducer(
         ...state,
         isPyodideReady: action.isReady,
       }
+    case 'setExecFunction':
+      return {
+        ...state,
+        execAndGetCurrentVariableValues: action.function,
+      }
     default:
       return {
         ...state,

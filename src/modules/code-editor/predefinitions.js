@@ -257,24 +257,20 @@ export function createPrintFunction(write) {
         switch (typeof arg) {
           case 'object':
             return <span key={i}>JSON.stringify(arg)</span>
-            break
           case 'string':
             return (
               <span key={i} style={{ color: '#ce9178' }}>
                 "{arg}"
               </span>
             )
-            break
           case 'number':
             return (
               <span key={i} style={{ color: '#b5cea8' }}>
                 {arg}
               </span>
             )
-            break
           default:
             return <span key={i}>arg</span>
-            break
         }
       })
       write(content, styledContent)

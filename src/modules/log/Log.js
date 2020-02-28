@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import Module from '../../components/Module'
-import { execAndGetCurrentVariableValues } from '../code-editor/CodeEditor'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -63,15 +62,12 @@ const CommandInput = styled.input`
   }
 `
 
-const hijack = (context, oldFunction, runBefore) => {
-  return function(...args) {
-    runBefore.apply(context, args)
-    oldFunction.apply(context, args)
-  }
-}
-
 function Log(props) {
-  const { logSize, isPyodideReady } = useSelector(state => state)
+  const {
+    logSize,
+    isPyodideReady,
+    execAndGetCurrentVariableValues,
+  } = useSelector(state => state)
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -81,17 +77,33 @@ function Log(props) {
   const commandInputElement = useRef(null)
 
   useEffect(() => {
-    const writeToLogFunction = (message, styledMessage = false) => {
-      console.log(message)
+    const writeToLogFunction = (
+      message,
+      styledMessage = false,
+      error = false
+    ) => {
+      let MessageType = null
+      if (error) {
+        if (error === 'warning') {
+          console.warn(message)
+          MessageType = WarningMessage
+        } else {
+          console.error(message)
+          MessageType = ErrorMessage
+        }
+      } else {
+        console.log(message)
+        MessageType = LogMessage
+      }
       if (styledMessage !== false) {
         setLog(log => [
           ...log,
-          <LogMessage key={log.length}>{styledMessage}</LogMessage>,
+          <MessageType key={log.length}>{styledMessage}</MessageType>,
         ])
       } else {
         setLog(log => [
           ...log,
-          <LogMessage key={log.length}>{message}</LogMessage>,
+          <MessageType key={log.length}>{message}</MessageType>,
         ])
       }
     }
@@ -100,6 +112,13 @@ function Log(props) {
       writeToLogFunction,
     })
 
+    /** /
+    const hijack = (context, oldFunction, runBefore) => {
+      return function(...args) {
+        runBefore.apply(context, args)
+        oldFunction.apply(context, args)
+      }
+    }
     const logToDisplay = (messages, type) => {
       //const [row, col] = new Error().stack
       //  .split('\n')[4]
@@ -109,7 +128,7 @@ function Log(props) {
       const message = (
         <>
           <span style={{ right: 0, position: 'absolute' }}>
-            {/*row}:{col*/}
+            {row}:{col}
           </span>
           {messages
             .map(msg => (typeof msg === 'object' ? JSON.stringify(msg) : msg))
@@ -144,11 +163,11 @@ function Log(props) {
     console.warn = hijack(console, console.warn, (...args) => {
       logToDisplay(args, 'warn')
     })
-    /**/
     // TODO: Make errors display in the log module
     console.error = hijack(console, console.error, (...args) => {
       logToDisplay(args, 'error')
     })
+    /**/
   }, [dispatch])
 
   useEffect(() => {
