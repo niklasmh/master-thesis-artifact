@@ -170,7 +170,7 @@ function Log(props) {
           e.target.value = history[historyPointer - 1]
           setHistoryPointer(historyPointer - 1)
         } else {
-          e.target.value = history[0]
+          e.target.value = history[0] || ''
           setHistoryPointer(0)
         }
       } else if (e.keyCode === 40) {
