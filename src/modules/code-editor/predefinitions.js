@@ -1,3 +1,5 @@
+import React from 'react'
+
 export const preDefinedElements = `import sys, os
 from math import *
 
@@ -218,12 +220,13 @@ export function createPrintFunction(write) {
     const kwargs = args.pop()
     let sep = ' '
     let end = '\n'
+    let styleArgs = false
     if (typeof kwargs === 'object') {
       if ('file' in kwargs) {
         delete kwargs['file']
       }
       if ('sep' in kwargs) {
-        sep = kwargs['sep'] || null
+        sep = kwargs['sep'] || sep
         delete kwargs['sep']
         if (sep !== null) {
           if (typeof sep !== 'string') {
@@ -231,8 +234,8 @@ export function createPrintFunction(write) {
           }
         }
       }
-      const end = kwargs['end'] || null
       if ('end' in kwargs) {
+        end = kwargs['end'] || end
         delete kwargs['end']
         if (end !== null) {
           if (typeof end !== 'string') {
@@ -240,11 +243,44 @@ export function createPrintFunction(write) {
           }
         }
       }
+      if ('styleArgs' in kwargs) {
+        styleArgs = kwargs['styleArgs'] || false
+        delete kwargs['styleArgs']
+      }
       if (Object.keys(kwargs).length) {
         throw new Error('invalid keyword arguments to print()')
       }
     }
-    write(args.map(arg => prettyPrint(arg)).join(sep) + end)
+    const content = args.map(arg => prettyPrint(arg)).join(sep) + end
+    if (styleArgs) {
+      let styledContent = args.map((arg, i) => {
+        switch (typeof arg) {
+          case 'object':
+            return <span key={i}>JSON.stringify(arg)</span>
+            break
+          case 'string':
+            return (
+              <span key={i} style={{ color: '#ce9178' }}>
+                "{arg}"
+              </span>
+            )
+            break
+          case 'number':
+            return (
+              <span key={i} style={{ color: '#b5cea8' }}>
+                {arg}
+              </span>
+            )
+            break
+          default:
+            return <span key={i}>arg</span>
+            break
+        }
+      })
+      write(content, styledContent)
+    } else {
+      write(content)
+    }
   }
   return print
 }

@@ -38,6 +38,7 @@ const ErrorMessage = styled(LogMessage)`
 
 const CommandContainer = styled.div`
   display: flex;
+  align-items: center;
 
   ::before {
     content: '> ';
@@ -74,12 +75,19 @@ function Log(props) {
   const logListElement = useRef(null)
 
   useEffect(() => {
-    const writeToLogFunction = message => {
+    const writeToLogFunction = (message, styledMessage = false) => {
       console.log(message)
-      setLog(log => [
-        ...log,
-        <LogMessage key={log.length}>{message}</LogMessage>,
-      ])
+      if (styledMessage !== false) {
+        setLog(log => [
+          ...log,
+          <LogMessage key={log.length}>{styledMessage}</LogMessage>,
+        ])
+      } else {
+        setLog(log => [
+          ...log,
+          <LogMessage key={log.length}>{message}</LogMessage>,
+        ])
+      }
     }
     dispatch({
       type: 'setWriteToLogFunction',
@@ -87,15 +95,15 @@ function Log(props) {
     })
 
     const logToDisplay = (messages, type) => {
-      const [row, col] = new Error().stack
-        .split('\n')[4]
-        .replace(/[()]/g, '')
-        .split(':')
-        .slice(-2)
+      //const [row, col] = new Error().stack
+      //  .split('\n')[4]
+      //  .replace(/[()]/g, '')
+      //  .split(':')
+      //  .slice(-2)
       const message = (
         <>
           <span style={{ right: 0, position: 'absolute' }}>
-            {row}:{col}
+            {/*row}:{col*/}
           </span>
           {messages
             .map(msg => (typeof msg === 'object' ? JSON.stringify(msg) : msg))
@@ -147,11 +155,24 @@ function Log(props) {
         e.preventDefault()
         const code = e.target.value
         if (code.length) {
-          const variables = execAndGetCurrentVariableValues(code)
-          dispatch({
-            type: 'setValues',
-            values: variables,
-          })
+          window.pyodide.globals.print(`> ${code}`, {})
+          const output = execAndGetCurrentVariableValues(code, false)
+          switch (typeof output) {
+            case 'number':
+              window.pyodide.globals.print(output, { styleArgs: true })
+              break
+            default:
+              if (output)
+                window.pyodide.globals.print(output, { styleArgs: true })
+              break
+          }
+          const variables = execAndGetCurrentVariableValues()
+          if (variables.length) {
+            dispatch({
+              type: 'setValues',
+              values: variables,
+            })
+          }
           if (history[history.length - 1] !== code) {
             setHistoryPointer(history.length + 1)
             setHistory(history => [...history, code])

@@ -41,24 +41,33 @@ export function execAndGetCurrentVariableValues(
   runBefore = '',
   variables = null
 ) {
-  if (variables === null) {
-    return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
-      .filter(k => preDefinedVars.indexOf(k) === -1)
-      .map(k => [k, window.pyodide.globals[k]])
-      .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
-    //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
-  } else if (variables === false) {
-    return window.pyodide.runPython(runBefore)
-  } else {
-    return Object.keys(
-      window.pyodide.runPython(
-        runBefore +
-          `\n{${Object.keys(variables)
-            .map(name => `"${name}":${name}`)
-            .join(',')}}`
-      )
-    ).map(k => [k, window.pyodide.globals[k]])
-    //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+  try {
+    if (variables === null) {
+      return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
+        .filter(k => preDefinedVars.indexOf(k) === -1)
+        .map(k => [k, window.pyodide.globals[k]])
+        .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
+      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+    } else if (variables === false) {
+      return window.pyodide.runPython(runBefore)
+    } else {
+      return Object.keys(
+        window.pyodide.runPython(
+          runBefore +
+            `\n{${Object.keys(variables)
+              .map(name => `"${name}":${name}`)
+              .join(',')}}`
+        )
+      ).map(k => [k, window.pyodide.globals[k]])
+      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+    }
+  } catch (ex) {
+    console.error(ex.message.trim())
+    if (variables === false) {
+      return ''
+    } else {
+      return []
+    }
   }
 }
 
@@ -92,21 +101,24 @@ function CodeEditor({ code = '', size = {}, ...props }) {
   }
 
   function runCode(value) {
-    window.pyodide.runPythonAsync(preDefinedElements + value).then(() => {
-      if (resultCanvasContext !== null) {
-        currentState = {
-          dt: window.pyodide.globals.dt,
-          t_tot: window.pyodide.globals.t_tot,
-          elements: window.pyodide.globals.__elements__,
+    window.pyodide
+      .runPythonAsync(preDefinedElements + value)
+      .then(() => {
+        if (resultCanvasContext !== null) {
+          currentState = {
+            dt: window.pyodide.globals.dt,
+            t_tot: window.pyodide.globals.t_tot,
+            elements: window.pyodide.globals.__elements__,
+          }
+          renderToCanvas(resultCanvasContext, currentState)
         }
-        renderToCanvas(resultCanvasContext, currentState)
-      }
-      const variables = execAndGetCurrentVariableValues()
-      dispatch({
-        type: 'setValues',
-        values: variables,
+        const variables = execAndGetCurrentVariableValues()
+        dispatch({
+          type: 'setValues',
+          values: variables,
+        })
       })
-    })
+      .catch(ex => console.error(ex.message.trim()))
   }
 
   function handleEditorDidMount(_valueGetter) {
