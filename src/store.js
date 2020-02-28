@@ -7,6 +7,7 @@ function reducer(
     values: [],
     valuesSize: { w: 0, h: 0 },
     logSize: { w: 0, h: 0 },
+    isPyodideReady: false,
     writeToLogFunction: () => {},
   },
   action
@@ -59,6 +60,11 @@ function reducer(
       return {
         ...state,
         writeToLogFunction: action.writeToLogFunction,
+      }
+    case 'setIsPyodideReady':
+      return {
+        ...state,
+        isPyodideReady: action.isReady,
       }
     default:
       return {

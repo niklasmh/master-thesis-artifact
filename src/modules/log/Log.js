@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import Module from '../../components/Module'
+import { execAndGetCurrentVariableValues } from '../code-editor/CodeEditor'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -35,6 +36,27 @@ const ErrorMessage = styled(LogMessage)`
   background-color: #f001;
 `
 
+const CommandContainer = styled.div`
+  display: flex;
+
+  ::before {
+    content: '> ';
+  }
+`
+
+const CommandInput = styled.input`
+  flex: 1 0 auto;
+  appearance: none;
+  background: none;
+  border: none;
+  color: white;
+  font-family: 'Roboto Mono', monospace;
+
+  :focus {
+    outline: none;
+  }
+`
+
 const hijack = (context, oldFunction, runBefore) => {
   return function(...args) {
     runBefore.apply(context, args)
@@ -43,9 +65,11 @@ const hijack = (context, oldFunction, runBefore) => {
 }
 
 function Log(props) {
-  const { logSize } = useSelector(state => state)
+  const { logSize, isPyodideReady } = useSelector(state => state)
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
+  const [history, setHistory] = useState([])
+  const [historyPointer, setHistoryPointer] = useState(0)
   const logListElement = useRef(null)
 
   useEffect(() => {
@@ -116,6 +140,47 @@ function Log(props) {
     logListElement.current.scrollTop = logListElement.current.scrollHeight
   }, [log, logListElement])
 
+  function handleCommandInput(e) {
+    if (isPyodideReady) {
+      if (e.keyCode === 13) {
+        e.preventDefault()
+        const code = e.target.value
+        if (code.length) {
+          const variables = execAndGetCurrentVariableValues(code)
+          dispatch({
+            type: 'setValues',
+            values: variables,
+          })
+          if (history[history.length - 1] !== code) {
+            setHistoryPointer(history.length + 1)
+            setHistory(history => [...history, code])
+          } else {
+            setHistoryPointer(history.length)
+          }
+          e.target.value = ''
+        }
+      } else if (e.keyCode === 38) {
+        e.preventDefault()
+        if (historyPointer - 1 >= 0) {
+          e.target.value = history[historyPointer - 1]
+          setHistoryPointer(historyPointer - 1)
+        } else {
+          e.target.value = history[0]
+          setHistoryPointer(0)
+        }
+      } else if (e.keyCode === 40) {
+        e.preventDefault()
+        if (historyPointer + 1 < history.length) {
+          e.target.value = history[historyPointer + 1]
+          setHistoryPointer(historyPointer + 1)
+        } else {
+          e.target.value = ''
+          setHistoryPointer(history.length)
+        }
+      }
+    }
+  }
+
   return (
     <StyledModule
       title={
@@ -136,6 +201,9 @@ function Log(props) {
       content={
         <LogList style={{ height: logSize.h + 'px' }} ref={logListElement}>
           {log}
+          <CommandContainer>
+            <CommandInput onKeyDown={handleCommandInput} />
+          </CommandContainer>
         </LogList>
       }
     />

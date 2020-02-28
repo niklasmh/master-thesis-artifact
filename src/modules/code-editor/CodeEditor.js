@@ -37,17 +37,42 @@ let currentState = {
   elements: [],
 }
 
+export function execAndGetCurrentVariableValues(
+  runBefore = '',
+  variables = null
+) {
+  if (variables === null) {
+    return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
+      .filter(k => preDefinedVars.indexOf(k) === -1)
+      .map(k => [k, window.pyodide.globals[k]])
+      .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
+    //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+  } else if (variables === false) {
+    return window.pyodide.runPython(runBefore)
+  } else {
+    return Object.keys(
+      window.pyodide.runPython(
+        runBefore +
+          `\n{${Object.keys(variables)
+            .map(name => `"${name}":${name}`)
+            .join(',')}}`
+      )
+    ).map(k => [k, window.pyodide.globals[k]])
+    //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
+  }
+}
+
 function CodeEditor({ code = '', size = {}, ...props }) {
   const {
     resultCanvasSize,
     resultCanvasContext,
     writeToLogFunction,
+    isPyodideReady,
   } = useSelector(state => state)
   const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
   const [isEditorReady, setIsEditorReady] = useState(false)
-  const [isPyodideReady, setIsPyodideReady] = useState(false)
 
   function renderToCanvas(ctx, result) {
     if (ctx !== null) {
@@ -63,28 +88,6 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       if ('elements' in result) {
         result.elements.forEach(element => element.render(ctx))
       }
-    }
-  }
-
-  function execAndGetCurrentVariableValues(runBefore = '', variables = null) {
-    if (variables === null) {
-      return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
-        .filter(k => preDefinedVars.indexOf(k) === -1)
-        .map(k => [k, window.pyodide.globals[k]])
-        .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
-      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
-    } else if (variables === false) {
-      return window.pyodide.runPython(runBefore)
-    } else {
-      return Object.keys(
-        window.pyodide.runPython(
-          runBefore +
-            `\n{${Object.keys(variables)
-              .map(name => `"${name}":${name}`)
-              .join(',')}}`
-        )
-      ).map(k => [k, window.pyodide.globals[k]])
-      //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
     }
   }
 
@@ -114,10 +117,13 @@ function CodeEditor({ code = '', size = {}, ...props }) {
   useEffect(() => {
     if (window.languagePluginLoader) {
       window.languagePluginLoader.then(() => {
-        setIsPyodideReady(true)
+        dispatch({
+          type: 'setIsPyodideReady',
+          isReady: true,
+        })
       })
     }
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     if (isPyodideReady) {
