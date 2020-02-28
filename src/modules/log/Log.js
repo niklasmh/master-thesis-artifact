@@ -20,6 +20,9 @@ const LogList = styled.div`
   font-size: 0.8em;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
 `
 
 const LogMessage = styled.div`
@@ -37,11 +40,13 @@ const ErrorMessage = styled(LogMessage)`
 `
 
 const CommandContainer = styled.div`
+  flex: 1 0 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   ::before {
     content: '> ';
+    margin-top: 2px;
   }
 `
 
@@ -73,6 +78,7 @@ function Log(props) {
   const [currentCommand, setCurrentCommand] = useState([])
   const [historyPointer, setHistoryPointer] = useState(0)
   const logListElement = useRef(null)
+  const commandInputElement = useRef(null)
 
   useEffect(() => {
     const writeToLogFunction = (message, styledMessage = false) => {
@@ -229,8 +235,11 @@ function Log(props) {
       content={
         <LogList style={{ height: logSize.h + 'px' }} ref={logListElement}>
           {log}
-          <CommandContainer>
-            <CommandInput onKeyDown={handleCommandInput} />
+          <CommandContainer onClick={() => commandInputElement.current.focus()}>
+            <CommandInput
+              ref={commandInputElement}
+              onKeyDown={handleCommandInput}
+            />
           </CommandContainer>
         </LogList>
       }
