@@ -69,6 +69,7 @@ function Log(props) {
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
+  const [currentCommand, setCurrentCommand] = useState([])
   const [historyPointer, setHistoryPointer] = useState(0)
   const logListElement = useRef(null)
 
@@ -158,9 +159,13 @@ function Log(props) {
             setHistoryPointer(history.length)
           }
           e.target.value = ''
+          setCurrentCommand('')
         }
       } else if (e.keyCode === 38) {
         e.preventDefault()
+        if (historyPointer === history.length) {
+          setCurrentCommand(e.target.value)
+        }
         if (historyPointer - 1 >= 0) {
           e.target.value = history[historyPointer - 1]
           setHistoryPointer(historyPointer - 1)
@@ -174,9 +179,11 @@ function Log(props) {
           e.target.value = history[historyPointer + 1]
           setHistoryPointer(historyPointer + 1)
         } else {
-          e.target.value = ''
+          e.target.value = currentCommand
           setHistoryPointer(history.length)
         }
+      } else if (historyPointer === history.length) {
+        setCurrentCommand(e.target.value)
       }
     }
   }
