@@ -202,6 +202,18 @@ export const preDefinedVars = [
 ]
 
 export function createPrintFunction(write) {
+  const prettyPrint = arg => {
+    switch (typeof arg) {
+      case 'object':
+        return JSON.stringify(arg)
+      case 'string':
+        return arg
+      case 'number':
+        return arg
+      default:
+        return arg
+    }
+  }
   const print = (...args) => {
     const kwargs = args.pop()
     let sep = ' '
@@ -232,7 +244,7 @@ export function createPrintFunction(write) {
         throw new Error('invalid keyword arguments to print()')
       }
     }
-    write(args.join(sep) + end)
+    write(args.map(arg => prettyPrint(arg)).join(sep) + end)
   }
   return print
 }
