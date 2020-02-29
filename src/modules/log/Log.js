@@ -11,7 +11,7 @@ const StyledModule = styled(Module)`
   }
 `
 
-const LogList = styled.div`
+const LogListContainer = styled.div`
   flex: 1 1 auto;
   white-space: pre-wrap;
   text-align: left;
@@ -20,22 +20,30 @@ const LogList = styled.div`
   overflow-y: auto;
   position: relative;
   display: flex;
-  justify-content: flex-start;
   flex-direction: column;
+`
+
+const LogList = styled.div`
+  white-space: pre-wrap;
+  text-align: left;
+  display: block;
 `
 
 const LogMessage = styled.div`
   color: white;
+  display: inline;
   word-break: break-word;
 `
 
 const WarningMessage = styled(LogMessage)`
   color: orange;
   background-color: #f801;
+  display: inline-block;
 `
 const ErrorMessage = styled(LogMessage)`
   color: red;
   background-color: #f001;
+  display: inline-block;
 `
 const InputMessage = styled(LogMessage)`
   color: orange;
@@ -265,15 +273,22 @@ function Log(props) {
       }
       {...props}
       content={
-        <LogList style={{ height: logSize.h + 'px' }} ref={logListElement}>
-          {log}
-          <CommandContainer onClick={() => commandInputElement.current.focus()}>
-            <CommandInput
-              ref={commandInputElement}
-              onKeyDown={handleCommandInput}
-            />
-          </CommandContainer>
-        </LogList>
+        <>
+          <LogListContainer
+            style={{ height: logSize.h + 'px' }}
+            ref={logListElement}
+          >
+            <LogList>{log}</LogList>
+            <CommandContainer
+              onClick={() => commandInputElement.current.focus()}
+            >
+              <CommandInput
+                ref={commandInputElement}
+                onKeyDown={handleCommandInput}
+              />
+            </CommandContainer>
+          </LogListContainer>
+        </>
       }
     />
   )

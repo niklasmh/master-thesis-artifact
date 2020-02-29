@@ -132,7 +132,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
         }
       } catch (ex) {
-        writeToLogFunction(ex.message.trim(), false, true)
+        writeToLogFunction(ex.message, false, true)
         if (variables === false) {
           return ''
         } else {
@@ -164,7 +164,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
         })
         return output
       } catch (ex) {
-        writeToLogFunction(ex.message.trim(), false, true)
+        writeToLogFunction(ex.message, false, true)
       }
     }
     dispatch({
