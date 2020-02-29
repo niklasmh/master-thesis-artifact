@@ -38,12 +38,19 @@ let currentState = {
   elements: [],
 }
 
+let _time = 0
+let intervalID = 0
+
 function CodeEditor({ code = '', size = {}, ...props }) {
   const {
     resultCanvasSize,
     resultCanvasContext,
     writeToLogFunction,
     isPyodideReady,
+    isPlaying,
+    time,
+    deltaTime,
+    totalTime,
     runCode,
     onLogInput,
   } = useSelector(state => state)
@@ -72,6 +79,10 @@ function CodeEditor({ code = '', size = {}, ...props }) {
   function handleEditorDidMount(_valueGetter) {
     setIsEditorReady(true)
     editor.current = _valueGetter
+    dispatch({
+      type: 'setEditor',
+      editor: editor.current,
+    })
   }
 
   useEffect(() => {
@@ -161,6 +172,8 @@ function CodeEditor({ code = '', size = {}, ...props }) {
         dispatch({
           type: 'setValues',
           values: variables,
+          deltaTime: currentState.dt,
+          totalTime: currentState.t_tot,
         })
         return output
       } catch (ex) {
@@ -173,6 +186,47 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     })
   }, [dispatch, writeToLogFunction, resultCanvasContext])
 
+  useEffect(() => {
+    _time = time
+  }, [time])
+
+  useEffect(() => {
+    if (isPyodideReady) {
+      if (isPlaying && intervalID === null) {
+        intervalID = setInterval(() => {
+          if (_time + deltaTime >= totalTime) {
+            clearInterval(intervalID)
+            intervalID = null
+            dispatch({
+              type: 'setIsPlaying',
+              isPlaying: false,
+            })
+          } else {
+            dispatch({
+              type: 'setTime',
+              time: _time + deltaTime,
+            })
+          }
+        }, deltaTime * 1000)
+      } else if (intervalID !== null) {
+        clearInterval(intervalID)
+        intervalID = null
+      }
+    }
+    return () => {
+      if (intervalID !== null) {
+        clearInterval(intervalID)
+        intervalID = null
+      }
+    }
+  }, [isPlaying, deltaTime, totalTime, isPyodideReady, dispatch])
+
+  useEffect(() => {
+    if (isPyodideReady && time > 0) {
+      if (window.pyodide.globals.loop) runCode(`loop(${time})`, false, time)
+    }
+  }, [time, runCode, isPyodideReady, totalTime])
+
   return (
     <StyledModule
       title="Kode"
@@ -182,7 +236,13 @@ function CodeEditor({ code = '', size = {}, ...props }) {
             <div style={{ flex: '1' }} />
             <Button
               onMouseDown={e => e.stopPropagation()}
-              onClick={() => runCode(editor.current())}
+              onClick={() => {
+                runCode(editor.current())
+                dispatch({
+                  type: 'setTime',
+                  time: 0,
+                })
+              }}
             >
               Kjør koden
             </Button>

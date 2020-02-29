@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import Module from '../../components/Module'
+import Timeline from '../../components/Timeline'
 import { useDispatch, useSelector } from 'react-redux'
 
 const StyledModule = styled(Module)`
@@ -13,6 +14,13 @@ const StyledModule = styled(Module)`
       border-radius: 6px;
     }
   }
+`
+
+const StyledTimeline = styled(Timeline)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  color: #000;
 `
 
 function Result({ ...props }) {
@@ -34,11 +42,14 @@ function Result({ ...props }) {
       title="Resultat"
       {...props}
       content={
-        <canvas
-          ref={canvas}
-          width={resultCanvasSize.w}
-          height={resultCanvasSize.h}
-        />
+        <>
+          <canvas
+            ref={canvas}
+            width={resultCanvasSize.w}
+            height={resultCanvasSize.h}
+          />
+          <StyledTimeline style={{ top: resultCanvasSize.h + 24 + 'px' }} />
+        </>
       }
     />
   )

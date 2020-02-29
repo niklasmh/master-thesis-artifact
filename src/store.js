@@ -1,5 +1,9 @@
 function reducer(
   state = {
+    time: 0,
+    deltaTime: 0.01,
+    totalTime: 0,
+    isPlaying: false,
     resultCanvasContext: null,
     resultCanvasSize: { w: 0, h: 0 },
     goalCanvasContext: null,
@@ -12,10 +16,23 @@ function reducer(
     execAndGetCurrentVariableValues: () => {},
     runCode: () => {},
     onLogInput: () => {},
+    editor: null,
   },
   action
 ) {
   switch (action.type) {
+    case 'setTime':
+      return {
+        ...state,
+        time: action.time,
+        deltaTime: action.deltaTime || state.deltaTime,
+        totalTime: action.totalTime || state.totalTime,
+      }
+    case 'setIsPlaying':
+      return {
+        ...state,
+        isPlaying: action.isPlaying,
+      }
     case 'setResultCanvasContext':
       return {
         ...state,
@@ -48,6 +65,8 @@ function reducer(
       return {
         ...state,
         values: action.values,
+        deltaTime: action.deltaTime || state.deltaTime,
+        totalTime: action.totalTime || state.totalTime,
       }
     case 'setValuesSize':
       return {
@@ -83,6 +102,11 @@ function reducer(
       return {
         ...state,
         onLogInput: action.onLogInput,
+      }
+    case 'setEditor':
+      return {
+        ...state,
+        editor: action.editor,
       }
     default:
       return {
