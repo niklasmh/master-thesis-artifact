@@ -86,30 +86,30 @@ const ModuleContainer = styled(GridLayout)`
 const title = 'Kloss ned skråplan'
 const description =
   'Her skal du simulere en kloss som sklir ned et skråplan uten friksjon.'
-const code = `# Constants
-g = -9.81 # Gravity
-dt = 0.01 # Delta time in seconds
-t_tot = 5 # Total time (-1 is infinite)
+const code = `# Konstanter (som ikke skal endres)
+g = -9.81 # Gravitasjon
+dt = 0.01 # Delta tid i sekunder
+t_tot = 5 # Total tid (-1 er evig)
 
+# Variabler (som skal endres)
 ball = Ball(x=0, y=0)
-ball_red = Ball(x=100, y=0, color='red')
 x, y = 0, 0
 vx, vy = 4, 0
 ax, ay = 0, g
 
 def loop(t):
-  # Make variables writable
+  # Gjøre det mulig å endre disse variablene:
   global x, y, vx, vy
 
-  # Change velocity
+  # Endre hastighet
   vx += ax*dt
   vy += ay*dt
 
-  # Change position
+  # Endre posisjon
   x += vx*dt
   y += vy*dt
 
-  # Set ball position
+  # Sette ballposisjon
   ball.y = y * 100 + ball.y0
   ball.x = x * 100 + ball.x0
 
@@ -121,15 +121,9 @@ def loop(t):
     vx *= -1
 
 def end():
-  print("After", t_tot)
-  print("seconds: y =", y, 1/2*g*t_tot**2)
-  print("Ball y =", ball.y)
-
-blockPrint()
-for __i__ in range(1, 10 + 1):
-  loop(__i__ * dt)
-enablePrint()
-end()
+  print("Etter", t_tot, end=" ")
+  print("sekunder: y =", y, 1/2*g*t_tot**2)
+  print("ball.y =", ball.y)
 `
 const tasks = [
   {
