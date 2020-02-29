@@ -256,7 +256,7 @@ export function createPrintFunction(write) {
       let styledContent = args.map((arg, i) => {
         switch (typeof arg) {
           case 'object':
-            return <span key={i}>JSON.stringify(arg)</span>
+            return <span key={i}>{JSON.stringify(arg)}</span>
           case 'string':
             return (
               <span key={i} style={{ color: '#ce9178' }}>
@@ -270,7 +270,7 @@ export function createPrintFunction(write) {
               </span>
             )
           default:
-            return <span key={i}>arg</span>
+            return <span key={i}>{arg}</span>
         }
       })
       write(content, styledContent)
