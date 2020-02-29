@@ -269,6 +269,8 @@ export function createPrintFunction(write) {
                 {arg}
               </span>
             )
+          case 'function':
+            return <span key={i}>{arg.__str__()}</span>
           default:
             return <span key={i}>{arg}</span>
         }
