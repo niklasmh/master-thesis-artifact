@@ -151,9 +151,9 @@ function CodeEditor({ code = '', size = {}, ...props }) {
         )
         if (resultCanvasContext !== null) {
           currentState = {
-            dt: window.pyodide.globals.dt,
-            t_tot: window.pyodide.globals.t_tot,
-            elements: window.pyodide.globals.__elements__,
+            dt: window.pyodide.globals.dt || 0,
+            t_tot: window.pyodide.globals.t_tot || 0,
+            elements: window.pyodide.globals.__elements__ || [],
           }
           renderToCanvas(resultCanvasContext, currentState)
         }
