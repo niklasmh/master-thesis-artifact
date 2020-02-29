@@ -10,6 +10,7 @@ function reducer(
     isPyodideReady: false,
     writeToLogFunction: () => {},
     execAndGetCurrentVariableValues: () => {},
+    runCode: () => {},
     onLogInput: () => {},
   },
   action
@@ -72,6 +73,11 @@ function reducer(
       return {
         ...state,
         execAndGetCurrentVariableValues: action.function,
+      }
+    case 'setRunCodeFunction':
+      return {
+        ...state,
+        runCode: action.function,
       }
     case 'setOnLogInput':
       return {

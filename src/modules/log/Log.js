@@ -67,11 +67,7 @@ const CommandInput = styled.input`
 `
 
 function Log(props) {
-  const {
-    logSize,
-    isPyodideReady,
-    execAndGetCurrentVariableValues,
-  } = useSelector(state => state)
+  const { logSize, isPyodideReady, runCode } = useSelector(state => state)
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -198,14 +194,14 @@ function Log(props) {
     logListElement.current.scrollTop = logListElement.current.scrollHeight
   }, [log, logListElement])
 
-  function handleCommandInput(e) {
+  async function handleCommandInput(e) {
     if (isPyodideReady) {
       if (e.keyCode === 13) {
         e.preventDefault()
         const code = e.target.value
         if (code.length) {
           window.pyodide.globals.print(`> ${code}`, {})
-          const output = execAndGetCurrentVariableValues(code, false)
+          const output = await runCode(code, false)
           switch (typeof output) {
             case 'number':
               window.pyodide.globals.print(output, { styleArgs: true })
@@ -215,45 +211,38 @@ function Log(props) {
                 window.pyodide.globals.print(output, { styleArgs: true })
               break
           }
-          const variables = execAndGetCurrentVariableValues()
-          if (variables.length) {
-            dispatch({
-              type: 'setValues',
-              values: variables,
-            })
-          }
           if (history[history.length - 1] !== code) {
             setHistoryPointer(history.length + 1)
             setHistory(history => [...history, code])
           } else {
             setHistoryPointer(history.length)
           }
-          e.target.value = ''
+          commandInputElement.current.value = ''
           setCurrentCommand('')
         }
       } else if (e.keyCode === 38) {
         e.preventDefault()
         if (historyPointer === history.length) {
-          setCurrentCommand(e.target.value)
+          setCurrentCommand(commandInputElement.current.value)
         }
         if (historyPointer - 1 >= 0) {
-          e.target.value = history[historyPointer - 1]
+          commandInputElement.current.value = history[historyPointer - 1]
           setHistoryPointer(historyPointer - 1)
         } else {
-          e.target.value = history[0] || ''
+          commandInputElement.current.value = history[0] || ''
           setHistoryPointer(0)
         }
       } else if (e.keyCode === 40) {
         e.preventDefault()
         if (historyPointer + 1 < history.length) {
-          e.target.value = history[historyPointer + 1]
+          commandInputElement.current.value = history[historyPointer + 1]
           setHistoryPointer(historyPointer + 1)
         } else {
-          e.target.value = currentCommand
+          commandInputElement.current.value = currentCommand
           setHistoryPointer(history.length)
         }
       } else if (historyPointer === history.length) {
-        setCurrentCommand(e.target.value)
+        setCurrentCommand(commandInputElement.current.value)
       }
     }
   }

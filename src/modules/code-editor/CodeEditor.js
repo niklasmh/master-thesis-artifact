@@ -44,7 +44,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     resultCanvasContext,
     writeToLogFunction,
     isPyodideReady,
-    execAndGetCurrentVariableValues,
+    runCode,
     onLogInput,
   } = useSelector(state => state)
   const dispatch = useDispatch()
@@ -59,7 +59,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       const [cx, cy] = [ctx.canvas.width / 2, ctx.canvas.height / 2]
       ctx.drawCircle = self => {
         ctx.beginPath()
-        ctx.arc(self.x + cx, self.y + cy, self.r, 0, 2 * Math.PI, false)
+        ctx.arc(cx + self.x, cy - self.y, self.r, 0, 2 * Math.PI, false)
         ctx.fillStyle = self.color || '#0aa'
         ctx.fill()
       }
@@ -67,27 +67,6 @@ function CodeEditor({ code = '', size = {}, ...props }) {
         result.elements.forEach(element => element.render(ctx))
       }
     }
-  }
-
-  function runCode(value) {
-    window.pyodide
-      .runPythonAsync(preDefinedElements + value)
-      .then(() => {
-        if (resultCanvasContext !== null) {
-          currentState = {
-            dt: window.pyodide.globals.dt,
-            t_tot: window.pyodide.globals.t_tot,
-            elements: window.pyodide.globals.__elements__,
-          }
-          renderToCanvas(resultCanvasContext, currentState)
-        }
-        const variables = execAndGetCurrentVariableValues()
-        dispatch({
-          type: 'setValues',
-          values: variables,
-        })
-      })
-      .catch(ex => writeToLogFunction(ex.message.trim(), false, true))
   }
 
   function handleEditorDidMount(_valueGetter) {
@@ -165,7 +144,34 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       type: 'setExecFunction',
       function: execAndGetCurrentVariableValues,
     })
-  }, [dispatch, writeToLogFunction])
+    async function runCode(value, withPredefinitions = true) {
+      try {
+        const output = await window.pyodide.runPythonAsync(
+          (withPredefinitions ? preDefinedElements : '') + value
+        )
+        if (resultCanvasContext !== null) {
+          currentState = {
+            dt: window.pyodide.globals.dt,
+            t_tot: window.pyodide.globals.t_tot,
+            elements: window.pyodide.globals.__elements__,
+          }
+          renderToCanvas(resultCanvasContext, currentState)
+        }
+        const variables = execAndGetCurrentVariableValues()
+        dispatch({
+          type: 'setValues',
+          values: variables,
+        })
+        return output
+      } catch (ex) {
+        writeToLogFunction(ex.message.trim(), false, true)
+      }
+    }
+    dispatch({
+      type: 'setRunCodeFunction',
+      function: runCode,
+    })
+  }, [dispatch, writeToLogFunction, resultCanvasContext])
 
   return (
     <StyledModule
