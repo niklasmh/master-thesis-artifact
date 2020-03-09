@@ -63,8 +63,8 @@ const markRangeInEditor = (range, message = '', severity = 3, source = '') => {
     [
       {
         startLineNumber: range[0],
-        endLineNumber: range[1],
-        startColumn: range[2],
+        startColumn: range[1],
+        endLineNumber: range[2],
         endColumn: range[3],
         message,
         severity,
