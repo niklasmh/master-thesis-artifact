@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux'
 
 import CodeEditor from './modules/code-editor/CodeEditor'
 import Result from './modules/result/Result'
-import Goal from './modules/goal/Goal'
+//import Goal from './modules/goal/Goal'
 import Values from './modules/values/Values'
 import Log from './modules/log/Log'
 
@@ -106,13 +106,13 @@ def loop(t):
   ball.x = ball.x + ball.vx*dt
   ball.y = ball.y + ball.vy*dt
 
-  # Sjekke om ball.y er utenfor -1 og 1 
-  if ball.y < -1 or ball.y > 1:
+  # Sjekke om ball.y er utenfor -1.3 og 1.3
+  if ball.y < -1.3 or ball.y > 1.3:
     ball.y -= ball.vy*dt
     ball.vy = -ball.vy
 
-  # Sjekke om ball.x er utenfor -1.9 og 1.9
-  if ball.x < -1.9 or ball.x > 1.9:
+  # Sjekke om ball.x er utenfor -1.2 og 1.2
+  if ball.x < -1.2 or ball.x > 1.2:
     ball.x -= ball.vx*dt
     ball.vx = -ball.vx
 
@@ -177,7 +177,7 @@ function App() {
     {
       i: 'values',
       x: 6,
-      y: 3,
+      y: 0,
       w: 3,
       h: 3,
       minW: 2,
@@ -187,8 +187,8 @@ function App() {
     {
       i: 'log',
       x: 6,
-      y: 0,
-      w: 3,
+      y: 1,
+      w: 6,
       h: 3,
       minW: 2,
       minH: 2,
@@ -309,7 +309,7 @@ function App() {
         >
           <CodeEditor key="code-editor" size={codeEditorSize} code={code} />
           <Result key="result" />
-          <Goal key="goal" />
+          {/*<Goal key="goal" />*/}
           <Values key="values" />
           <Log key="log" />
         </ModuleContainer>
