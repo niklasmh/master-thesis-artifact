@@ -243,7 +243,7 @@ export function createPrintFunction(write) {
         delete kwargs['file']
       }
       if ('sep' in kwargs) {
-        sep = kwargs['sep'] || sep
+        sep = kwargs['sep']
         delete kwargs['sep']
         if (sep !== null) {
           if (typeof sep !== 'string') {
@@ -252,7 +252,7 @@ export function createPrintFunction(write) {
         }
       }
       if ('end' in kwargs) {
-        end = kwargs['end'] || end
+        end = kwargs['end']
         delete kwargs['end']
         if (end !== null) {
           if (typeof end !== 'string') {
