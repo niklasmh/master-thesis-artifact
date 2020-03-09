@@ -247,8 +247,11 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           }
         })
       }
+      if (time + deltaTime > totalTime && window.pyodide.globals.end) {
+        runCode(`end()`, false)
+      }
     }
-  }, [time, runCode, isPyodideReady, totalTime, dispatch])
+  }, [time, deltaTime, totalTime, runCode, isPyodideReady, dispatch])
 
   return (
     <StyledModule

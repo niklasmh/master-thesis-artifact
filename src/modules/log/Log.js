@@ -80,9 +80,14 @@ const CommandInput = styled.input`
 `
 
 function Log(props) {
-  const { logSize, isPyodideReady, runCode, editor } = useSelector(
-    state => state
-  )
+  const {
+    logSize,
+    isPyodideReady,
+    time,
+    isPlaying,
+    runCode,
+    editor,
+  } = useSelector(state => state)
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -223,12 +228,22 @@ function Log(props) {
     logListElement.current.scrollTop = logListElement.current.scrollHeight
   }, [log, logListElement])
 
+  useEffect(() => {
+    if (time === 0 && isPlaying) {
+      setLog([])
+    }
+  }, [time, isPlaying])
+
   async function handleCommandInput(e) {
     if (isPyodideReady) {
       if (e.keyCode === 13) {
         e.preventDefault()
         const code = e.target.value
-        if (code.length) {
+        if (code === 'clear') {
+          setLog([])
+          commandInputElement.current.value = ''
+          setCurrentCommand('')
+        } else if (code.length) {
           window.pyodide.globals.print(`> ${code}`, {})
           const { output = '' } = await runCode(code, false)
           switch (typeof output) {
