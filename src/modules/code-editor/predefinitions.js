@@ -16,6 +16,10 @@ class Ball:
     self.y = 0
     self.x0 = 0
     self.y0 = 0
+    self.vx = 0
+    self.vy = 0
+    self.ax = 0
+    self.ay = 0
     self.r = 50
     self.m = -1
     self.color = "blue"
@@ -28,6 +32,18 @@ class Ball:
       elif k == "y":
         self.y = i
         self.y0 = i
+      if k == "vx":
+        self.vx = i
+        self.vx0 = i
+      elif k == "vy":
+        self.vy = i
+        self.vy0 = i
+      if k == "ax":
+        self.ax = i
+        self.ax0 = i
+      elif k == "ay":
+        self.ay = i
+        self.ay0 = i
       elif k == "r": self.r = i
       elif k == "m": self.m = i if i >= 0 else pi*r**2
       elif k == "color": self.color = i

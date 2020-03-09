@@ -6,8 +6,10 @@ function reducer(
     isPlaying: false,
     resultCanvasContext: null,
     resultCanvasSize: { w: 0, h: 0 },
+    resultCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
     goalCanvasContext: null,
     goalCanvasSize: { w: 0, h: 0 },
+    goalCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
     values: [],
     valuesSize: { w: 0, h: 0 },
     logSize: { w: 0, h: 0 },
@@ -47,6 +49,14 @@ function reducer(
         ...state,
         resultCanvasSize: action.size,
       }
+    case 'setResultCanvasSettings':
+      return {
+        ...state,
+        resultCanvasSettings: {
+          scale: action.scale || state.resultCanvasSettings.scale,
+          position: action.position || state.resultCanvasSettings.position,
+        },
+      }
     case 'setGoalCanvasContext':
       return {
         ...state,
@@ -60,6 +70,14 @@ function reducer(
       return {
         ...state,
         goalCanvasSize: action.size,
+      }
+    case 'setGoalCanvasSettings':
+      return {
+        ...state,
+        goalCanvasSettings: {
+          scale: action.scale || state.goalCanvasSettings.scale,
+          position: action.position || state.goalCanvasSettings.position,
+        },
       }
     case 'setValues':
       return {

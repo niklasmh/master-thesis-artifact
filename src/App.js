@@ -86,44 +86,39 @@ const ModuleContainer = styled(GridLayout)`
 const title = 'Kloss ned skråplan'
 const description =
   'Her skal du simulere en kloss som sklir ned et skråplan uten friksjon.'
-const code = `# Konstanter (som ikke skal endres)
-g = -9.81 # Gravitasjon
-dt = 0.01 # Delta tid i sekunder
+const code = `# Konstanter (som bare settes en gang)
+g = -9.81 # Gravitasjonskonstanten
+dt = 0.01 # Delta tid i sekunder (steg om gangen)
 t_tot = 5 # Total tid (-1 er evig)
 
-# Variabler (som skal endres)
-ball = Ball(x=0, y=0)
-x, y = 0, 0
-vx, vy = 4, 0
-ax, ay = 0, g
+# Variabler (som skal endres flere ganger)
+ball = Ball(x=0, y=0, vx=4, ay=g, r=1)
 
 def loop(t):
-  # Gjøre det mulig å endre disse variablene:
-  global x, y, vx, vy
-
+  """
+  Denne funksjonen kjører en gang per delta tid, dt.
+  """
   # Endre hastighet
-  vx += ax*dt
-  vy += ay*dt
+  ball.vx = ball.vx + ball.ax*dt
+  ball.vy = ball.vy + ball.ay*dt
 
   # Endre posisjon
-  x += vx*dt
-  y += vy*dt
+  ball.x = ball.x + ball.vx*dt
+  ball.y = ball.y + ball.vy*dt
 
-  # Sette ballposisjon
-  ball.y = y * 100 + ball.y0
-  ball.x = x * 100 + ball.x0
+  # Sjekke om ball.y er utenfor -1 og 1 
+  if ball.y < -1 or ball.y > 1:
+    ball.y -= ball.vy*dt
+    ball.vy = -ball.vy
 
-  if ball.y < -100 or ball.y > 100:
-    y -= vy*dt
-    vy = -vy
-  if ball.x < -190 or ball.x > 190:
-    x -= vx*dt
-    vx *= -1
+  # Sjekke om ball.x er utenfor -1.9 og 1.9
+  if ball.x < -1.9 or ball.x > 1.9:
+    ball.x -= ball.vx*dt
+    ball.vx = -ball.vx
 
 def end():
   print("Etter", t_tot, end=" ")
-  print("sekunder: y =", y, 1/2*g*t_tot**2)
-  print("ball.y =", ball.y)
+  print("sekunder: ball.y =", ball.y, 1/2*g*t_tot**2)
 `
 const tasks = [
   {
