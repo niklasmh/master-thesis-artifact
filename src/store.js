@@ -18,7 +18,7 @@ function reducer(
     execAndGetCurrentVariableValues: () => {},
     runCode: () => {},
     onLogInput: () => {},
-    editor: null,
+    editor: { current: null },
   },
   action
 ) {
