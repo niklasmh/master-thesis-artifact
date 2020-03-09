@@ -55,24 +55,32 @@ function Timeline(props) {
   }
 
   function playControlHandler() {
-    if ((time + deltaTime >= totalTime || totalTime < 0) && !isPlaying) {
-      runCode(editor())
-      if (totalTime === 0) {
-        dispatch({
-          type: 'setIsPlaying',
-          isPlaying: true,
-        })
-      }
+    if (!isPlaying && time + deltaTime >= totalTime) {
+      runCode(editor.current())
       dispatch({
         type: 'setTime',
         time: 0,
       })
-    } else {
-      dispatch({
-        type: 'setIsPlaying',
-        isPlaying: !isPlaying,
-      })
     }
+    if (time === 0) {
+      runCode(editor.current())
+    }
+    dispatch({
+      type: 'setIsPlaying',
+      isPlaying: !isPlaying,
+    })
+  }
+
+  function replayControlHandler() {
+    runCode(editor.current())
+    dispatch({
+      type: 'setIsPlaying',
+      isPlaying: false,
+    })
+    dispatch({
+      type: 'setTime',
+      time: 0,
+    })
   }
 
   useMemo(() => {
@@ -84,11 +92,12 @@ function Timeline(props) {
       <PlayControl onClick={playControlHandler}>
         {isPlaying ? (
           <i className="fas fa-pause" />
-        ) : time + deltaTime < totalTime || totalTime <= 0 ? (
-          <i className="fas fa-play" />
         ) : (
-          <i className="fas fa-undo" />
+          <i className="fas fa-play" />
         )}
+      </PlayControl>
+      <PlayControl onClick={replayControlHandler}>
+        <i className="fas fa-undo" />
       </PlayControl>
       <TimelineLine onClick={timelineSelectHandler}>
         <ProgressBar style={{ width: (time / totalTime) * 100 + '%' }} />

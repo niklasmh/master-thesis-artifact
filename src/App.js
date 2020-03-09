@@ -112,7 +112,7 @@ def loop(t):
     ball.vy = -ball.vy
 
   # Sjekke om ball.x er utenfor -1.2 og 1.2
-  if ball.x < -1.2 or ball.x > 1.2:
+  if ball.x < -1.25 or ball.x > 1.25:
     ball.x -= ball.vx*dt
     ball.vx = -ball.vx
 

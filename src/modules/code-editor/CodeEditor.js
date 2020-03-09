@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import Editor from '@monaco-editor/react'
 import styled from 'styled-components'
 import Module from '../../components/Module'
+import { removeMarkRangeInEditor } from '../../utils/translate-error-messages'
 import {
   preDefinedElements,
   preDefinedVars,
@@ -63,10 +64,18 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     if (ctx !== null) {
       ctx.fillStyle = '#ddd'
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      const scale = 50
       const [cx, cy] = [ctx.canvas.width / 2, ctx.canvas.height / 2]
       ctx.drawCircle = self => {
         ctx.beginPath()
-        ctx.arc(cx + self.x, cy - self.y, self.r, 0, 2 * Math.PI, false)
+        ctx.arc(
+          cx + self.x * scale,
+          cy - self.y * scale,
+          self.r * scale,
+          0,
+          2 * Math.PI,
+          false
+        )
         ctx.fillStyle = self.color || '#0aa'
         ctx.fill()
       }
@@ -81,7 +90,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     editor.current = _valueGetter
     dispatch({
       type: 'setEditor',
-      editor: editor.current,
+      editor,
     })
   }
 
@@ -175,9 +184,10 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           deltaTime: currentState.dt,
           totalTime: currentState.t_tot,
         })
-        return output
+        return { output }
       } catch (ex) {
         writeToLogFunction(ex.message, false, true)
+        return { error: true }
       }
     }
     dispatch({
@@ -223,9 +233,22 @@ function CodeEditor({ code = '', size = {}, ...props }) {
 
   useEffect(() => {
     if (isPyodideReady && time > 0) {
-      if (window.pyodide.globals.loop) runCode(`loop(${time})`, false, time)
+      if (window.pyodide.globals.loop) {
+        runCode(`loop(${time})`, false).then(({ error = '' }) => {
+          if (error) {
+            dispatch({
+              type: 'setIsPlaying',
+              isPlaying: false,
+            })
+            dispatch({
+              type: 'setTime',
+              time: 0,
+            })
+          }
+        })
+      }
     }
-  }, [time, runCode, isPyodideReady, totalTime])
+  }, [time, runCode, isPyodideReady, totalTime, dispatch])
 
   return (
     <StyledModule
@@ -237,7 +260,8 @@ function CodeEditor({ code = '', size = {}, ...props }) {
             <Button
               onMouseDown={e => e.stopPropagation()}
               onClick={() => {
-                runCode(editor.current())
+                runCode(editor.current() + '\nprint("Koden kjørte uten feil.")')
+                removeMarkRangeInEditor()
                 dispatch({
                   type: 'setTime',
                   time: 0,
@@ -262,6 +286,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           language="python"
           theme="vs-dark"
           value={code}
+          options={{ renderWhitespace: 'boundary' }}
           editorDidMount={handleEditorDidMount}
         />
       }

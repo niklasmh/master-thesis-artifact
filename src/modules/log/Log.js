@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import Module from '../../components/Module'
+import { preDefinedElementsLineCount } from '../code-editor/predefinitions'
+import { translatePythonException } from '../../utils/translate-error-messages'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -38,12 +40,15 @@ const LogMessage = styled.div`
 const WarningMessage = styled(LogMessage)`
   color: orange;
   background-color: #f801;
-  display: inline-block;
+  display: block;
+  padding: 3px 7px;
+  border-radius: 3px;
+  margin: 5px 0;
+  box-shadow: inset 0 0 2px red;
 `
-const ErrorMessage = styled(LogMessage)`
+const ErrorMessage = styled(WarningMessage)`
   color: red;
   background-color: #f001;
-  display: inline-block;
 `
 const InputMessage = styled(LogMessage)`
   color: orange;
@@ -75,7 +80,9 @@ const CommandInput = styled.input`
 `
 
 function Log(props) {
-  const { logSize, isPyodideReady, runCode } = useSelector(state => state)
+  const { logSize, isPyodideReady, runCode, editor } = useSelector(
+    state => state
+  )
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -106,7 +113,21 @@ function Log(props) {
       if (styledMessage !== false) {
         setLog(log => [
           ...log,
-          <MessageType key={log.length}>{styledMessage}</MessageType>,
+          <MessageType key={log.length}>
+            {styledMessage}
+            {'\n'}
+          </MessageType>,
+        ])
+      } else if (error) {
+        setLog(log => [
+          ...log,
+          <MessageType key={log.length}>
+            {translatePythonException(
+              message,
+              preDefinedElementsLineCount - 1,
+              editor.current()
+            )}
+          </MessageType>,
         ])
       } else {
         setLog(log => [
@@ -196,7 +217,7 @@ function Log(props) {
       logToDisplay(args, 'error')
     })
     /**/
-  }, [dispatch, commandInputElement])
+  }, [dispatch, commandInputElement, editor])
 
   useEffect(() => {
     logListElement.current.scrollTop = logListElement.current.scrollHeight
@@ -209,7 +230,7 @@ function Log(props) {
         const code = e.target.value
         if (code.length) {
           window.pyodide.globals.print(`> ${code}`, {})
-          const output = await runCode(code, false)
+          const { output = '' } = await runCode(code, false)
           switch (typeof output) {
             case 'number':
               window.pyodide.globals.print(output, { styleArgs: true })

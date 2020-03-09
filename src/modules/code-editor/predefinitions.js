@@ -54,6 +54,7 @@ class Ball:
     if self.drawforces:
         ctx.drawForces(self)
 `
+export const preDefinedElementsLineCount = preDefinedElements.split('\n').length
 
 export const preDefinedVars = [
   '__name__',
