@@ -102,7 +102,7 @@ const getncode = (
       lines.push(code(i + line))
     }
   }
-  return around + lines.join('\n').trim() + around
+  return around + lines.join('\n').replace(/^\n+|\n+$/g, '') + around
 }
 
 //const ifgt = (value, ifstr, elsestr = '', cond = 0) => value > cond ? ifstr : elsestr
@@ -176,7 +176,26 @@ export const exceptions = {
         .slice(-2)
         .join('\n')}`
     ),
-  //IndentationError: (message, line, prev, code) => message,
+  IndentationError: (message, line, prev, code) => {
+    if (message === 'unindent does not match any outer indentation level') {
+      return `Du har enten for få eller for mange innrykk:${ifline(
+        '',
+        line,
+        getncode(code, line, 2, { postLine: ' <-- Linje ' + line }),
+        '',
+        false
+      )}`
+    } else if (message === 'unexpected indent') {
+      return `For mange innrykk:${ifline(
+        '',
+        line,
+        getncode(code, line, 2, { postLine: ' <-- Linje ' + line }),
+        '',
+        false
+      )}`
+    }
+    return message
+  },
   TabError: (message, line, prev, code) => message,
   //},
   //},
