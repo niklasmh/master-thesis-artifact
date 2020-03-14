@@ -55,6 +55,10 @@ class Ball:
         ctx.drawForces(self)
 `
 export const preDefinedElementsLineCount = preDefinedElements.split('\n').length
+export const classTypes = preDefinedElements
+  .split('\n')
+  .filter(e => e.indexOf('class') === 0)
+  .map(c => c.replace(/class ([A-Za-z]+).*/, '$1'))
 
 export const preDefinedVars = [
   '__name__',

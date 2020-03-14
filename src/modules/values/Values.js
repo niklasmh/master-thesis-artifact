@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import Module from '../../components/Module'
+import { classTypes } from '../code-editor/predefinitions'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -41,6 +42,14 @@ const Variable = styled.div`
   }
 `
 
+const SubVariable = styled.div`
+  margin-left: 2em;
+
+  :not(:last-of-type)::after {
+    content: ', ';
+  }
+`
+
 const Key = styled.span``
 
 const Sign = styled.span``
@@ -53,8 +62,24 @@ const StringValue = styled(Value)`
   color: #ce9178;
 `
 
+const ObjectValue = styled(Value)`
+  color: #888;
+`
+
+const Viz = styled.span`
+  color: #ddd;
+`
+
 const Button = styled.button`
   background: #800;
+`
+
+const Figure = styled.span`
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  background-color: white;
+  vertical-align: middle;
 `
 
 function Values(props) {
@@ -94,23 +119,75 @@ function Values(props) {
       content={
         <ValueList style={{ height: valuesSize.h + 'px' }}>
           {values.map(([key, value]) => {
-            if (typeof value === 'string') {
-              return (
-                <Variable key={key}>
-                  <RemoveButton onClick={() => clearValue(key)} />{' '}
-                  <Key>{key}</Key> <Sign>=</Sign>{' '}
-                  <StringValue>"{value}"</StringValue>
-                  {'\n'}
-                </Variable>
-              )
+            switch (typeof value) {
+              case 'string':
+                return (
+                  <Variable key={key}>
+                    <RemoveButton onClick={() => clearValue(key)} />{' '}
+                    <Key>{key}</Key> <Sign>=</Sign>{' '}
+                    <StringValue>"{value}"</StringValue>
+                    {'\n'}
+                  </Variable>
+                )
+              case 'number':
+                return (
+                  <Variable key={key}>
+                    <RemoveButton onClick={() => clearValue(key)} />{' '}
+                    <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
+                    {'\n'}
+                  </Variable>
+                )
+              case 'function':
+                if (classTypes.includes(value.type)) {
+                  const args = ['vx', 'vy', 'ax', 'ay', 'r', 'w', 'h']
+                    .filter(arg => value[arg])
+                    .map(arg => (
+                      <SubVariable key={arg}>
+                        <Key>{arg}</Key>
+                        <Sign>=</Sign>
+                        <Value>{value[arg].toFixed(2)}</Value>
+                      </SubVariable>
+                    ))
+                  let figure = null
+                  if (value.type === 'Ball') {
+                    figure = (
+                      <Figure
+                        title={value.color}
+                        style={{
+                          borderRadius: '50%',
+                          backgroundColor: value.color,
+                        }}
+                      />
+                    )
+                  }
+                  return (
+                    <Variable key={key}>
+                      <RemoveButton onClick={() => clearValue(key)} />{' '}
+                      <Key>{key}</Key> <Sign>=</Sign>{' '}
+                      <ObjectValue>
+                        {figure} <Viz>Ball(</Viz>
+                        <SubVariable>
+                          <Key>x</Key>
+                          <Sign>=</Sign>
+                          <Value>{value.x.toFixed(2)}</Value>
+                        </SubVariable>
+                        <SubVariable>
+                          <Key>y</Key>
+                          <Sign>=</Sign>
+                          <Value>{value.y.toFixed(2)}</Value>
+                        </SubVariable>
+                        {args}
+                        <Viz style={{ marginLeft: '1em' }}>)</Viz>
+                      </ObjectValue>
+                      {'\n'}
+                    </Variable>
+                  )
+                }
+                break
+              default:
+                break
             }
-            return (
-              <Variable key={key}>
-                <RemoveButton onClick={() => clearValue(key)} />{' '}
-                <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
-                {'\n'}
-              </Variable>
-            )
+            return null
           })}
           {values.length > 0 ? (
             <Button onClick={clearValues}>Fjern verdier</Button>

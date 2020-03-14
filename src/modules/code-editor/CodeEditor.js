@@ -9,6 +9,7 @@ import {
   preDefinedVars,
   createPrintFunction,
   createOnLogInputFunction,
+  classTypes,
 } from './predefinitions'
 
 const StyledModule = styled(Module)`
@@ -136,7 +137,12 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           return Object.keys(window.pyodide.runPython(runBefore + '\nvars()'))
             .filter(k => preDefinedVars.indexOf(k) === -1)
             .map(k => [k, window.pyodide.globals[k]])
-            .filter(k => typeof k[1] === 'string' || typeof k[1] === 'number')
+            .filter(
+              k =>
+                typeof k[1] === 'string' ||
+                typeof k[1] === 'number' ||
+                classTypes.includes(k[1].type)
+            )
           //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
         } else if (variables === false) {
           return window.pyodide.runPython(runBefore)
