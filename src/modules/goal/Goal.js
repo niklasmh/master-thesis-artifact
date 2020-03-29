@@ -18,7 +18,7 @@ const StyledModule = styled(Module)`
 function Goal({ ...props }) {
   const canvas = useRef(null)
   const dispatch = useDispatch()
-  const { goalCanvasSize } = useSelector(state => state)
+  const { goalCanvasSize } = useSelector(state => state.task)
 
   useEffect(() => {
     if (canvas.current !== null) {

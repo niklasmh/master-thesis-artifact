@@ -87,7 +87,7 @@ function Log(props) {
     isPlaying,
     runCode,
     editor,
-  } = useSelector(state => state)
+  } = useSelector(state => state.task)
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -225,7 +225,9 @@ function Log(props) {
   }, [dispatch, commandInputElement, editor])
 
   useEffect(() => {
-    logListElement.current.scrollTop = logListElement.current.scrollHeight
+    if (logListElement.current) {
+      logListElement.current.scrollTop = logListElement.current.scrollHeight
+    }
   }, [log, logListElement])
 
   useEffect(() => {
@@ -307,13 +309,12 @@ function Log(props) {
           </span>
         </>
       }
+      height={logSize.h + 'px'}
+      width={logSize.w + 'px'}
       {...props}
       content={
         <>
-          <LogListContainer
-            style={{ height: logSize.h + 'px' }}
-            ref={logListElement}
-          >
+          <LogListContainer ref={logListElement}>
             <LogList>{log}</LogList>
             <CommandContainer
               onClick={() => commandInputElement.current.focus()}

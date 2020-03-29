@@ -83,7 +83,7 @@ const Figure = styled.span`
 `
 
 function Values(props) {
-  const { values, valuesSize } = useSelector(state => state)
+  const { values, valuesSize } = useSelector(state => state.task)
   const dispatch = useDispatch()
 
   function clearValues() {
@@ -115,9 +115,11 @@ function Values(props) {
   return (
     <StyledModule
       title="Verdier"
+      height={valuesSize.h + 'px'}
+      width={valuesSize.w + 'px'}
       {...props}
       content={
-        <ValueList style={{ height: valuesSize.h + 'px' }}>
+        <ValueList style={{}}>
           {values.map(([key, value]) => {
             switch (typeof value) {
               case 'string':

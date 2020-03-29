@@ -1,4 +1,38 @@
-function reducer(
+import { combineReducers } from 'redux'
+
+export function user(
+  state = {
+    user: null,
+    userData: null,
+    uid: '',
+  },
+  action
+) {
+  switch (action.type) {
+    case 'setUser':
+      return {
+        ...state,
+        user: action.user,
+        uid: action.user ? action.user.uid : '',
+      }
+    case 'setUserData':
+      return {
+        ...state,
+        userData: action.user,
+      }
+    case 'setUid':
+      return {
+        ...state,
+        uid: action.uid,
+      }
+    default:
+      return {
+        ...state,
+      }
+  }
+}
+
+export function task(
   state = {
     time: 0,
     deltaTime: 0.01,
@@ -80,6 +114,7 @@ function reducer(
         },
       }
     case 'setValues':
+      window.values = action.values
       return {
         ...state,
         values: action.values,
@@ -133,4 +168,7 @@ function reducer(
   }
 }
 
-export default reducer
+export default combineReducers({
+  user,
+  task,
+})

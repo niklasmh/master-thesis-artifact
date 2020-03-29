@@ -48,7 +48,7 @@ function Timeline(props) {
     isPlaying,
     runCode,
     editor,
-  } = useSelector(state => state)
+  } = useSelector(state => state.task)
 
   function timelineSelectHandler(e) {
     //dispatch({ type: 'setTime', time: time + deltaTime })

@@ -43,7 +43,15 @@ let currentState = {
 let _time = 0
 let intervalID = 0
 
-function CodeEditor({ code = '', size = {}, ...props }) {
+function CodeEditor({
+  code = '',
+  size = {},
+  tests = [],
+  testsFeedback = () => {},
+  currentTest = 0,
+  nextTest = () => {},
+  ...props
+}) {
   const {
     resultCanvasSize,
     resultCanvasContext,
@@ -55,11 +63,12 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     totalTime,
     runCode,
     onLogInput,
-  } = useSelector(state => state)
+  } = useSelector(state => state.task)
   const dispatch = useDispatch()
   const prevResultSize = useRef({ w: 0, h: 0 })
   const editor = useRef(null)
   const [isEditorReady, setIsEditorReady] = useState(false)
+  const [ourCurrentTest, setOurCurrentTest] = useState(currentTest)
 
   function renderToCanvas(ctx, result) {
     if (ctx !== null) {
@@ -170,7 +179,11 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       type: 'setExecFunction',
       function: execAndGetCurrentVariableValues,
     })
-    async function runCode(value, withPredefinitions = true) {
+    async function runCode(
+      value,
+      withPredefinitions = true,
+      updateVariables = true
+    ) {
       try {
         const output = await window.pyodide.runPythonAsync(
           (withPredefinitions ? preDefinedElements : '') + value
@@ -183,13 +196,15 @@ function CodeEditor({ code = '', size = {}, ...props }) {
           }
           renderToCanvas(resultCanvasContext, currentState)
         }
-        const variables = execAndGetCurrentVariableValues()
-        dispatch({
-          type: 'setValues',
-          values: variables,
-          deltaTime: currentState.dt,
-          totalTime: currentState.t_tot,
-        })
+        if (updateVariables) {
+          const variables = execAndGetCurrentVariableValues()
+          dispatch({
+            type: 'setValues',
+            values: variables,
+            deltaTime: currentState.dt,
+            totalTime: currentState.t_tot,
+          })
+        }
         return { output }
       } catch (ex) {
         writeToLogFunction(ex.message, false, true)
@@ -259,17 +274,104 @@ function CodeEditor({ code = '', size = {}, ...props }) {
     }
   }, [time, deltaTime, totalTime, runCode, isPyodideReady, dispatch])
 
+  const prevTest = useRef(currentTest)
+  useEffect(() => {
+    if (
+      isEditorReady &&
+      isPyodideReady &&
+      prevTest.current !== ourCurrentTest
+    ) {
+      prevTest.current = ourCurrentTest
+      if (window.values) {
+        window.values.forEach(([key, _]) => {
+          try {
+            if (typeof window.pyodide.globals[key] !== 'undefined') {
+              delete window.pyodide.globals[key]
+            }
+          } catch (ex) {}
+        })
+        dispatch({
+          type: 'setValues',
+          values: [],
+        })
+      }
+      async function runTests() {
+        try {
+          window.pyodide.runPython(preDefinedElements + editor.current())
+          let failed = false
+          for (let i = 0; i < ourCurrentTest && i < tests.length; i++) {
+            if (failed) {
+              testsFeedback(i, undefined)
+            } else {
+              const test = tests[i]
+              try {
+                const { error = false, output = '' } = await runCode(
+                  test,
+                  false
+                )
+                if (error) {
+                  testsFeedback(i, false)
+                  failed = true
+                }
+                if (output === true) {
+                  testsFeedback(i, true)
+                  if (ourCurrentTest === i)
+                    window.pyodide.globals.print(`Du klarte steg ${i + 1}!`, {})
+                } else {
+                  testsFeedback(i, false)
+                  window.pyodide.globals.print(
+                    `Noe mangler på steg ${i + 1}.`,
+                    {}
+                  )
+                  failed = true
+                }
+              } catch (ex) {
+                writeToLogFunction(ex.message, false, true)
+                testsFeedback(i, false)
+                failed = true
+              }
+              if (failed) {
+                nextTest(i - 1)
+                setOurCurrentTest(i)
+              }
+            }
+          }
+        } catch (ex) {
+          writeToLogFunction(ex.message, false, true)
+        }
+        removeMarkRangeInEditor()
+      }
+      runTests()
+    }
+  }, [
+    tests,
+    isEditorReady,
+    isPyodideReady,
+    ourCurrentTest,
+    writeToLogFunction,
+    testsFeedback,
+    nextTest,
+    runCode,
+    dispatch,
+  ])
+
   return (
     <StyledModule
       title="Kode"
+      width={size.w + 'px'}
+      height={size.h + 'px'}
       before={
         isEditorReady && isPyodideReady ? (
           <>
             <div style={{ flex: '1' }} />
             <Button
               onMouseDown={e => e.stopPropagation()}
-              onClick={() => {
-                runCode(editor.current() + '\nprint("Koden kjørte uten feil.")')
+              onClick={async () => {
+                await runCode(
+                  editor.current() + '\nprint("Koden kjørte uten feil.")'
+                )
+                nextTest(ourCurrentTest)
+                setOurCurrentTest(ourCurrentTest + 1)
                 removeMarkRangeInEditor()
                 dispatch({
                   type: 'setTime',
@@ -290,7 +392,7 @@ function CodeEditor({ code = '', size = {}, ...props }) {
       {...props}
       content={
         <Editor
-          width="100%"
+          width={size.w + 'px'}
           height={size.h + 'px'}
           language="python"
           theme="vs-dark"

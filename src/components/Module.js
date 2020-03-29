@@ -1,15 +1,33 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const ModuleContainer = styled.div`
   cursor: move;
   touch-action: none;
+  position: relative;
+
+  ${props =>
+    props.isClosed
+      ? css`
+          background: #0002;
+          cursor: default;
+          border-radius: 6px;
+          padding: 0 14px;
+          padding-right: 100px;
+          display: flex;
+          margin: 1em;
+
+          button {
+            margin-top: 10px;
+          }
+        `
+      : ''}
 `
 
 const Title = styled.h1`
   font-size: 1.3em;
   font-weight: normal;
-  margin-bottom: 0.5em;
+  margin: 0.5em 0;
 `
 
 const ModuleContent = styled.div`
@@ -35,26 +53,58 @@ const BottomElement = styled(TopElement)`
   top: 100%;
 `
 
+const Close = styled.button`
+  color: red;
+  margin-left: auto;
+`
+
+const Open = styled.button`
+  color: lime;
+  margin-left: auto;
+`
+
 function Module({
   title,
   children,
   content = null,
   before = null,
   after = null,
+  width = 'auto',
+  height = 'auto',
+  isClosed = false,
+  canClose = false,
+  onClose = () => {},
+  canOpen = false,
+  onOpen = () => {},
   ...props
 }) {
   return (
-    <ModuleContainer {...props}>
+    <ModuleContainer
+      {...props}
+      isClosed={isClosed}
+      className={`widget-number ${props.className}`}
+    >
       <Title>{title}</Title>
-      {before ? <TopElement>{before}</TopElement> : null}
-      <ModuleContent
-        className="module-content"
-        onMouseDown={e => e.stopPropagation()}
-      >
-        {content}
-      </ModuleContent>
-      {after ? <BottomElement>{after}</BottomElement> : null}
-      {children}
+      {before || canClose || canOpen ? (
+        <TopElement>
+          {before}
+          {canClose ? <Close onClick={onClose}>Fjern</Close> : null}
+          {canOpen ? <Open onClick={onOpen}>Legg til</Open> : null}
+        </TopElement>
+      ) : null}
+      {isClosed ? null : (
+        <>
+          <ModuleContent
+            className="module-content"
+            style={{ height, width }}
+            onMouseDown={e => e.stopPropagation()}
+          >
+            {content}
+          </ModuleContent>
+          {after ? <BottomElement>{after}</BottomElement> : null}
+          {children}
+        </>
+      )}
     </ModuleContainer>
   )
 }

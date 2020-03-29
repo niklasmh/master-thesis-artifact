@@ -26,7 +26,7 @@ const StyledTimeline = styled(Timeline)`
 function Result({ ...props }) {
   const canvas = useRef(null)
   const dispatch = useDispatch()
-  const { resultCanvasSize } = useSelector(state => state)
+  const { resultCanvasSize } = useSelector(state => state.task)
 
   useEffect(() => {
     if (canvas.current !== null) {
@@ -40,6 +40,8 @@ function Result({ ...props }) {
   return (
     <StyledModule
       title="Resultat"
+      height={resultCanvasSize.h + 'px'}
+      width={resultCanvasSize.w + 'px'}
       {...props}
       content={
         <>
