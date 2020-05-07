@@ -54,10 +54,14 @@ const GlobalStyle = createGlobalStyle`
     color: #ddd;
   }
 
-  button {
+  button, .button {
+    font-size: 13px;
+    text-decoration: none;
     appearance: none;
     background-color: #222;
+    box-sizing: border-box;
     box-shadow: 0 0 8px #0004;
+    line-height: 15px;
     color: white;
     padding: 0.5em 1em;
     margin: 1em;
@@ -78,7 +82,7 @@ const AppContainer = styled.div`
 
 function App() {
   const [user, loading] = useAuthState(firebase.auth())
-  const { uid } = useSelector(state => state.user)
+  const { uid } = useSelector((state) => state.user)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -89,7 +93,7 @@ function App() {
         .collection('users')
         .doc(user.uid)
         .get()
-        .then(doc => {
+        .then((doc) => {
           if (doc.exists) {
             dispatch({ type: 'setUserData', user: doc.data() })
           } else {
@@ -113,19 +117,16 @@ function App() {
           <Router>
             <Header />
             <Switch>
-              <Route exact path="/" component={uid ? HomePage : LandingPage} />
+              <Route exact path="/" component={LandingPage} />
               <Route
                 path="/profil"
                 component={uid ? ProfilePage : LandingPage}
               />
-              <Route
-                path="/oppgave/:id"
-                component={uid ? TasksPage : LandingPage}
-              />
+              <Route path="/oppgave/:id" component={TasksPage} />
               <Route
                 exact
                 path="/klasse/:pin/oppgave"
-                render={props => (
+                render={(props) => (
                   <Redirect to={`/klasse/${props.match.params.pin}`} />
                 )}
               />

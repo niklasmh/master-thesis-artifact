@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import Card from './Card'
 import { Paragraph } from './Typography'
 
-export default function TaskList({ pin, taskIDs }) {
+export default function TaskList({ taskIDs }) {
   const [tasks, loadingTasks, error] = useCollectionData(
     firebase
       .firestore()
@@ -23,8 +23,8 @@ export default function TaskList({ pin, taskIDs }) {
       {loadingTasks ? (
         <span>Laster inn opplegg ...</span>
       ) : error ? null : (
-        tasks.map(c => (
-          <Task key={c.title} pin={pin} id={c.id} name={c.title} />
+        tasks.map((c) => (
+          <Task key={c.title} image={c.image || ''} id={c.id} name={c.title} />
         ))
       )}
     </StyledTaskList>
@@ -42,7 +42,6 @@ const StyledTaskList = styled.div`
 const TaskName = styled(Paragraph)`
   margin: 0;
   text-align: left;
-  word-break: break-all;
   hyphens: manual;
   align-self: flex-start;
   font-size: 1.5em;
@@ -60,25 +59,54 @@ const TaskOpen = styled(Link)`
   align-self: flex-end;
   color: #fff;
   text-decoration: none;
+  text-align: right;
 `
 
 const Space = styled.div`
   flex: 1 0 auto;
+  width: 100%;
+`
+
+const DarkArea = styled.div`
+  background-color: #0005;
+  padding: 1em;
+  width: 100%;
 `
 
 const StyledTask = styled(Card)`
   margin: 3em 2em;
   min-height: 220px;
   width: 320px;
+  padding: 0;
+  overflow: hidden;
+  background-image: ${(props) => `url(${props.image})`};
+  background-size: cover;
+  background-position: center center;
 `
 
-function Task({ name, id, pin, studentCount = 0, taskCount = 0 }) {
+const LinkContainer = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  width: 100%;
+  text-decoration: none;
+
+  :hover {
+    text-decoration: underline;
+    color: inherit;
+  }
+`
+
+function Task({ name, id, image, studentCount = 0, taskCount = 0 }) {
   return (
-    <StyledTask>
-      <TaskName>{name}</TaskName>
-      <Space />
-      <TaskProgress>55% har fullført</TaskProgress>
-      <TaskOpen to={`/klasse/${pin}/oppgave/${id}`}>Åpne opplegg</TaskOpen>
+    <StyledTask image={image}>
+      <LinkContainer to={`/oppgave/${id}`}>
+        <Space />
+        <DarkArea>
+          <TaskName>{name}</TaskName>
+          {false ? <TaskProgress>55% har fullført</TaskProgress> : null}
+        </DarkArea>
+      </LinkContainer>
     </StyledTask>
   )
 }

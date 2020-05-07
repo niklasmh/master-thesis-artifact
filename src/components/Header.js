@@ -37,11 +37,11 @@ const Breadcrumb = styled.p`
 `
 
 export default function Header() {
-  const { user } = useSelector(state => state.user)
+  const { user } = useSelector((state) => state.user)
   const location = useLocation()
   const [breadcrumb, setBreadcrumb] = useState([])
 
-  const firstLetterToUpper = str => {
+  const firstLetterToUpper = (str) => {
     const [firstLetter, ...rest] = str.split('')
     return firstLetter.toUpperCase() + rest.join('')
   }
@@ -55,8 +55,8 @@ export default function Header() {
         </Link>,
         ...location.pathname
           .split('/')
-          .filter(path => path)
-          .map(path => {
+          .filter((path) => path)
+          .map((path) => {
             paths.push(path)
             return (
               <React.Fragment key={path}>
@@ -78,17 +78,26 @@ export default function Header() {
     firebase.auth().signOut()
   }
 
-  if (!user) {
-    return null
-  }
-
   return (
     <Container>
       <Breadcrumb>{breadcrumb}</Breadcrumb>
-      <Paragraph>
-        Du er logget inn som: {user.displayName || user.email}
-      </Paragraph>{' '}
-      <button onClick={logout}>Logg ut</button>
+      {user ? (
+        <Paragraph>
+          Du er logget inn som: {user.displayName || user.email}
+        </Paragraph>
+      ) : null}
+      {(location.pathname || '').indexOf('/create') !== 0 ? (
+        <Link className="button" to="/create">
+          + Lag ny oppgave
+        </Link>
+      ) : null}
+      {user ? (
+        <button onClick={logout}>Logg ut</button>
+      ) : (
+        <Link className="button" to="/login">
+          Logg inn
+        </Link>
+      )}
     </Container>
   )
 }

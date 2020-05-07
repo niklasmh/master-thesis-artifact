@@ -1,24 +1,36 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import * as firebase from 'firebase/app'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
+
+import { Title, SubTitle } from '../components/Typography'
+import TaskList from '../components/TaskList'
+import StudentList from '../components/StudentList'
 
 const Container = styled.div`
   display: flex;
   flex: 1 0 auto;
+  width: 100%;
+  box-sizing: border-box;
   flex-flow: column nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 `
-const PinField = styled.input.attrs({ type: 'text', placeholder: 'PIN...' })`
-  text-transform: uppercase;
-`
-const IAmTeacher = styled(Link).attrs({ to: '/login' })``
 
-export default function LandingPage() {
+export default function LoadingPage() {
+  const [popular, loadingPopular] = useDocumentData(
+    firebase.firestore().collection('community').doc('popular')
+  )
+
   return (
     <Container>
-      <PinField />
-      <IAmTeacher>Jeg er lærer</IAmTeacher>
+      <Title>Programmeringsoppgaver for fysikk på videregående</Title>
+      <SubTitle alignSelf="flex-start">
+        {loadingPopular ? 'Laster ...' : popular.title}
+      </SubTitle>
+      {loadingPopular ? null : popular.tasks.length ? (
+        <TaskList taskIDs={popular.tasks.map((task) => task.id)} />
+      ) : null}
     </Container>
   )
 }
