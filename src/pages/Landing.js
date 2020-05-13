@@ -5,6 +5,7 @@ import { useDocumentData } from 'react-firebase-hooks/firestore'
 
 import { Title, SubTitle } from '../components/Typography'
 import TaskList from '../components/TaskList'
+// eslint-disable-next-line
 import StudentList from '../components/StudentList'
 
 const Container = styled.div`

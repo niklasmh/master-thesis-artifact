@@ -1,10 +1,38 @@
 import { combineReducers } from 'redux'
 
+export const getLocalStorage = (key, defaultValue) => {
+  try {
+    return window.localStorage.getItem(key)
+  } catch (ex) {
+    return defaultValue
+  }
+}
+
+export const setLocalStorage = (key, value) => {
+  try {
+    window.localStorage.setItem(key, value)
+    return true
+  } catch (ex) {
+    return false
+  }
+}
+
+const setTheme = (theme) => {
+  document.documentElement.style.setProperty(
+    '--background-color',
+    theme === 'dark' ? '#626262' : '#ddd'
+  )
+}
+
+const theme = getLocalStorage('theme', 'dark')
+setTheme(theme)
+
 export function user(
   state = {
     user: null,
     userData: null,
     uid: '',
+    theme,
   },
   action
 ) {
@@ -24,6 +52,13 @@ export function user(
       return {
         ...state,
         uid: action.uid,
+      }
+    case 'setTheme':
+      setLocalStorage('theme', action.theme)
+      setTheme(action.theme)
+      return {
+        ...state,
+        theme: action.theme,
       }
     default:
       return {
@@ -47,7 +82,7 @@ export function task(
     values: [],
     valuesSize: { w: 0, h: 0 },
     logSize: { w: 0, h: 0 },
-    isPyodideReady: false,
+    isEngineReady: false,
     writeToLogFunction: () => {},
     execAndGetCurrentVariableValues: () => {},
     runCode: () => {},
@@ -136,10 +171,11 @@ export function task(
         ...state,
         writeToLogFunction: action.writeToLogFunction,
       }
-    case 'setIsPyodideReady':
+    case 'setIsEngineReady':
       return {
         ...state,
-        isPyodideReady: action.isReady,
+        isEngineReady: action.isReady,
+        ...(!!action.runCode && { runCode: action.runCode }),
       }
     case 'setExecFunction':
       return {

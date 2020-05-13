@@ -19,6 +19,8 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 
 import Header from './components/Header'
 import ClassroomPage from './pages/Classroom'
+import CreateTaskPage from './pages/CreateTask'
+// eslint-disable-next-line
 import HomePage from './pages/Home'
 import LandingPage from './pages/Landing'
 import LoadingPage from './pages/Loading'
@@ -44,30 +46,66 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  :root {
+    --background-color: #000;
+  }
+
   body {
-    margin: auto;
-    padding: 0 2em 8em;
-    max-width: calc(1200px + 4em);
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     background-color: #626262;
+    background-color: var(--background-color);
     color: #ddd;
   }
 
+  input {
+    font-family: 'Roboto', sans-serif;
+  }
+
   button, .button {
-    font-size: 13px;
+    font-size: 0.8em;
     text-decoration: none;
     appearance: none;
     background-color: #222;
     box-sizing: border-box;
     box-shadow: 0 0 8px #0004;
-    line-height: 15px;
+    line-height: 1;
     color: white;
     padding: 0.5em 1em;
     margin: 1em;
     border-radius: 3px;
     border: none;
     cursor: pointer;
+
+    .light & {
+      background-color: #fff;
+      color: #222;
+    }
+  }
+
+  pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #1e1e1e;
+    border-radius: 6px;
+
+    .light & {
+      background-color: #fff;
+    }
+  }
+
+  :not(pre) > code {
+    padding: .2em .4em;
+    margin: 0;
+    font-size: 85%;
+    background-color: #555;
+    border-radius: 3px;
+  }
+
+  .light :not(pre) > code {
+    background-color: #fff;
   }
 `
 
@@ -77,12 +115,21 @@ const AppContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  width: 100%;
   min-height: calc(100vh - 8em);
+
+  margin: auto;
+  padding: 0 2em 8em;
+  max-width: calc(1200px + 4em);
+
+  &.light {
+    color: #222;
+  }
 `
 
 function App() {
   const [user, loading] = useAuthState(firebase.auth())
-  const { uid } = useSelector((state) => state.user)
+  const { uid, theme } = useSelector((state) => state.user)
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -109,11 +156,11 @@ function App() {
     <>
       <GlobalStyle />
       {loading ? (
-        <AppContainer>
+        <AppContainer className={theme}>
           <LoadingPage />
         </AppContainer>
       ) : (
-        <AppContainer>
+        <AppContainer className={theme}>
           <Router>
             <Header />
             <Switch>
@@ -122,6 +169,7 @@ function App() {
                 path="/profil"
                 component={uid ? ProfilePage : LandingPage}
               />
+              <Route path="/oppgave/ny" component={CreateTaskPage} />
               <Route path="/oppgave/:id" component={TasksPage} />
               <Route
                 exact

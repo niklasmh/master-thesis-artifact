@@ -7,6 +7,10 @@ export const Title = styled.h1`
   text-shadow: 0 4px 8px #0004;
   text-align: ${({ align = 'center' }) => align};
   align-self: ${({ alignSelf = 'center' }) => alignSelf};
+
+  .light & {
+    color: black;
+  }
 `
 
 export const SubTitle = styled.h2`
@@ -16,6 +20,10 @@ export const SubTitle = styled.h2`
   text-shadow: 0 4px 8px #0004;
   text-align: ${({ align = 'center' }) => align};
   align-self: ${({ alignSelf = 'center' }) => alignSelf};
+
+  .light & {
+    color: black;
+  }
 `
 
 export const Paragraph = styled.p`
@@ -24,4 +32,8 @@ export const Paragraph = styled.p`
   text-shadow: 0 4px 8px #0004;
   text-align: ${({ align = 'center' }) => align};
   align-self: ${({ alignSelf = 'center' }) => alignSelf};
+
+  .light & {
+    color: black;
+  }
 `

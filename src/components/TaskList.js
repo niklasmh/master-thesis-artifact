@@ -54,6 +54,7 @@ const TaskProgress = styled.p`
   font-size: 0.85em;
 `
 
+// eslint-disable-next-line
 const TaskOpen = styled(Link)`
   margin: 0.25em 0;
   align-self: flex-end;
