@@ -12,6 +12,7 @@ import Result from './result/Result'
 import Goal from './goal/Goal'
 import Values from './values/Values'
 import Log from './log/Log'
+import Loading from '../components/Loading'
 
 const marginX = 32
 const marginY = 16
@@ -152,8 +153,8 @@ export function wrapSolutionCode(
   const needLoopFunction = !hasLoopCodeFromBefore && !!solutionLoopCode
   return `
 __loop__ = False
-__dt__ = lambda: 0.01
-__t_tot__ = lambda: 0
+__dt__ = 0.01
+__t_tot__ = 1
 __solution_elements__ = []
 __solution_scope__ = {}
 def __init_solution_code__():
@@ -171,8 +172,8 @@ ${
     : ''
 }
     __solution_scope__ = locals()
-    __dt__ = lambda: dt
-    __t_tot__ = lambda: t_tot
+    __dt__ = dt
+    __t_tot__ = t_tot
     __loop__ = ${hasLoopCode ? 'loop' : 'False'}
 __init_solution_code__()
 `
@@ -710,7 +711,9 @@ export default function TaskCodeEnvironment({
       {edit ? <SubTitle>Oppsett for oppgave</SubTitle> : null}
       {isEngineReady ? null : (
         <>
-          <SubTitle>Laster inn Python ...</SubTitle>
+          <SubTitle>
+            Laster inn Python <Loading />
+          </SubTitle>
           <Paragraph>Dette kan ta litt tid første gangen.</Paragraph>
         </>
       )}

@@ -8,7 +8,7 @@ export const preDefinedElements = `
 loop = False
 __loop__ = False
 dt = 0.02
-t_tot = 0
+t_tot = 1
 
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')

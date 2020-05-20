@@ -10,6 +10,7 @@ import TaskCodeEnvironment from '../modules'
 import { Title, SubTitle, Paragraph } from '../components/Typography'
 import { Markdown } from '../components/TextEditor'
 import Icon from '../components/Icon'
+import Loading from '../components/Loading'
 
 const TaskContainer = styled.div`
   text-align: center;
@@ -195,7 +196,11 @@ function TaskPage() {
   }, [subgoalNo])
 
   if (loadingTaskData) {
-    return <TaskContainer>Laster oppgave ...</TaskContainer>
+    return (
+      <TaskContainer>
+        Laster oppgave <Loading />
+      </TaskContainer>
+    )
   }
 
   return (

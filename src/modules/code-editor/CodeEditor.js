@@ -63,13 +63,13 @@ const Button = styled.button`
 
 let currentState = {
   dt: 0,
-  t_tot: 0,
+  t_tot: 1,
   elements: [],
 }
 
 let currentSolutionState = {
   dt: 0,
-  t_tot: 0,
+  t_tot: 1,
   elements: [],
 }
 
@@ -298,23 +298,19 @@ function CodeEditor(props) {
             '\n'
         )
         if (resultCanvasContext !== null) {
+          const t_tot = window.pyodide.globals.t_tot
           currentState = {
             dt: window.pyodide.globals.dt || 0.02,
-            t_tot: window.pyodide.globals.t_tot || 0,
+            t_tot: typeof t_tot === 'number' ? t_tot : 1,
             elements: window.pyodide.globals.__elements__ || [],
           }
           renderToCanvas(resultCanvasContext, currentState)
         }
         if (goalCanvasContext !== null) {
+          const t_tot = window.pyodide.globals.__t_tot__
           currentSolutionState = {
-            dt:
-              (window.pyodide.globals.__dt__ &&
-                window.pyodide.globals.__dt__()) ||
-              0.02,
-            t_tot:
-              (window.pyodide.globals.__t_tot__ &&
-                window.pyodide.globals.__t_tot__()) ||
-              0,
+            dt: window.pyodide.globals.__dt__ || 0.02,
+            t_tot: typeof t_tot === 'number' ? t_tot : 1,
             elements: window.pyodide.globals.__solution_elements__ || [],
           }
           renderToCanvas(goalCanvasContext, currentSolutionState)
@@ -329,7 +325,6 @@ function CodeEditor(props) {
             solutionDeltaTime: currentSolutionState.dt,
             solutionTotalTime: currentSolutionState.t_tot,
           })
-          //console.log(currentState.t_tot) // Mystery, t_tot er alltid 2 etter første deloppgave???
         }
         return { output }
       } catch (ex) {

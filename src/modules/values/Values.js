@@ -173,12 +173,24 @@ function Values(props) {
       content={
         <ValueList style={{}}>
           {values
-            .filter(([key, value]) => key !== 'loop' && key !== '__loop__')
+            .filter(
+              ([key, value]) =>
+                key !== 'loop' &&
+                key !== '__loop__' &&
+                key !== '__t_tot__' &&
+                key !== '__dt__'
+            )
             .map(([key, value]) => {
               let comment = ''
               switch (key) {
                 case 'dt':
-                  comment = <Comment>Tidssteg</Comment>
+                  if (value === 0) {
+                    comment = (
+                      <Comment>Tidssteg (0 betyr at den kjører evig)</Comment>
+                    )
+                  } else {
+                    comment = <Comment>Tidssteg</Comment>
+                  }
                   break
                 case 't_tot':
                   comment = <Comment>Total tid</Comment>
