@@ -32,9 +32,13 @@ const LogList = styled.div`
 `
 
 const LogMessage = styled.div`
-  color: white;
+  color: #fff;
   display: inline;
   word-break: break-word;
+
+  .light & {
+    color: #000;
+  }
 `
 
 const WarningMessage = styled(LogMessage)`
@@ -45,13 +49,29 @@ const WarningMessage = styled(LogMessage)`
   border-radius: 3px;
   margin: 5px 0;
   box-shadow: inset 0 0 2px red;
+
+  .light & {
+    color: #c54400;
+    background-color: #c5440011;
+  }
 `
+
 const ErrorMessage = styled(WarningMessage)`
   color: red;
   background-color: #f001;
+
+  .light & {
+    color: red;
+    background-color: #f001;
+  }
 `
+
 const InputMessage = styled(LogMessage)`
   color: orange;
+
+  .light & {
+    color: #c54400;
+  }
 `
 
 const CommandContainer = styled.div`
@@ -71,23 +91,26 @@ const CommandInput = styled.input`
   appearance: none;
   background: none;
   border: none;
-  color: white;
+  color: #fff;
   font-family: 'Roboto Mono', monospace;
+
+  .light & {
+    color: #000;
+  }
 
   :focus {
     outline: none;
   }
+
+  ${CommandContainer}:not(:hover) > &::placeholder, :focus::placeholder {
+    color: transparent;
+  }
 `
 
 function Log(props) {
-  const {
-    logSize,
-    isPyodideReady,
-    time,
-    isPlaying,
-    runCode,
-    editor,
-  } = useSelector(state => state.task)
+  const { logSize, isEngineReady, time, isPlaying, runCode } = useSelector(
+    (state) => state.task
+  )
   const dispatch = useDispatch()
   const [log, setLog] = useState([])
   const [history, setHistory] = useState([])
@@ -100,7 +123,9 @@ function Log(props) {
     const writeToLogFunction = (
       message,
       styledMessage = false,
-      error = false
+      error = false,
+      editor = null,
+      offset = preDefinedElementsLineCount - 1
     ) => {
       let MessageType = null
       if (error) {
@@ -116,7 +141,7 @@ function Log(props) {
         MessageType = LogMessage
       }
       if (styledMessage !== false) {
-        setLog(log => [
+        setLog((log) => [
           ...log,
           <MessageType key={log.length}>
             {styledMessage}
@@ -124,25 +149,26 @@ function Log(props) {
           </MessageType>,
         ])
       } else if (error) {
-        setLog(log => [
+        setLog((log) => [
           ...log,
           <MessageType key={log.length}>
             {translatePythonException(
               message,
-              preDefinedElementsLineCount - 1,
-              editor.current()
+              offset,
+              editor ? editor.getValue() : '',
+              editor ? editor.getModel() : null
             )}
           </MessageType>,
         ])
       } else {
-        setLog(log => [
+        setLog((log) => [
           ...log,
           <MessageType key={log.length}>{message}</MessageType>,
         ])
       }
     }
-    const onLogInput = message => {
-      setLog(log => [
+    const onLogInput = (message) => {
+      setLog((log) => [
         ...log,
         <InputMessage key={log.length}>{message}</InputMessage>,
       ])
@@ -164,6 +190,12 @@ function Log(props) {
     dispatch({
       type: 'setOnLogInput',
       onLogInput,
+    })
+    dispatch({
+      type: 'setClearLogFunction',
+      clearLog: () => {
+        setLog([])
+      },
     })
 
     /** /
@@ -222,7 +254,7 @@ function Log(props) {
       logToDisplay(args, 'error')
     })
     /**/
-  }, [dispatch, commandInputElement, editor])
+  }, [dispatch, commandInputElement])
 
   useEffect(() => {
     if (logListElement.current) {
@@ -237,7 +269,7 @@ function Log(props) {
   }, [time, isPlaying])
 
   async function handleCommandInput(e) {
-    if (isPyodideReady) {
+    if (isEngineReady) {
       if (e.keyCode === 13) {
         e.preventDefault()
         const code = e.target.value
@@ -246,20 +278,34 @@ function Log(props) {
           commandInputElement.current.value = ''
           setCurrentCommand('')
         } else if (code.length) {
-          window.pyodide.globals.print(`> ${code}`, {})
-          const { output = '' } = await runCode(code, false)
+          if (window.pyodide) window.pyodide.globals.print(`> ${code}`, {})
+          else if (window.Sk) window.writeToLogFunction(`> ${code}\n`)
+          let output = ''
+          if (window.pyodide) output = (await runCode(code, false)).output
+          else if (window.Sk) {
+            runCode(`print(${code})`, false)
+          }
           switch (typeof output) {
             case 'number':
-              window.pyodide.globals.print(output, { styleArgs: true })
+              if (window.pyodide)
+                window.pyodide.globals.print(output, { styleArgs: true })
+              else if (window.Sk) window.writeToLogFunction(output, true)
+              break
+            case 'boolean':
+              if (window.pyodide)
+                window.pyodide.globals.print(output, { styleArgs: true })
+              else if (window.Sk) window.writeToLogFunction(output, true)
               break
             default:
-              if (output)
-                window.pyodide.globals.print(output, { styleArgs: true })
+              if (typeof output !== 'undefined')
+                if (window.pyodide)
+                  window.pyodide.globals.print(output, { styleArgs: true })
+                else if (window.Sk) window.writeToLogFunction(output, true)
               break
           }
           if (history[history.length - 1] !== code) {
             setHistoryPointer(history.length + 1)
-            setHistory(history => [...history, code])
+            setHistory((history) => [...history, code])
           } else {
             setHistoryPointer(history.length)
           }
@@ -320,6 +366,7 @@ function Log(props) {
               onClick={() => commandInputElement.current.focus()}
             >
               <CommandInput
+                placeholder="Skriv inn kommandoer her ..."
                 ref={commandInputElement}
                 onKeyDown={handleCommandInput}
               />

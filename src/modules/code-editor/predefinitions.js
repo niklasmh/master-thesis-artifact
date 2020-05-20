@@ -1,64 +1,73 @@
 import React from 'react'
+import styled from 'styled-components'
 
-export const preDefinedElements = `import sys, os
+export const preDefinedImports = `import sys, os
 from math import *
+`
+export const preDefinedElements = `
+loop = False
+__loop__ = False
+dt = 0.02
+t_tot = 0
 
 def blockPrint():
-  sys.stdout = open(os.devnull, 'w')
+    sys.stdout = open(os.devnull, 'w')
 
 def enablePrint():
-  sys.stdout = sys.__stdout__
+    sys.stdout = sys.__stdout__
 
 __elements__ = []
 class Ball:
-  def __init__(self, **kwargs):
-    self.x = 0
-    self.y = 0
-    self.x0 = 0
-    self.y0 = 0
-    self.vx = 0
-    self.vy = 0
-    self.ax = 0
-    self.ay = 0
-    self.r = 50
-    self.m = -1
-    self.color = "blue"
-    self.drawforces = False
-    self.type = "Ball"
-    for k, i in kwargs.items():
-      if k == "x":
-        self.x = i
-        self.x0 = i
-      elif k == "y":
-        self.y = i
-        self.y0 = i
-      if k == "vx":
-        self.vx = i
-        self.vx0 = i
-      elif k == "vy":
-        self.vy = i
-        self.vy0 = i
-      if k == "ax":
-        self.ax = i
-        self.ax0 = i
-      elif k == "ay":
-        self.ay = i
-        self.ay0 = i
-      elif k == "r": self.r = i
-      elif k == "m": self.m = i if i >= 0 else pi*r**2
-      elif k == "color": self.color = i
-      elif k == "drawforces": self.drawforces = i
-    __elements__.append(self)
-  def render(self, ctx):
-    ctx.drawCircle(self)
-    if self.drawforces:
-        ctx.drawForces(self)
+    def __init__(self, **kwargs):
+        self.x = 0
+        self.y = 0
+        self.x0 = 0
+        self.y0 = 0
+        self.vx = 0
+        self.vy = 0
+        self.ax = 0
+        self.ay = 0
+        self.r = 1
+        self.m = -1
+        self.color = "blue"
+        self.drawforces = False
+        self.type = "Ball"
+        for k, i in kwargs.items():
+            if k == "x":
+                self.x = i
+                self.x0 = i
+            elif k == "y":
+                self.y = i
+                self.y0 = i
+            if k == "vx":
+                self.vx = i
+                self.vx0 = i
+            elif k == "vy":
+                self.vy = i
+                self.vy0 = i
+            if k == "ax":
+                self.ax = i
+                self.ax0 = i
+            elif k == "ay":
+                self.ay = i
+                self.ay0 = i
+            elif k == "r": self.r = i
+            elif k == "m": self.m = i if i >= 0 else pi*r**2
+            elif k == "color": self.color = i
+            elif k == "drawforces": self.drawforces = i
+        __elements__.append(self)
+    def render(self, ctx):
+        ctx.drawCircle(self)
+        if self.drawforces:
+                ctx.drawForces(self)
 `
-export const preDefinedElementsLineCount = preDefinedElements.split('\n').length
+export const preDefinedElementsLineCount = (
+  preDefinedImports + preDefinedElements
+).split('\n').length
 export const classTypes = preDefinedElements
   .split('\n')
-  .filter(e => e.indexOf('class') === 0)
-  .map(c => c.replace(/class ([A-Za-z]+).*/, '$1'))
+  .filter((e) => e.indexOf('class') === 0)
+  .map((c) => c.replace(/class ([A-Za-z]+).*/, '$1'))
 
 export const preDefinedVars = [
   '__name__',
@@ -224,8 +233,32 @@ export const preDefinedVars = [
   'nan',
 ]
 
+const Value = styled.span`
+  color: #b5cea8;
+
+  .light & {
+    color: #09885a;
+  }
+`
+
+const BooleanValue = styled.span`
+  color: #569cd6;
+
+  .light & {
+    color: #0000ff;
+  }
+`
+
+const StringValue = styled(Value)`
+  color: #ce9178;
+
+  .light & {
+    color: #a31515;
+  }
+`
+
 export function createPrintFunction(write) {
-  const prettyPrint = arg => {
+  const prettyPrint = (arg) => {
     switch (typeof arg) {
       case 'object':
         return JSON.stringify(arg)
@@ -272,24 +305,18 @@ export function createPrintFunction(write) {
         throw new Error('invalid keyword arguments to print()')
       }
     }
-    const content = args.map(arg => prettyPrint(arg)).join(sep) + end
+    const content = args.map((arg) => prettyPrint(arg)).join(sep) + end
     if (styleArgs) {
       let styledContent = args.map((arg, i) => {
         switch (typeof arg) {
           case 'object':
             return <span key={i}>{JSON.stringify(arg)}</span>
           case 'string':
-            return (
-              <span key={i} style={{ color: '#ce9178' }}>
-                "{arg}"
-              </span>
-            )
+            return <StringValue key={i}>"{arg}"</StringValue>
           case 'number':
-            return (
-              <span key={i} style={{ color: '#b5cea8' }}>
-                {arg}
-              </span>
-            )
+            return <Value key={i}>{arg}</Value>
+          case 'boolean':
+            return <BooleanValue key={i}>{arg ? 'True' : 'False'}</BooleanValue>
           case 'function':
             return <span key={i}>{arg.__str__()}</span>
           default:

@@ -70,9 +70,25 @@ export function user(
 export function task(
   state = {
     time: 0,
-    deltaTime: 0.01,
+    deltaTime: 0.02,
     totalTime: 0,
+    solutionDeltaTime: 0.02,
+    solutionTotalTime: 0,
     isPlaying: false,
+    withError: false,
+    attempts: 0,
+    code: '',
+    isSolution: false,
+    subgoal: {
+      title: '',
+      description: '',
+      hiddenCode: '',
+      predefinedCode: false,
+      solutionCode: '',
+      testCode: '',
+    },
+    codeEditorRun: () => {},
+    codeEditorSize: { w: 0, h: 0 },
     resultCanvasContext: null,
     resultCanvasSize: { w: 0, h: 0 },
     resultCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
@@ -80,6 +96,7 @@ export function task(
     goalCanvasSize: { w: 0, h: 0 },
     goalCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
     values: [],
+    clearValues: () => {},
     valuesSize: { w: 0, h: 0 },
     logSize: { w: 0, h: 0 },
     isEngineReady: false,
@@ -87,7 +104,9 @@ export function task(
     execAndGetCurrentVariableValues: () => {},
     runCode: () => {},
     onLogInput: () => {},
-    editor: { current: null },
+    clearLog: () => {},
+    editor: null,
+    loopEditor: null,
   },
   action
 ) {
@@ -96,13 +115,57 @@ export function task(
       return {
         ...state,
         time: action.time,
-        deltaTime: action.deltaTime || state.deltaTime,
-        totalTime: action.totalTime || state.totalTime,
+        deltaTime: 'deltaTime' in action ? action.deltaTime : state.deltaTime,
+        totalTime: 'totalTime' in action ? action.totalTime : state.totalTime,
+        solutionDeltaTime:
+          'solutionDeltaTime' in action
+            ? action.solutionDeltaTime
+            : state.solutionDeltaTime,
+        solutionTotalTime:
+          'solutionTotalTime' in action
+            ? action.solutionTotalTime
+            : state.solutionTotalTime,
       }
     case 'setIsPlaying':
       return {
         ...state,
         isPlaying: action.isPlaying,
+      }
+    case 'setWithError':
+      return {
+        ...state,
+        withError: action.withError,
+      }
+    case 'addAttempt':
+      return {
+        ...state,
+        attempts: state.attempts + 1,
+      }
+    case 'resetAttempts':
+      return {
+        ...state,
+        attempts: 0,
+      }
+    case 'setCode':
+      return {
+        ...state,
+        code: action.code,
+        isSolution: !!action.isSolution,
+      }
+    case 'setSubgoal':
+      return {
+        ...state,
+        subgoal: action.subgoal,
+      }
+    case 'setCodeEditorRun':
+      return {
+        ...state,
+        codeEditorRun: action.run,
+      }
+    case 'setCodeEditorSize':
+      return {
+        ...state,
+        codeEditorSize: action.size,
       }
     case 'setResultCanvasContext':
       return {
@@ -153,8 +216,21 @@ export function task(
       return {
         ...state,
         values: action.values,
-        deltaTime: action.deltaTime || state.deltaTime,
-        totalTime: action.totalTime || state.totalTime,
+        deltaTime: 'deltaTime' in action ? action.deltaTime : state.deltaTime,
+        totalTime: 'totalTime' in action ? action.totalTime : state.totalTime,
+        solutionDeltaTime:
+          'solutionDeltaTime' in action
+            ? action.solutionDeltaTime
+            : state.solutionDeltaTime,
+        solutionTotalTime:
+          'solutionTotalTime' in action
+            ? action.solutionTotalTime
+            : state.solutionTotalTime,
+      }
+    case 'setClearValuesFunction':
+      return {
+        ...state,
+        clearValues: action.clearValues,
       }
     case 'setValuesSize':
       return {
@@ -167,11 +243,13 @@ export function task(
         logSize: action.size,
       }
     case 'setWriteToLogFunction':
+      window.writeToLogFunction = action.writeToLogFunction
       return {
         ...state,
         writeToLogFunction: action.writeToLogFunction,
       }
     case 'setIsEngineReady':
+      if (action.runCode) window.runCode = action.runCode
       return {
         ...state,
         isEngineReady: action.isReady,
@@ -183,19 +261,31 @@ export function task(
         execAndGetCurrentVariableValues: action.function,
       }
     case 'setRunCodeFunction':
+      window.runCode = action.function
       return {
         ...state,
         runCode: action.function,
       }
     case 'setOnLogInput':
+      window.onLogInput = action.onLogInput
       return {
         ...state,
         onLogInput: action.onLogInput,
+      }
+    case 'setClearLogFunction':
+      return {
+        ...state,
+        clearLog: action.clearLog,
       }
     case 'setEditor':
       return {
         ...state,
         editor: action.editor,
+      }
+    case 'setLoopEditor':
+      return {
+        ...state,
+        loopEditor: action.loopEditor,
       }
     default:
       return {

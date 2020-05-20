@@ -44,7 +44,7 @@ export const TextArea = styled.textarea`
   border-radius: 6px;
   border: none;
   color: #fff;
-  margin: 0.5em 0;
+  margin: 0;
   padding: 0.5em;
   width: ${(props) => props.width || 'unset'};
   height: ${(props) => props.height || 'unset'};

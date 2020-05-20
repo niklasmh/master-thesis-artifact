@@ -1,15 +1,14 @@
-export const getLineNumber = (message, offset = 0) => {
+export const getLineNumber = (lines, offset = 0) => {
   try {
-    const match = message.replace(
-      /[\s\S]*File "<e...>", line (\d+), in <module>[\s\S]*/,
-      '$1'
-    )
-    if (match.length > 10) {
-      const match2 = message.replace(
-        /[\s\S]*File "<unknown>", line (\d+)[\s\S]*/,
-        '$1'
-      )
-      return parseInt(match2) - offset
+    let match = null
+    for (let line of lines.reverse()) {
+      match = line.replace(/^[\s\S]*File "<e...>", line (\d+), in .*/, '$1')
+      if (match.length > 5) {
+        match = line.replace(/^[\s\S]*File "<unknown>", line (\d+).*/, '$1')
+      }
+      if (/^\d+$/.test(match)) {
+        break
+      }
     }
     return parseInt(match) - offset
   } catch (ex) {
@@ -17,7 +16,12 @@ export const getLineNumber = (message, offset = 0) => {
   }
 }
 
-export const translatePythonException = (exception, offset, code = '') => {
+export const translatePythonException = (
+  exception,
+  offset,
+  code = '',
+  model = null
+) => {
   const lines = exception.trim().split('\n')
   const lastLine = lines.slice(-1)[0]
   const messageStartIndex = lastLine.indexOf(': ')
@@ -27,8 +31,9 @@ export const translatePythonException = (exception, offset, code = '') => {
     type,
     message,
     lines.slice(0, -1),
-    getLineNumber(exception, offset),
-    code
+    getLineNumber(lines, offset),
+    code,
+    model
   )
 }
 
@@ -37,7 +42,8 @@ export const formatPythonException = (
   message,
   prevLines,
   line = -1,
-  code = ''
+  code = '',
+  model = null
 ) => {
   if (type in exceptions) {
     const codeSplitted = code.split('\n')
@@ -48,7 +54,7 @@ export const formatPythonException = (
       (n = line) => codeSplitted[n - 1] || ''
     )
     if (line >= 0) {
-      markRangeInEditor([line, 0, line + 1, 0], output)
+      markRangeInEditor([line, 0, line + 1, 0], output, 3, '', model)
     }
     return output
   }
@@ -56,30 +62,40 @@ export const formatPythonException = (
   return `Ukjent error. Se i konsollen i nettleseren for mer informasjon.`
 }
 
-const markRangeInEditor = (range, message = '', severity = 3, source = '') => {
-  window.monaco.editor.setModelMarkers(
-    window.monaco.editor.getModels()[0],
-    'code-editor',
-    [
-      {
-        startLineNumber: range[0],
-        startColumn: range[1],
-        endLineNumber: range[2],
-        endColumn: range[3],
-        message,
-        severity,
-        source,
-      },
-    ]
-  )
+const markRangeInEditor = (
+  range,
+  message = '',
+  severity = 3,
+  source = '',
+  model = null
+) => {
+  if (model) {
+    window.monaco.editor.setModelMarkers(
+      'getModel' in model ? model.getModel() : model,
+      'code-editor',
+      [
+        {
+          startLineNumber: range[0],
+          startColumn: range[1],
+          endLineNumber: range[2],
+          endColumn: range[3],
+          message,
+          severity,
+          source,
+        },
+      ]
+    )
+  }
 }
 
-export const removeMarkRangeInEditor = () => {
-  window.monaco.editor.setModelMarkers(
-    window.monaco.editor.getModels()[0],
-    'code-editor',
-    []
-  )
+export const removeMarkRangeInEditor = (model) => {
+  if (model) {
+    window.monaco.editor.setModelMarkers(
+      'getModel' in model ? model.getModel() : model,
+      'code-editor',
+      []
+    )
+  }
 }
 
 const ifline = (pre, line, post = '', elsestr = '', uselinenumber = true) =>
@@ -128,7 +144,7 @@ export const exceptions = {
   IndexError: (message, line, prev, code) =>
     message.replace(
       /list index out of range/,
-      `Du prøver å hente et element fra listen som ikke finnes${ifline(
+      `Koden prøver å hente et element fra listen som ikke finnes${ifline(
         '',
         line,
         ':' + getncode(code, line, 2, { postLine: ' <-- Linje ' + line }),
@@ -166,13 +182,13 @@ export const exceptions = {
   SyntaxError: (message, line, prev, code) =>
     message.replace(
       /invalid syntax/,
-      `Du har skrevet noe feil${ifline(' på linje ', line)}:\n${prev
+      `Det er en feil${ifline(' på linje ', line)}:\n${prev
         .slice(-2)
         .join('\n')}`
     ),
   IndentationError: (message, line, prev, code) => {
     if (message === 'unindent does not match any outer indentation level') {
-      return `Du har enten for få eller for mange innrykk:${ifline(
+      return `Det er for få eller for mange innrykk:${ifline(
         '',
         line,
         getncode(code, line, 2, { postLine: ' <-- Linje ' + line }),

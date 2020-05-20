@@ -22,7 +22,7 @@ const md = mdIt({
     if (lang && hljs.getLanguage(lang)) {
       try {
         return hljs.highlight(lang, str).value
-      } catch (__) {}
+      } catch (ex) {}
     }
 
     return ''
@@ -48,6 +48,7 @@ const Container = styled.div`
 
 const AddNewSection = styled.button`
   font-size: 1.5em;
+  align-self: center;
 `
 
 const AddNewSubgoal = styled.button`
@@ -96,80 +97,439 @@ return True
 
 Her skal du simulere en ball som faller i fritt fall.
 
-## Lag ballen
+## Lage konstanter
 
-Her skal du lage en ball som
+For å lage en konstant må du lage en variabel. Det gjøres slik:
 
-### Bruk Ball(...) til å lage en ball
+\`\`\`python
+variabelnavn = 1.23
+\`\`\`
+
+Her blir variabelen \`variabelnavn\` satt til desimaltallet \`1.23\`.
+
+### Lag gravitasjonskonstanten \`g\` og sett den til \`9.81\`
 
 Du kan lage en ball med å skrive:
 
-\`\`\`python
-ball = Ball(x=0, y=0) # x og y er posisjonen i meter
-\`\`\`
+\`\`\`python skjult
+ball = Ball(x=0, y=0, r=1)
+dt = 0.1
+t_tot = 2
+g = 0
 
-\`\`\`python startkode
+#### ELEVENS KODE PLASSERES HER ####
 
-\`\`\`
-
-\`\`\`python løsning
-ball = Ball(x=0, y=0)
-\`\`\`
-
-\`\`\`python test
-if not ball:
-  print("Du må definere ball.")
-\`\`\`
-
-### Flytt ballen til (0, 1)
-
-Nå skal ballen, \`ball\`, flyttes til (0, 1). Henholdsvis x = 0 og y = 1.
-
-\`\`\`python startkode
-ball = Ball(x=0, y=0)
+def loop(t):
+    ball.y = -1/2*g*t**2
 \`\`\`
 
 \`\`\`python løsning
-ball = Ball(x=0, y=1)
-\`\`\`
-
-\`\`\`python test
-if not ball:
-  print("Du må definere ball.")
-  return false
-else:
-  if ball.x == 0 and ball.y == 1:
-    print("Du klarte det!")
-    return true
-
-return false
-\`\`\`
-
-## Lage konstanter
-
-Nå skal vi legge til noen konstanter slik at vi kan få ballen til å falle. For å lage en konstant \`a\` med verdi \`1.23\`, så bare skriver vi:
-
-\`\`\`python
-a = 1.23
-\`\`\`
-
-### Lage gravitasjonskonstanten
-
-Lag gravitasjonskonstanten, \`g\`, og sett den til \`9.81\`.
-
-\`\`\`python startkode
-ball = Ball(x=0, y=1) # Bare la denne stå
-\`\`\`
-
-\`\`\`python løsning
-ball = Ball(x=0, y=1) # Bare la denne stå
 g = 9.81
 \`\`\`
 
 \`\`\`python test
-if not g:
-  g = 9.81
+# Returner True / False ut ifra om testen er passert
+
+# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
+if not defined('g'):
+  print("Du må definere 'g'") # Sender tilbakemelding til eleven
+  return False # Testen feiler her
+
+# Sjekke om en variabel ikke er lik fasitverdien
+if g != 9.81:
+  print("Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
 \`\`\`
+
+### Lag konstanten \`dt\` og sett den til \`0.01\`
+
+\`\`\`python skjult
+ball = Ball(x=0, y=0, r=1)
+dt = 0.1
+t_tot = 2
+g = 0
+
+#### ELEVENS KODE PLASSERES HER ####
+
+def loop(t):
+    ball.y = -1/2*g*t**2
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
+if not defined('dt'):
+  print("Du må definere 'dt'") # Sender tilbakemelding til eleven
+  return False # Testen feiler her
+
+# Sjekke om en variabel ikke er lik fasitverdien
+if dt != 0.01:
+  print("Du må sette verdien 0.01 til variabel 'dt'. Husk å bruke punktum og ikke komma.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven! La du merke til at simuleringen ble mindre hakkete?")
+return True
+\`\`\`
+
+## Lag ballen
+
+Sålangt har vi bare satt noen konstanter. Nå skal vi lage den ballen som ble vist i de forrige deloppgavene.
+
+For å lage en ball kan man skrive:
+
+\`\`\`python
+ball = Ball(x=0, y=0) # Hvor x og y er posisjonen i rommet.
+\`\`\`
+
+### Lage en ball i punkt (0,0)
+
+\`\`\`python startkode
+g = 9.81
+dt = 0.01
+
+# Sett inn koden her
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ball = Ball(x=0, y=0)
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
+if not defined('ball'):
+  print("Du må definere 'ball'") # Sender tilbakemelding til eleven
+  return False # Testen feiler her
+
+# Sjekke om en variabel ikke er lik fasitverdien
+if ball.x != 0 or ball.y != 0:
+  print("Du må plassere ballen i punkt (0,0)")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
+\`\`\`
+
+### Endre ballens farge til "red"
+
+For å endre fargen på ballen kan du legge til et til argument, \`color\`, til \`Ball(x=0, y=0, ...)\` slik:
+
+\`\`\`python
+ball = Ball(x=0, y=0, color="blue")
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ball = Ball(x=0, y=0, color="red")
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+# Sjekke om en variabel ikke er lik fasitverdien
+if ball.color != "red":
+  print("Du må sette verdien \"red\" til ballen. Les instruksjonen.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven! Så du hvordan fargen endret seg?")
+return True
+\`\`\`
+
+### Sette radiusen til ballen til \`0.5\`
+
+For å endre radius kan man bruke argumentet: \`r\`. Det brukes slik:
+
+\`\`\`python
+ball = Ball(x=0, y=0, color="red", r=1)
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+if ball.r != 0.5:
+  print("Du må sette verdien 0.5 til ballradiusen. Husk å bruke punktum og ikke komma.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
+\`\`\`
+
+## Bevege ballen basert på tid
+
+Nå begynner morroa. Vi skal få ballen til å bevege seg. For å få ballen til å bevege seg må man kunne kjøre en kode veldig mange ganger, og for hver gang må ballens posisjon endre seg.
+
+For å gjøre dette enkelt kan du bruke det nederste kodefeltet til å legge inn kode som skal kjøres mange ganger. Det kan brukes slik:
+
+\`\`\`python
+ball.y = t # t er tid i sekunder
+\`\`\`
+
+### Sett ballens y, \`ball.y\`, til tid \`t\`
+
+\`\`\`python startkode
+g = 9.81
+dt = 0.01
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+ball.y = t
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+# Kjør loop 10 ganger
+runLoopNTimes(10)
+
+if ball.y != 0.01*10:
+  print("Du må sette ball.y til tid t.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
+\`\`\`
+
+### Sett ballens y til likningen for fritt fall
+
+Likningen for fritt fall er:
+
+$$y=\frac{1}{2}gt^2+v_0*t+y_0$$
+
+Dette kan skrives om til kode, slik:
+
+\`\`\`python
+y = 1/2*g*t**2 + v_0*t + y_0
+\`\`\`
+
+\`\`\`python startkode
+g = 9.81
+dt = 0.01
+v_0 = 0
+y_0 = 0
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+ball.y = t
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+v_0 = 0
+y_0 = 0
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+ball.y = 1/2*g*t**2 + v_0*t + y_0
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+# Kjør loop 10 ganger
+runLoopNTimes(10)
+
+if ball.y != 1/2*9.81*(0.01*10)**2:
+  print("Kopier likningen fra instruksjonen.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
+\`\`\`
+
+## Legge til luftmotstand
+
+Denne delen kan være litt vanskelig, fordi vi må bruke en ny metode for å simulere fallet. Vi skal bruke en metode som heter Euler's metode. Kort sagt fungerer den slik:
+
+\`\`\`python
+ny_verdi = gammel_verdi + endring*tidssteg
+\`\`\`
+
+For å ta det inn i vårt eksempel, så kan vi gjøre dette med posisjon, fart og akselerasjon, hver for seg. Slik:
+
+\`\`\`python
+ay = ay + 0*dt # Ingen endring uten luftmotstand
+vy = vy + ay*dt # Husk at "a" er [m/s^2], så når den ganges 
+med dt, som er [s], så blir den [m/s] som er fart
+y = y + vy*dt # Igjen, ganger med dt
+\`\`\`
+
+### Endre bevegelsen til Euler's metode
+
+\`\`\`python startkode
+g = 9.81
+dt = 0.01
+
+ay = g
+vy = 0
+y = 0
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+# Fyll inn i variablene under
+ay = ay
+vy = vy + 
+y = y + 
+
+ball.y = y
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ay = g
+vy = 0
+y = 0
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+# Fyll inn i variablene under
+ay = ay
+vy = vy + ay*dt
+y = y + vy*dt
+
+ball.y = y
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+runLoopNTimes(10)
+solution = runSolutionLoopNTimes(10)
+
+if ball.y != solution("ball")["y"]:
+  print("Kopier likningen fra instruksjonen.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte oppgaven!")
+return True
+\`\`\`
+
+### Legge til luftmotstand til akselerasjon
+
+Nå kommer den delen som er veldig vanskelig matematisk, men veldig enkel med programmering: legge til luftmotstand.
+
+Her skal vi bare legge til en motstand i akselerasjonen. Dette kan nå gjøres slik:
+
+\`\`\`python
+ay = ay - motstand
+\`\`\`
+
+Motstanden regnes ut ifra en konstant og kvadratet av farten:
+
+\`\`\`python
+motstand = k*vy**2
+\`\`\`
+
+\`\`\`python startkode
+g = 9.81
+dt = 0.01
+
+ay = g
+vy = 0
+y = 0
+
+k = 0.3
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+motstand = # Fyll inn her
+ay = ay - motstand
+vy = vy + ay*dt
+y = y + vy*dt
+
+ball.y = y
+\`\`\`
+
+\`\`\`python løsning
+g = 9.81
+dt = 0.01
+
+ay = g
+vy = 0
+y = 0
+
+k = 0.3
+
+ball = Ball(x=0, y=0, color="red", r=0.5)
+
+#### LOOP ####
+
+motstand = k*vy**2
+ay = ay - motstand
+vy = vy + ay*dt
+y = y + vy*dt
+
+ball.y = y
+\`\`\`
+
+\`\`\`python test
+# Returner True / False ut ifra om testen er passert
+
+runLoopNTimes(10)
+solution = runSolutionLoopNTimes(10)
+
+if ball.y != solution("ball")["y"]:
+  print("Kopier likningen fra instruksjonen.")
+  return False
+
+# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+print("Du klarte hele oppgaven! Gratulerer!")
+return True
+\`\`\`
+
 `,
 }
 
@@ -185,6 +545,8 @@ ${code}
 }
 
 const randomString = () => Math.floor(Math.random() * 100000) + ''
+
+const solutionCodes = {}
 
 function getCurrentValueOrDefault(ref, key = '', defaultValue = '') {
   if (!ref.current) return defaultValue
@@ -230,34 +592,10 @@ export default function CreateTaskPage() {
   const [sectionToMarkdownFunctions, setSectionToMarkdownFunctions] = useState([
     () => ``,
   ])
+  const [sectionToJSONFunctions, setSectionToJSONFunctions] = useState([
+    () => ``,
+  ])
   const [useMarkdownOnly, setUseMarkdownOnly] = useState(false)
-
-  const saveTask = async () => {
-    try {
-      const ref = await firebase
-        .firestore()
-        .collection('tasks')
-        .add({
-          title: title.current.value,
-          description: description.current.value,
-          hiddenCode: defaultData.hiddenCode,
-          sections: sectionsData,
-          author: firebase.firestore().collection('users').doc(uid),
-        })
-      await firebase
-        .firestore()
-        .collection('users')
-        .doc(uid)
-        .update({
-          tasksCreated: firebase.firestore.FieldValue.arrayUnion(ref),
-        })
-      setSaveFeedback('Din oppgave ble lagret!')
-    } catch (ex) {
-      setSaveFeedback(
-        'Vi klarte ikke å lagre oppgaven din akkurat nå. Prøv igjen senere. Eventuelt ta vare på Markdownversjonen av oppgaven'
-      )
-    }
-  }
 
   function handleHiddenCodeEditorDidMount(_valueGetter) {
     hiddenCodeEditor.current = _valueGetter
@@ -276,6 +614,41 @@ ${sections
   )
   .join('\n')
   .trim()}`
+  }
+
+  function buildJSONFromGUI(sections, sectionToJSONFunctions) {
+    return {
+      title: getCurrentValueOrDefault(title, 'value').trim() || 'Tittel',
+      description: getCurrentValueOrDefault(description, 'value'),
+      hiddenCode: hiddenCodeEditor.current().trim(),
+      sections: sections.map(
+        (section, i) => sectionToJSONFunctions[i] && sectionToJSONFunctions[i]()
+      ),
+    }
+  }
+
+  const saveTask = async () => {
+    try {
+      const ref = await firebase
+        .firestore()
+        .collection('tasks')
+        .add({
+          ...buildJSONFromGUI(sections, sectionToJSONFunctions),
+          author: firebase.firestore().collection('users').doc(uid),
+        })
+      await firebase
+        .firestore()
+        .collection('users')
+        .doc(uid)
+        .update({
+          tasksCreated: firebase.firestore.FieldValue.arrayUnion(ref),
+        })
+      setSaveFeedback('Din oppgave ble lagret!')
+    } catch (ex) {
+      setSaveFeedback(
+        'Vi klarte ikke å lagre oppgaven din akkurat nå. Prøv igjen senere. Eventuelt ta vare på Markdownversjonen av oppgaven'
+      )
+    }
   }
 
   useEffect(() => {
@@ -312,8 +685,10 @@ ${sections
       </SubTitle>
       <div
         style={{
-          display: useMarkdownOnly ? 'initial' : 'none',
+          display: useMarkdownOnly ? 'flex' : 'none',
           fontSize: '1rem',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
           width: '100%',
         }}
       >
@@ -368,7 +743,7 @@ ${sections
           style={{
             display: useHiddenCode ? 'initial' : 'none',
             maxWidth: '800px',
-            margin: 'auto',
+            //margin: 'auto',
           }}
           align="left"
         >
@@ -380,7 +755,7 @@ ${sections
           style={{
             display: useHiddenCode ? 'initial' : 'none',
             maxWidth: '800px',
-            margin: '1em auto 0',
+            //margin: '1em auto 0',
           }}
         >
           <CodeEditor
@@ -398,6 +773,13 @@ ${sections
                 defaultData={sectionsData[i]}
                 toMarkdown={(fn) => {
                   setSectionToMarkdownFunctions((stm) => [
+                    ...stm.slice(0, i),
+                    fn,
+                    ...stm.slice(i + 1, -1),
+                  ])
+                }}
+                toJSON={(fn) => {
+                  setSectionToJSONFunctions((stm) => [
                     ...stm.slice(0, i),
                     fn,
                     ...stm.slice(i + 1, -1),
@@ -498,16 +880,21 @@ function Section({
   },
   sectionNo,
   toMarkdown,
+  toJSON,
 }) {
   const title = useRef(null)
   const descriptionRef = useRef(null)
   const toMarkdownFunction = useRef(toMarkdown)
+  const toJSONFunction = useRef(toJSON)
   const [subgoals, setSubgoals] = useState([randomString()])
   const [sectionOpen, setSectionOpen] = useState(true)
   const [descriptionOpen, setDescriptionOpen] = useState(false)
   const [useHiddenCode, setUseHiddenCode] = useState(false)
   const hiddenCodeEditor = useRef(null)
   const [subgoalToMarkdownFunctions, setSubgoalToMarkdownFunctions] = useState([
+    () => ``,
+  ])
+  const [subgoalToJSONFunctions, setSubgoalToJSONFunctions] = useState([
     () => ``,
   ])
 
@@ -524,7 +911,7 @@ function Section({
 
 ${getCurrentValueOrDefault(descriptionRef, 'value').trim()}
 
-${addCode(hiddenCodeEditor.current().trim(), 'skjult')}
+${addCode(hiddenCodeEditor.current.getValue().trim(), 'skjult')}
 ${subgoals
   .map(
     (subgoal, i) =>
@@ -536,6 +923,20 @@ ${subgoals
     }
   }, [subgoalToMarkdownFunctions, sectionNo, subgoals])
 
+  useEffect(() => {
+    if (toJSONFunction.current !== null) {
+      toJSONFunction.current(() => ({
+        title: getCurrentValueOrDefault(title, 'value').trim(),
+        description: getCurrentValueOrDefault(descriptionRef, 'value').trim(),
+        hiddenCode: hiddenCodeEditor.current.getValue().trim(),
+        subgoals: subgoals.map(
+          (subgoal, i) =>
+            subgoalToJSONFunctions[i] && subgoalToJSONFunctions[i]()
+        ),
+      }))
+    }
+  }, [subgoalToJSONFunctions, sectionNo, subgoals])
+
   function toggleSection() {
     setSectionOpen((open) => !open)
   }
@@ -544,8 +945,8 @@ ${subgoals
     setDescriptionOpen((open) => !open)
   }
 
-  function handleHiddenCodeEditorDidMount(_valueGetter) {
-    hiddenCodeEditor.current = _valueGetter
+  function handleHiddenCodeEditorDidMount(_, _editor) {
+    hiddenCodeEditor.current = _editor
   }
 
   return (
@@ -610,8 +1011,16 @@ ${subgoals
               sectionNo={sectionNo}
               subgoalNo={i + 1}
               defaultData={defaultData.subgoals[i]}
+              prevSubgoal={i > 0 ? defaultData.subgoals[i - 1] : null}
               toMarkdown={(fn) => {
                 setSubgoalToMarkdownFunctions((stm) => [
+                  ...stm.slice(0, i),
+                  fn,
+                  ...stm.slice(i + 1, -1),
+                ])
+              }}
+              toJSON={(fn) => {
+                setSubgoalToJSONFunctions((stm) => [
                   ...stm.slice(0, i),
                   fn,
                   ...stm.slice(i + 1, -1),
@@ -674,6 +1083,9 @@ const SubgoalParagraph = styled(Paragraph)`
 
 const CodeEditorWrapper = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   :not(:empty) {
     margin-top: 1em;
     margin-bottom: 1em;
@@ -693,14 +1105,18 @@ function Subgoal({
   sectionNo,
   subgoalNo,
   toMarkdown,
+  toJSON,
 }) {
   const title = useRef(null)
   const descriptionRef = useRef(null)
   const toMarkdownFunction = useRef(toMarkdown)
+  const toJSONFunction = useRef(toJSON)
   const [subgoalOpen, setSubgoalOpen] = useState(true)
   const [descriptionOpen, setDescriptionOpen] = useState(false)
   const [useHiddenCode, setUseHiddenCode] = useState(false)
-  const [usePredefinedCode, setUsePredefinedCode] = useState(false)
+  const [usePredefinedCode, setUsePredefinedCode] = useState(
+    sectionNo === 1 && subgoalNo === 1
+  )
   const hiddenCodeEditor = useRef(null)
   const predefinedCodeEditor = useRef(null)
   const solutionCodeEditor = useRef(null)
@@ -714,20 +1130,21 @@ function Subgoal({
     setDescriptionOpen((open) => !open)
   }
 
-  function handleHiddenCodeEditorDidMount(_valueGetter) {
-    hiddenCodeEditor.current = _valueGetter
+  function handleHiddenCodeEditorDidMount(_, _editor) {
+    hiddenCodeEditor.current = _editor
   }
 
-  function handlePredefinedCodeEditorDidMount(_valueGetter) {
-    predefinedCodeEditor.current = _valueGetter
+  function handlePredefinedCodeEditorDidMount(_, _editor) {
+    predefinedCodeEditor.current = _editor
   }
 
-  function handleSolutionCodeEditorDidMount(_valueGetter) {
-    solutionCodeEditor.current = _valueGetter
+  function handleSolutionCodeEditorDidMount(_, _editor) {
+    solutionCodeEditor.current = _editor
+    solutionCodes[sectionNo + '-' + subgoalNo] = _editor.getValue()
   }
 
-  function handleTestCodeEditorDidMount(_valueGetter) {
-    testCodeEditor.current = _valueGetter
+  function handleTestCodeEditorDidMount(_, _editor) {
+    testCodeEditor.current = _editor
   }
 
   useEffect(() => {
@@ -736,16 +1153,29 @@ function Subgoal({
 
 ${descriptionRef.current.value.trim()}
 
-${addCode(hiddenCodeEditor.current().trim(), 'skjult')}
+${addCode(hiddenCodeEditor.current.getValue().trim(), 'skjult')}
 ${
   usePredefinedCode
-    ? `${addCode(predefinedCodeEditor.current().trim(), 'startkode')}`
+    ? `${addCode(predefinedCodeEditor.current.getValue().trim(), 'startkode')}`
     : ''
 }
-${addCode(solutionCodeEditor.current().trim(), 'løsning')}
-${addCode(testCodeEditor.current().trim(), 'test')}
+${addCode(solutionCodeEditor.current.getValue().trim(), 'løsning')}
+${addCode(testCodeEditor.current.getValue().trim(), 'test')}
 `
     )
+  }, [subgoalNo, usePredefinedCode])
+
+  useEffect(() => {
+    toJSONFunction.current(() => ({
+      title: title.current.value.trim(),
+      description: descriptionRef.current.value.trim(),
+      hiddenCode: hiddenCodeEditor.current.getValue().trim(),
+      ...(usePredefinedCode && {
+        predefinedCode: predefinedCodeEditor.current.getValue().trim(),
+      }),
+      solutionCode: solutionCodeEditor.current.getValue().trim(),
+      testCode: testCodeEditor.current.getValue().trim(),
+    }))
   }, [subgoalNo, usePredefinedCode])
 
   return (
@@ -791,9 +1221,7 @@ ${addCode(testCodeEditor.current().trim(), 'test')}
         vil skjule her, slik som funksjoner og verdier. Disse vil videre kunne
         bli brukt av eleven i deres kode.
       </SubgoalParagraph>
-      <CodeEditorWrapper
-        style={{ display: useHiddenCode ? 'initial' : 'none' }}
-      >
+      <CodeEditorWrapper style={{ display: useHiddenCode ? 'flex' : 'none' }}>
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -802,19 +1230,54 @@ ${addCode(testCodeEditor.current().trim(), 'test')}
         />
       </CodeEditorWrapper>
       <SubgoalTitle>Kode til eleven</SubgoalTitle>
-      <RadioGroup
-        labels={[
-          sectionNo === 1 && subgoalNo === 1
-            ? 'Start med ingen kode'
-            : 'Gjenbruk koden fra forrige deloppgave',
-          'Legg til forhåndsdefinert kode',
-        ]}
-        defaultChecked={0}
-        onChange={(choice) => setUsePredefinedCode(choice === 1)}
-      />
+      {sectionNo === 1 && subgoalNo === 1 ? null : (
+        <RadioGroup
+          labels={[
+            'Fortsett på elevens kode fra forrige deloppgave',
+            'Legg til ny startkode',
+          ]}
+          defaultChecked={0}
+          onChange={(choice) => {
+            setUsePredefinedCode(choice >= 1)
+          }}
+        />
+      )}
       <CodeEditorWrapper
-        style={{ display: usePredefinedCode ? 'initial' : 'none' }}
+        style={{ display: usePredefinedCode ? 'flex' : 'none' }}
       >
+        {sectionNo === 1 && subgoalNo === 1 ? null : (
+          <button
+            style={{ alignSelf: 'flex-start' }}
+            onClick={() => {
+              if (sectionNo > 1 || subgoalNo > 1) {
+                let code = ''
+                const ID = sectionNo + '-' + subgoalNo
+                if (subgoalNo <= 1) {
+                  const prevSectionNo = sectionNo - 1
+                  const prevSubgoalNo = Math.max(
+                    ...Object.keys(solutionCodes)
+                      .map((id) => id.split('-').map((e) => parseInt(e)))
+                      .filter(([sec, _]) => sec === prevSectionNo)
+                      .map(([_, sub]) => sub)
+                  )
+                  const prevID = prevSectionNo + '-' + prevSubgoalNo
+                  if (prevID in solutionCodes) {
+                    code = solutionCodes[prevID]
+                  }
+                } else {
+                  const prevSubgoalNo = subgoalNo - 1
+                  const prevID = sectionNo + '-' + prevSubgoalNo
+                  if (prevID in solutionCodes) {
+                    code = solutionCodes[prevID]
+                  }
+                }
+                predefinedCodeEditor.current.setValue(code)
+              }
+            }}
+          >
+            Hent inn løsningskoden fra forrige deloppgave
+          </button>
+        )}
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -832,6 +1295,9 @@ ${addCode(testCodeEditor.current().trim(), 'test')}
           width={'1000px'}
           height={'240px'}
           value={defaultData.solutionCode}
+          onChange={(_, value) =>
+            (solutionCodes[sectionNo + '-' + subgoalNo] = value)
+          }
           editorDidMount={handleSolutionCodeEditorDidMount}
         />
       </CodeEditorWrapper>

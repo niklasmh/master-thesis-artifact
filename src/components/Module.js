@@ -6,7 +6,7 @@ const ModuleContainer = styled.div`
   touch-action: none;
   position: relative;
 
-  ${props =>
+  ${(props) =>
     props.isClosed
       ? css`
           background: #0002;
@@ -32,10 +32,15 @@ const Title = styled.h1`
 
 const ModuleContent = styled.div`
   display: flex;
-  background: #222;
+  flex-direction: column;
+  background: #202124;
   border-radius: 6px;
-  box-shadow: 0 0 8px #0005;
+  box-shadow: ${(props) => (props.outerShadow ? '0 0 8px #0005' : 'none')};
   cursor: default;
+
+  .light & {
+    background: #fff;
+  }
 `
 
 const TopElement = styled.div`
@@ -72,10 +77,9 @@ function Module({
   width = 'auto',
   height = 'auto',
   isClosed = false,
-  canClose = false,
-  onClose = () => {},
-  canOpen = false,
-  onOpen = () => {},
+  onClose = null,
+  onOpen = null,
+  outerShadow = true,
   ...props
 }) {
   return (
@@ -85,19 +89,20 @@ function Module({
       className={`widget-number ${props.className}`}
     >
       <Title>{title}</Title>
-      {before || canClose || canOpen ? (
+      {before || onClose || onOpen ? (
         <TopElement>
           {before}
-          {canClose ? <Close onClick={onClose}>Fjern</Close> : null}
-          {canOpen ? <Open onClick={onOpen}>Legg til</Open> : null}
+          {onClose ? <Close onClick={onClose}>Fjern</Close> : null}
+          {onOpen ? <Open onClick={onOpen}>Legg til</Open> : null}
         </TopElement>
       ) : null}
       {isClosed ? null : (
         <>
           <ModuleContent
+            outerShadow={outerShadow}
             className="module-content"
             style={{ height, width }}
-            onMouseDown={e => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {content}
           </ModuleContent>

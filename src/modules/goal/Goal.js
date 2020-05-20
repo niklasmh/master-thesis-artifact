@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import Module from '../../components/Module'
+import Timeline from '../../components/Timeline'
 import { useDispatch, useSelector } from 'react-redux'
 
 const StyledModule = styled(Module)`
@@ -15,10 +16,17 @@ const StyledModule = styled(Module)`
   }
 `
 
+const StyledTimeline = styled(Timeline)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  color: #000;
+`
+
 function Goal({ ...props }) {
   const canvas = useRef(null)
   const dispatch = useDispatch()
-  const { goalCanvasSize } = useSelector(state => state.task)
+  const { goalCanvasSize } = useSelector((state) => state.task)
 
   useEffect(() => {
     if (canvas.current !== null) {
@@ -31,14 +39,22 @@ function Goal({ ...props }) {
 
   return (
     <StyledModule
-      title="Mål"
+      title="Løsning"
+      height={goalCanvasSize.h + 'px'}
+      width={goalCanvasSize.w + 'px'}
       {...props}
       content={
-        <canvas
-          ref={canvas}
-          width={goalCanvasSize.w}
-          height={goalCanvasSize.h}
-        />
+        <>
+          <canvas
+            ref={canvas}
+            width={goalCanvasSize.w}
+            height={goalCanvasSize.h}
+          />
+          <StyledTimeline
+            solution={true}
+            style={{ top: goalCanvasSize.h + 24 + 'px' }}
+          />
+        </>
       }
     />
   )

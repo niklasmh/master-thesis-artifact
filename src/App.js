@@ -26,7 +26,7 @@ import LandingPage from './pages/Landing'
 import LoadingPage from './pages/Loading'
 import LoginPage from './pages/Login'
 import ProfilePage from './pages/Profile'
-import TasksPage from './pages/Tasks'
+import TaskPage from './pages/Task'
 
 var firebaseConfig = {
   apiKey: 'AIzaSyDy07r8PY3WutOHNEOMvT94FREgtHwma5I',
@@ -88,7 +88,7 @@ const GlobalStyle = createGlobalStyle`
     overflow: auto;
     font-size: 85%;
     line-height: 1.45;
-    background-color: #1e1e1e;
+    background-color: #202124;
     border-radius: 6px;
 
     .light & {
@@ -170,7 +170,7 @@ function App() {
                 component={uid ? ProfilePage : LandingPage}
               />
               <Route path="/oppgave/ny" component={CreateTaskPage} />
-              <Route path="/oppgave/:id" component={TasksPage} />
+              <Route path="/oppgave/:id" component={TaskPage} />
               <Route
                 exact
                 path="/klasse/:pin/oppgave"
@@ -180,7 +180,7 @@ function App() {
               />
               <Route
                 path="/klasse/:pin/oppgave/:id"
-                component={uid ? TasksPage : LandingPage}
+                component={uid ? TaskPage : LandingPage}
               />
               <Route
                 path="/klasse/:pin"

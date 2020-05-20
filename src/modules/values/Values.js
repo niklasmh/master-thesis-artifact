@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
+
 import Module from '../../components/Module'
 import { classTypes } from '../code-editor/predefinitions'
+import { store } from '../../'
 
 const StyledModule = styled(Module)`
   align-self: flex-start;
@@ -56,22 +58,65 @@ const Sign = styled.span``
 
 const Value = styled.span`
   color: #b5cea8;
+
+  .light & {
+    color: #09885a;
+  }
+`
+
+const BooleanValue = styled.span`
+  color: #569cd6;
+
+  .light & {
+    color: #0000ff;
+  }
 `
 
 const StringValue = styled(Value)`
   color: #ce9178;
+
+  .light & {
+    color: #a31515;
+  }
+`
+
+const Comment = styled(Value)`
+  color: #608b4e;
+  font-style: italic;
+
+  .light & {
+    color: #008000;
+  }
+
+  :before {
+    content: ' # ';
+  }
 `
 
 const ObjectValue = styled(Value)`
   color: #888;
+
+  .light & {
+    color: #888;
+  }
 `
 
 const Viz = styled.span`
   color: #ddd;
+
+  .light & {
+    color: #000;
+  }
 `
 
 const Button = styled.button`
   background: #800;
+
+  .light & {
+    background: #d00;
+    color: #fffd;
+    font-weight: bold;
+  }
 `
 
 const Figure = styled.span`
@@ -83,11 +128,11 @@ const Figure = styled.span`
 `
 
 function Values(props) {
-  const { values, valuesSize } = useSelector(state => state.task)
+  const { values, valuesSize } = useSelector((state) => state.task)
   const dispatch = useDispatch()
 
-  function clearValues() {
-    values.forEach(([key, _]) => {
+  function clearValues(values) {
+    store.getState().task.values.forEach(([key, _]) => {
       try {
         if (typeof window.pyodide.globals[key] !== 'undefined') {
           delete window.pyodide.globals[key]
@@ -99,6 +144,13 @@ function Values(props) {
       values: [],
     })
   }
+
+  useEffect(() => {
+    dispatch({
+      type: 'setClearValuesFunction',
+      clearValues,
+    })
+  }, [])
 
   function clearValue(valueKey) {
     try {
@@ -120,77 +172,101 @@ function Values(props) {
       {...props}
       content={
         <ValueList style={{}}>
-          {values.map(([key, value]) => {
-            switch (typeof value) {
-              case 'string':
-                return (
-                  <Variable key={key}>
-                    <RemoveButton onClick={() => clearValue(key)} />{' '}
-                    <Key>{key}</Key> <Sign>=</Sign>{' '}
-                    <StringValue>"{value}"</StringValue>
-                    {'\n'}
-                  </Variable>
-                )
-              case 'number':
-                return (
-                  <Variable key={key}>
-                    <RemoveButton onClick={() => clearValue(key)} />{' '}
-                    <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
-                    {'\n'}
-                  </Variable>
-                )
-              case 'function':
-                if (classTypes.includes(value.type)) {
-                  const args = ['vx', 'vy', 'ax', 'ay', 'r', 'w', 'h']
-                    .filter(arg => value[arg])
-                    .map(arg => (
-                      <SubVariable key={arg}>
-                        <Key>{arg}</Key>
-                        <Sign>=</Sign>
-                        <Value>{value[arg].toFixed(2)}</Value>
-                      </SubVariable>
-                    ))
-                  let figure = null
-                  if (value.type === 'Ball') {
-                    figure = (
-                      <Figure
-                        title={value.color}
-                        style={{
-                          borderRadius: '50%',
-                          backgroundColor: value.color,
-                        }}
-                      />
-                    )
-                  }
+          {values
+            .filter(([key, value]) => key !== 'loop' && key !== '__loop__')
+            .map(([key, value]) => {
+              let comment = ''
+              switch (key) {
+                case 'dt':
+                  comment = <Comment>Tidssteg</Comment>
+                  break
+                case 't_tot':
+                  comment = <Comment>Total tid</Comment>
+                  break
+              }
+              switch (typeof value) {
+                case 'string':
                   return (
                     <Variable key={key}>
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
-                      <ObjectValue>
-                        {figure} <Viz>Ball(</Viz>
-                        <SubVariable>
-                          <Key>x</Key>
-                          <Sign>=</Sign>
-                          <Value>{value.x.toFixed(2)}</Value>
-                        </SubVariable>
-                        <SubVariable>
-                          <Key>y</Key>
-                          <Sign>=</Sign>
-                          <Value>{value.y.toFixed(2)}</Value>
-                        </SubVariable>
-                        {args}
-                        <Viz style={{ marginLeft: '1em' }}>)</Viz>
-                      </ObjectValue>
+                      <StringValue>"{value}"</StringValue>
+                      {comment}
                       {'\n'}
                     </Variable>
                   )
-                }
-                break
-              default:
-                break
-            }
-            return null
-          })}
+                case 'number':
+                  return (
+                    <Variable key={key}>
+                      <RemoveButton onClick={() => clearValue(key)} />{' '}
+                      <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
+                      {comment}
+                      {'\n'}
+                    </Variable>
+                  )
+                case 'boolean':
+                  return (
+                    <Variable key={key}>
+                      <RemoveButton onClick={() => clearValue(key)} />{' '}
+                      <Key>{key}</Key> <Sign>=</Sign>{' '}
+                      <BooleanValue>{value ? 'True' : 'False'}</BooleanValue>
+                      {comment}
+                      {'\n'}
+                    </Variable>
+                  )
+                case 'function':
+                  if (classTypes.includes(value.type)) {
+                    const args = ['vx', 'vy', 'ax', 'ay', 'r', 'w', 'h']
+                      .filter((arg) => value[arg])
+                      .map((arg) => (
+                        <SubVariable key={arg}>
+                          <Key>{arg}</Key>
+                          <Sign>=</Sign>
+                          <Value>{value[arg].toFixed(2)}</Value>
+                          {comment}
+                        </SubVariable>
+                      ))
+                    let figure = null
+                    if (value.type === 'Ball') {
+                      figure = (
+                        <Figure
+                          title={value.color}
+                          style={{
+                            borderRadius: '50%',
+                            backgroundColor: value.color,
+                          }}
+                        />
+                      )
+                    }
+                    return (
+                      <Variable key={key}>
+                        <RemoveButton onClick={() => clearValue(key)} />{' '}
+                        <Key>{key}</Key> <Sign>=</Sign>{' '}
+                        <ObjectValue>
+                          {figure} <Viz>Ball(</Viz>
+                          <SubVariable>
+                            <Key>x</Key>
+                            <Sign>=</Sign>
+                            <Value>{value.x.toFixed(2)}</Value>
+                          </SubVariable>
+                          <SubVariable>
+                            <Key>y</Key>
+                            <Sign>=</Sign>
+                            <Value>{value.y.toFixed(2)}</Value>
+                          </SubVariable>
+                          {args}
+                          <Viz style={{ marginLeft: '1em' }}>)</Viz>
+                        </ObjectValue>
+                        {'\n'}
+                      </Variable>
+                    )
+                  }
+                  break
+                default:
+                  break
+              }
+              return null
+            })}
           {values.length > 0 ? (
             <Button onClick={clearValues}>Fjern verdier</Button>
           ) : null}

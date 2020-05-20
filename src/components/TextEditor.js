@@ -15,7 +15,7 @@ const md = mdIt({
     if (lang && hljs.getLanguage(lang)) {
       try {
         return hljs.highlight(lang, str).value
-      } catch (__) {}
+      } catch (ex) {}
     }
 
     return ''
@@ -23,11 +23,33 @@ const md = mdIt({
 })
 md.use(mk)
 
+export function Markdown({ children, ...props }) {
+  const [renderedMarkdown, setRenderedMarkdown] = useState('')
+
+  useEffect(() => {
+    setRenderedMarkdown(md.render(children.replace(/\\n/g, '\n')))
+  }, [children])
+
+  return (
+    <RenderedMarkdown
+      dangerouslySetInnerHTML={{ __html: renderedMarkdown }}
+      {...props}
+    />
+  )
+}
+
 const StyledTextEditor = styled.div`
   display: flex;
   flex-flow: row wrap;
   width: 100%;
   font-size: 0.8em;
+  margin: 0.5em auto;
+  align-items: flex-start;
+  text-align: left;
+
+  > textarea {
+    align-self: stretch;
+  }
 
   > * {
     flex: 1 1 200px;
@@ -35,10 +57,12 @@ const StyledTextEditor = styled.div`
   }
 `
 
-const RenderedHTML = styled.div`
-  text-align: left;
-  padding-left: 1.5em;
-  align-self: flex-start;
+export const RenderedMarkdown = styled.div`
+  color: #fff;
+
+  .light & {
+    color: #000;
+  }
 
   table {
     border-spacing: 0;
@@ -114,7 +138,6 @@ export const TextEditor = forwardRef(
       showInitialHelpText && !placeholder ? initialHelpText : placeholder
     )
     const renderedHTMLElement = useRef(null)
-    const [minHeight, setMinHeight] = useState(200)
 
     function onChangeHandler(e) {
       onChange(e.target.value)
@@ -129,24 +152,21 @@ export const TextEditor = forwardRef(
       setDescriptionRendered(md.render(savedPlaceholderValue.current))
     }, [savedPlaceholderValue])
 
-    useEffect(() => {
-      if (descriptionRendered.current !== null) {
-        setMinHeight(renderedHTMLElement.current.clientHeight)
-      }
-    }, [descriptionRendered])
-
     return (
       <StyledTextEditor style={style}>
         <TextArea
           size="1em"
-          minHeight={minHeight + 'px'}
+          minHeight="100%"
           onChange={onChangeHandler}
           defaultValue={defaultValue}
           placeholder={savedPlaceholderValue.current}
           ref={ref}
           {...props}
         ></TextArea>
-        <RenderedHTML
+        <RenderedMarkdown
+          style={{
+            paddingLeft: '1.5em',
+          }}
           ref={renderedHTMLElement}
           dangerouslySetInnerHTML={{ __html: descriptionRendered }}
         />
@@ -367,7 +387,7 @@ export function parseMarkdownOnly(markdown) {
         }
         acc.firstCodeLine = false
       } else {
-        if (line.slice(0, 2) === '# ') {
+        if (line.slice(0, 2) === '# ' && acc.level === 0) {
           acc.json.title = line.slice(2)
         } else if (line.slice(0, 3) === '## ') {
           acc.sectionNo++
@@ -397,7 +417,7 @@ export function parseMarkdownOnly(markdown) {
               acc.mode = 'hidden'
               acc.firstCodeLine = true
             } else if (acc.level === 2) {
-              if (type === 'forhåndsdefinert') {
+              if (type === 'startkode') {
                 acc.mode = 'predefined'
                 acc.firstCodeLine = true
               } else if (type === 'løsning') {
@@ -462,7 +482,7 @@ function getMarkdownSectionLevel(markdown, lineNumber) {
     .reduce(
       (acc, line) => {
         const add = { ...acc }
-        if (line.slice(0, 2) === '# ') {
+        if (line.slice(0, 2) === '# ' && acc.level === -1) {
           add.level = 0
         } else if (line.slice(0, 3) === '## ') {
           add.sectionNo++
