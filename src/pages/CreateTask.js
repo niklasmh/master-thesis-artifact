@@ -801,7 +801,7 @@ ${sections
         <Help
           width="800px"
           y="0.5em"
-          x="-8em"
+          x="-8.5em"
           z={99}
           right
           center
@@ -838,7 +838,7 @@ def distanse(x1, y1, x2, y2):
             key={useHiddenCode}
             name={useHiddenCode ? 'expand_more' : 'chevron_right'}
           />{' '}
-          Legg til skjult kode for hele oppgaven
+          Legg til skjult kode for hele oppgaven <Icon name="visibility_off" />
         </Button>
         <CodeEditorWrapper
           style={{
@@ -1124,7 +1124,7 @@ ${subgoals
       <Help
         width="800px"
         y="0.5em"
-        x="18em"
+        x="18.5em"
         z={97}
         center
         md
@@ -1191,7 +1191,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
           key={descriptionOpen}
           name={descriptionOpen ? 'expand_more' : 'chevron_right'}
         />{' '}
-        Legg til en lengre beskrivelse av seksjonen
+        Legg til en lengre beskrivelse av seksjonen <Icon name="description" />
       </Button>
       <TextEditor
         showInitialHelpText={false}
@@ -1205,7 +1205,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
           key={useHiddenCode}
           name={useHiddenCode ? 'expand_more' : 'chevron_right'}
         />{' '}
-        Legg til skjult kode for hele seksjonen
+        Legg til skjult kode for hele seksjonen <Icon name="visibility_off" />
       </Button>
       <CodeEditorWrapper
         style={{
@@ -1443,7 +1443,8 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           key={descriptionOpen}
           name={descriptionOpen ? 'expand_more' : 'chevron_right'}
         />{' '}
-        Legg til en lengre beskrivelse av deloppgaven
+        Legg til en lengre beskrivelse av deloppgaven{' '}
+        <Icon name="description" />
       </Button>
       <TextEditor
         ref={descriptionRef}
@@ -1458,7 +1459,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           key={useHiddenCode}
           name={useHiddenCode ? 'expand_more' : 'chevron_right'}
         />{' '}
-        Legg til skjult kode for deloppgaven
+        Legg til skjult kode for deloppgaven <Icon name="visibility_off" />
       </Button>
       <CodeEditorWrapper style={{ display: useHiddenCode ? 'flex' : 'none' }}>
         <CodeEditor
@@ -1576,7 +1577,6 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         tilpasset tilbakemelding til eleven om hva som er feil.
       </SubgoalParagraph>
       <CodeEditorWrapper>
-        <button onClick={() => console.log('test')}>Kjør testen</button>
         <Help
           width="800px"
           y="0em"
