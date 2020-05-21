@@ -190,9 +190,9 @@ def test():
     try:
         def defined(variable):
             return variable in globals()
-        def simulate(t=0, steps=1):
+        def simulate(time=0, steps=1):
             nonlocal t
-            if t:
+            if time:
               while t < time:
                   t += dt
                   loop(t)
@@ -238,9 +238,11 @@ export default function TaskCodeEnvironment({
   subgoalNo = 0,
   sectionNoMax = 0,
   subgoalNoMax = 0,
+  updatedTask = 0,
   onFinishedSubgoal = () => {},
   onUnFinishedSubgoal = () => {},
   engine = {},
+  ...props
 }) {
   const { editor, loopEditor, runCode, isEngineReady } = useSelector(
     (state) => state.task
@@ -254,6 +256,7 @@ export default function TaskCodeEnvironment({
   const [currentHiddenCode, setCurrentHiddenCode] = useState('')
   const [currentSolutionCode, setCurrentSolutionCode] = useState([''])
   const [width] = useState(1200)
+  //console.log(task)
 
   useEffect(() => {
     setLayout(initialLayout)
@@ -303,10 +306,8 @@ export default function TaskCodeEnvironment({
     h: rowHeight + marginY * sizeFactorH - marginY * sizeOffFactorH,
   })
 
-  const prevTitle = useRef('')
   useEffect(() => {
-    if (task && task.title && prevTitle !== task.title) {
-      prevTitle.current = task.title
+    if (task && 'title' in task) {
       try {
         const { hiddenCode: taskHiddenCode = '' } = task
         if (task.sections && task.sections.length > sectionNo) {
@@ -488,6 +489,7 @@ export default function TaskCodeEnvironment({
     task,
     sectionNo,
     subgoalNo,
+    updatedTask,
     sectionNoMax,
     subgoalNoMax,
     runCode,
@@ -507,6 +509,15 @@ export default function TaskCodeEnvironment({
         currentSolutionCode
       if (code !== prevCode.current) {
         prevCode.current = code
+        console.log(currentHiddenCode)
+        console.log(currentStartCode)
+        console.log(currentLoopCode)
+        console.log(
+          makeAllVariablesChangeableInLoop(
+            wrapSolutionCode(currentHiddenCode, ...currentSolutionCode),
+            1
+          )
+        )
         prevSubgoalID.current = subgoalID
         const runCodes = async () => {
           await runCode(currentHiddenCode, true, true)
@@ -655,7 +666,7 @@ export default function TaskCodeEnvironment({
   }
 
   return (
-    <TaskCodeEnvironmentContainer>
+    <TaskCodeEnvironmentContainer {...props}>
       {edit && allVisible.length !== visible.length ? (
         <SubTitle>Verktøykasse</SubTitle>
       ) : null}

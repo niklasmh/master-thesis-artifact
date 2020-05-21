@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import * as firebase from 'firebase/app'
 import mdIt from 'markdown-it'
@@ -16,6 +16,7 @@ import {
   ExtendedMarkdownEditor,
   parseMarkdownOnly,
 } from '../components/TextEditor'
+import TaskCodeEnvironment from '../modules'
 
 const md = mdIt({
   langPrefix: 'language-',
@@ -577,10 +578,22 @@ const emptySection = {
 }
 
 export default function CreateTaskPage() {
+  const dispatch = useDispatch()
   const { uid } = useSelector((state) => state.user)
   const title = useRef('')
   const description = useRef('')
+  const [task, setTask] = useState({
+    title: '',
+    description: '',
+    hiddenCode: '',
+    sections: [],
+  })
   const [sections, setSections] = useState([randomString()])
+  const [sectionNo, setSectionNo] = useState(-1)
+  const [subgoalNo, setSubgoalNo] = useState(-1)
+  const [updatedTask, setUpdatedTask] = useState(-1)
+  const [taskSectionNo, setTaskSectionNo] = useState(-1)
+  const [taskSubgoalNo, setTaskSubgoalNo] = useState(-1)
   const [saveFeedback, setSaveFeedback] = useState('')
   const [sectionsData, setSectionsData] = useState([emptySection])
   const [useHiddenCode, setUseHiddenCode] = useState(false)
@@ -602,6 +615,7 @@ export default function CreateTaskPage() {
     () => ``,
   ])
   const [useMarkdownOnly, setUseMarkdownOnly] = useState(false)
+  const testTaskAnchor = useRef(null)
 
   function handleHiddenCodeEditorDidMount(_valueGetter) {
     hiddenCodeEditor.current = _valueGetter
@@ -656,6 +670,36 @@ ${sections
       )
     }
   }
+
+  const testTask = () => {
+    const newTask = buildJSONFromGUI(sections, sectionToJSONFunctions)
+    console.log(newTask)
+    setTask(newTask)
+    setTimeout(() => {
+      testTaskAnchor.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      })
+    }, 100)
+  }
+
+  const prevSectionNo = useRef(-1)
+  const prevSubgoalNo = useRef(-1)
+  const prevUpdatedTask = useRef(-1)
+  useEffect(() => {
+    if (
+      prevSectionNo.current !== sectionNo ||
+      prevSubgoalNo.current !== subgoalNo ||
+      prevUpdatedTask.current !== updatedTask
+    ) {
+      prevSectionNo.current = sectionNo
+      prevSubgoalNo.current = subgoalNo
+      prevUpdatedTask.current = updatedTask
+      setTaskSectionNo(sectionNo - 1)
+      setTaskSubgoalNo(subgoalNo - 1)
+      testTask()
+    }
+  }, [sectionNo, subgoalNo, updatedTask])
 
   useEffect(() => {
     if (useMarkdownOnly) {
@@ -828,6 +872,9 @@ def distanse(x1, y1, x2, y2):
             <li key={section}>
               <Section
                 sectionNo={i + 1}
+                setSectionNo={setSectionNo}
+                setSubgoalNo={setSubgoalNo}
+                setUpdatedTask={setUpdatedTask}
                 defaultData={sectionsData[i]}
                 toMarkdown={(fn) => {
                   setSectionToMarkdownFunctions((stm) => [
@@ -856,7 +903,51 @@ def distanse(x1, y1, x2, y2):
           + Legg til ny seksjon
         </AddNewSection>
       </div>
-      <AddNewSection onClick={saveTask}>Lagre</AddNewSection>
+      <TaskCodeEnvironment
+        style={{ fontSize: '1rem' }}
+        edit={true}
+        task={task}
+        updatedTask={updatedTask}
+        subgoalNo={taskSubgoalNo}
+        sectionNo={taskSectionNo}
+        subgoalNoMax={100000}
+        sectionNoMax={100000}
+        onFinishedSubgoal={(
+          sectionNo,
+          subgoalNo,
+          sectionNoMax,
+          subgoalNoMax
+        ) => {
+          //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
+        }}
+        onUnFinishedSubgoal={(
+          sectionNo,
+          subgoalNo,
+          sectionNoMax,
+          subgoalNoMax
+        ) => {
+          //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
+        }}
+        engine={{
+          scripts: [
+            {
+              src: 'https://pyodide.cdn.iodide.io/pyodide.js',
+              onload: () => {
+                if (window.languagePluginLoader) {
+                  window.languagePluginLoader.then(() => {
+                    dispatch({
+                      type: 'setIsEngineReady',
+                      isReady: true,
+                    })
+                  })
+                }
+              },
+            },
+          ],
+        }}
+      />
+      <div ref={testTaskAnchor} />
+      <AddNewSection onClick={saveTask}>Lagre oppgaven</AddNewSection>
       <Paragraph>{saveFeedback}</Paragraph>
     </Container>
   )
@@ -941,6 +1032,9 @@ function Section({
     ],
   },
   sectionNo,
+  setSectionNo,
+  setSubgoalNo,
+  setUpdatedTask,
   toMarkdown,
   toJSON,
 }) {
@@ -1154,6 +1248,9 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
             <Subgoal
               sectionNo={sectionNo}
               subgoalNo={i + 1}
+              setSectionNo={setSectionNo}
+              setSubgoalNo={setSubgoalNo}
+              setUpdatedTask={setUpdatedTask}
               defaultData={defaultData.subgoals[i]}
               prevSubgoal={i > 0 ? defaultData.subgoals[i - 1] : null}
               toMarkdown={(fn) => {
@@ -1248,6 +1345,9 @@ function Subgoal({
   },
   sectionNo,
   subgoalNo,
+  setSectionNo,
+  setSubgoalNo,
+  setUpdatedTask,
   toMarkdown,
   toJSON,
 }) {
@@ -1476,7 +1576,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         tilpasset tilbakemelding til eleven om hva som er feil.
       </SubgoalParagraph>
       <CodeEditorWrapper>
-        <button onClick={() => console.log('kjøøør')}>Kjør testen</button>
+        <button onClick={() => console.log('test')}>Kjør testen</button>
         <Help
           width="800px"
           y="0em"
@@ -1557,6 +1657,20 @@ print(f"Du klarte deloppgave {section}. {subgoal})!")
           editorDidMount={handleTestCodeEditorDidMount}
         />
       </CodeEditorWrapper>
+      <SubgoalTitle>Prøv ut deloppgaven</SubgoalTitle>
+      <SubgoalParagraph>
+        For å sjekke om alt stemmer, kan du teste deloppgaven slik eleven vil se
+        den.
+      </SubgoalParagraph>
+      <button
+        onClick={() => {
+          setSectionNo(sectionNo)
+          setSubgoalNo(subgoalNo)
+          setUpdatedTask(Math.floor(Math.random() * 100000))
+        }}
+      >
+        Prøv ut deloppgaven
+      </button>
     </StyledSubgoal>
   )
 }
