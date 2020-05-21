@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { wrapLoopCode } from '../modules'
-
 const TimelineContainer = styled.div`
   color: #ddd;
   display: flex;
@@ -53,7 +51,6 @@ function Timeline({ solution = false, ...props }) {
     isPlaying,
     isEngineReady,
     codeEditorRun,
-    runCode,
   } = useSelector((state) => state.task)
   const [localTime, setLocalTime] = useState(0)
   const [hasLoop, setHasLoop] = useState(false)
@@ -83,7 +80,14 @@ function Timeline({ solution = false, ...props }) {
         setLocalTime(totalTime === 0 ? time : Math.min(time, totalTime))
       }
     }
-  }, [time])
+  }, [
+    time,
+    solutionDeltaTime,
+    solutionTotalTime,
+    deltaTime,
+    totalTime,
+    solution,
+  ])
 
   useEffect(() => {
     if (isEngineReady) {
@@ -101,14 +105,13 @@ function Timeline({ solution = false, ...props }) {
         }
       }
     }
-  }, [time, isPlaying, isEngineReady])
+  }, [time, isPlaying, isEngineReady, hasLoop, solution])
 
   function timelineSelectHandler(e) {
     //dispatch({ type: 'setTime', time: time + deltaTime })
   }
 
   async function playControlHandler() {
-    let success = false
     if (!isPlaying && totalTime > 0 && time + deltaTime >= totalTime) {
       codeEditorRun()
       dispatch({
@@ -149,13 +152,13 @@ function Timeline({ solution = false, ...props }) {
     if (!solution) {
       setTimePrecision((1 / deltaTime).toString().length)
     }
-  }, [deltaTime])
+  }, [deltaTime, solution])
 
   useMemo(() => {
     if (solution) {
       setSolutionTimePrecision((1 / solutionDeltaTime).toString().length)
     }
-  }, [solutionDeltaTime])
+  }, [solutionDeltaTime, solution])
 
   if (!hasLoop) {
     return <div style={{ display: 'none' }} />

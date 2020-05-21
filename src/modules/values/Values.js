@@ -150,7 +150,7 @@ function Values(props) {
       type: 'setClearValuesFunction',
       clearValues,
     })
-  }, [])
+  }, [dispatch])
 
   function clearValue(valueKey) {
     try {

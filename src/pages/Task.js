@@ -7,7 +7,7 @@ import * as firebase from 'firebase/app'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 
 import TaskCodeEnvironment from '../modules'
-import { Title, SubTitle, Paragraph } from '../components/Typography'
+import { Title, SubTitle } from '../components/Typography'
 import { Markdown } from '../components/TextEditor'
 import Icon from '../components/Icon'
 import Loading from '../components/Loading'
@@ -29,12 +29,6 @@ const Description = styled.div`
   text-shadow: 0 4px 8px #0004;
   text-align: center;
   align-self: center;
-`
-
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: auto;
 `
 
 const Subgoals = styled.div`
@@ -99,49 +93,22 @@ const NextButton = styled.button`
 
 function TaskPage() {
   const dispatch = useDispatch()
-  const {
-    writeToLogFunction,
-    editor,
-    runCode,
-    clearLog,
-    clearValues,
-    attempts,
-  } = useSelector((state) => state.task)
-  const { userData } = useSelector((state) => state.user)
+  const { clearLog, clearValues, attempts } = useSelector((state) => state.task)
   const [task, setTask] = useState({
     title: '',
     description: '',
     hiddenCode: '',
     sections: [],
   })
-  const [edit, setEdit] = useState(false)
+  const [edit] = useState(false)
   const [sectionNo, setSectionNo] = useState(0)
   const [subgoalNo, setSubgoalNo] = useState(0)
   const [sectionNoMax, setSectionNoMax] = useState(0)
   const [subgoalNoMax, setSubgoalNoMax] = useState(0)
   const [subgoalFinished, setSubgoalFinished] = useState(false)
-  const [engine, setEngine] = useState({})
   const [testsPassed, setTestsPassed] = useState({})
   const topOfSectionRef = useRef(null)
   const topOfSubgoalRef = useRef(null)
-
-  useEffect(() => {
-    if (userData) {
-      //setEdit(userData.isTeacher)
-    }
-  }, [userData])
-
-  //const testsFeedback = (i, passed) => {
-  //  setTestsPassed((tests) => {
-  //    const newTests = tests.slice(0)
-  //    if (i >= newTests.length) {
-  //      newTests.push(passed)
-  //    } else {
-  //      newTests[i] = passed
-  //    }
-  //    return newTests
-  //  })
-  //}
 
   const { id } = useParams()
   const [taskData, loadingTaskData] = useDocumentDataOnce(
