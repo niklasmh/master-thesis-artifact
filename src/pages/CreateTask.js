@@ -1469,7 +1469,9 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           editorDidMount={handleHiddenCodeEditorDidMount}
         />
       </CodeEditorWrapper>
-      <SubgoalTitle>Kode til eleven</SubgoalTitle>
+      <SubgoalTitle>
+        Kode til eleven <Icon name="code" />
+      </SubgoalTitle>
       {sectionNo === 1 && subgoalNo === 2 ? (
         <Help
           width="800px"
@@ -1545,7 +1547,9 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           editorDidMount={handlePredefinedCodeEditorDidMount}
         />
       </CodeEditorWrapper>
-      <SubgoalTitle>Løsning på deloppgaven</SubgoalTitle>
+      <SubgoalTitle>
+        Løsning på deloppgaven <Icon name="visibility" />
+      </SubgoalTitle>
       <SubgoalParagraph>
         Eleven kan velge å se løsningen etter de har forsøkt 3 ganger. Prøv å
         gjør løsningen så lesbar som mulig.
@@ -1571,7 +1575,9 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           editorDidMount={handleSolutionCodeEditorDidMount}
         />
       </CodeEditorWrapper>
-      <SubgoalTitle>Tester</SubgoalTitle>
+      <SubgoalTitle>
+        Tester <Icon name="assignment_turned_in" />
+      </SubgoalTitle>
       <SubgoalParagraph>
         Disse testene skal sjekke om svaret er riktig. Her kan du også gi en
         tilpasset tilbakemelding til eleven om hva som er feil.
@@ -1657,7 +1663,9 @@ print(f"Du klarte deloppgave {section}. {subgoal})!")
           editorDidMount={handleTestCodeEditorDidMount}
         />
       </CodeEditorWrapper>
-      <SubgoalTitle>Prøv ut deloppgaven</SubgoalTitle>
+      <SubgoalTitle>
+        Prøv ut deloppgaven <Icon name="play_circle_filled" />
+      </SubgoalTitle>
       <SubgoalParagraph>
         For å sjekke om alt stemmer, kan du teste deloppgaven slik eleven vil se
         den.
