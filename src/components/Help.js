@@ -74,6 +74,10 @@ const HelpContent = styled.div`
   .light & {
     background: #fff;
   }
+
+  & :not(pre) > code {
+    background-color: #fff1;
+  }
 `
 
 const HelpContainer = styled.div`

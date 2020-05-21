@@ -83,21 +83,21 @@ const Sections = styled.ol`
 `
 
 const placeholders = {
-  testCode: `# Returner True / False ut ifra om testen er passert
-
+  testCode: `
 # For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
-if not defined('g'):
-  print("Du må definere 'g'") # Sender tilbakemelding til eleven
-  return False # Testen feiler her
+assert defined('g'), "Du må definere 'g'" # Sender tilbakemelding til eleven om dette feiler
 
-# Sjekke om en variabel ikke er lik fasitverdien
-if g != 9.81:
-  print("Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma.")
-  return False
+# Sjekke om en variabel er lik fasitverdien
+assert g == 9.81, "Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma."
 
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
+# Simulere 2 sekunder frem i tid
+simulate(t=2)
+
+# Sjekke om elevens ball.y er lik løsningen over sin ball.y i sekund 2
+assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s"
+
+# Om testen ikke har feilet til nå, så er den
 print("Du klarte oppgaven!")
-return True
 `,
   testMarkdown: `# Ball i fritt fall
 
@@ -1369,27 +1369,27 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         />
       </CodeEditorWrapper>
       <SubgoalTitle>Kode til eleven</SubgoalTitle>
+      {sectionNo === 1 && subgoalNo === 2 ? (
+        <Help
+          width="800px"
+          y="1em"
+          x="23em"
+          z={90}
+          center
+          md
+        >{`Det er veldig greit at eleven får gjenbrukt sin egen kode over flere deloppgaver, men pass også på at de får ny startkode en gang i blant slik at de ikke ender opp med å bruke tiden på å finne feil i sin egen kode.`}</Help>
+      ) : null}
       {sectionNo === 1 && subgoalNo === 1 ? null : (
-        <>
-          <Help
-            width="800px"
-            y="1em"
-            x="23em"
-            z={94}
-            center
-            md
-          >{`Det er veldig greit at eleven får gjenbrukt sin egen kode over flere deloppgaver, men pass også på at de får ny startkode en gang i blant slik at de ikke ender opp med å bruke tiden på å finne feil i sin egen kode.`}</Help>
-          <RadioGroup
-            labels={[
-              'Fortsett på elevens kode fra forrige deloppgave',
-              'Legg til ny startkode',
-            ]}
-            defaultChecked={0}
-            onChange={(choice) => {
-              setUsePredefinedCode(choice >= 1)
-            }}
-          />
-        </>
+        <RadioGroup
+          labels={[
+            'Fortsett på elevens kode fra forrige deloppgave',
+            'Legg til ny startkode',
+          ]}
+          defaultChecked={0}
+          onChange={(choice) => {
+            setUsePredefinedCode(choice >= 1)
+          }}
+        />
       )}
       <CodeEditorWrapper
         style={{ display: usePredefinedCode ? 'flex' : 'none' }}
@@ -1427,14 +1427,16 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
             Hent inn løsningskoden fra forrige deloppgave
           </button>
         )}
-        <Help
-          width="800px"
-          y="0em"
-          x="0em"
-          z={93}
-          left
-          md
-        >{`Her kan du oppgi kode til eleven på forhånd. Dette kan hjelpe eleven med å se helheten i oppgaven, men pass på at du ikke viser for mye detaljer. Om du har mye kode fra før bør denne skjules i "skjult kode"-blokkene.`}</Help>
+        {sectionNo === 1 && subgoalNo === 1 ? (
+          <Help
+            width="800px"
+            y="0em"
+            x="0em"
+            z={93}
+            left
+            md
+          >{`Her kan du oppgi kode til eleven på forhånd. Dette kan hjelpe eleven med å se helheten i oppgaven, men pass på at du ikke viser for mye detaljer. Om du har mye kode fra før bør denne skjules i "skjult kode"-blokkene.`}</Help>
+        ) : null}
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -1448,14 +1450,16 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         gjør løsningen så lesbar som mulig.
       </SubgoalParagraph>
       <CodeEditorWrapper>
-        <Help
-          width="800px"
-          y="0em"
-          x="0em"
-          z={92}
-          left
-          md
-        >{`Denne løsningskoden er viktig for å demonstrere til eleven hva som er forventet resultet, men også for å kunne gi eleven en løsning på oppgaven om de står fast.`}</Help>
+        {sectionNo === 1 && subgoalNo === 1 ? (
+          <Help
+            width="800px"
+            y="0em"
+            x="0em"
+            z={92}
+            left
+            md
+          >{`Denne løsningskoden er viktig for å demonstrere til eleven hva som er forventet resultet, men også for å kunne gi eleven en løsning på oppgaven om de står fast.`}</Help>
+        ) : null}
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -1480,39 +1484,70 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           z={91}
           left
           md
-        >{`For å teste om elvens kode er riktig kan du ta i bruk en rekke funksjoner. Disse er brukt og beskrevet her:
+        >{`For å teste om elvens kode er riktig kan du ta i bruk en rekke funksjoner. Disse er beskrevet her:
+
+#### Sjekke om noe er definert
 
 \`\`\`python
-# Sjekke om en variabel ikke er definert, med en if-setning
-if not defined("ball"):
-    print("Husk å definere 'ball'") # Gi tilbakemelding
-    return False # Feilet, så returnerer False
+assert defined('g'), "Husk å definere 'g'"
 
-# Sjekker om elevens ball.y er lik løsningens ball.y, på sekund 0
-if ball.y != solution("ball.y"):
-    print("Husk å sette ballens posisjon til (0, 0)")
-    return False
+# Begge disse er ekvivalente
 
-# Simulerer både elevens kode og løsningskoden i èn delta tid (altså en iterasjon)
-simulate_one_time_step()
+if not defined("g"):
+    raise Exception("Husk å definere 'g'")
 
-# Bruke \`assert\` i stedet for \`return\`:
+# Den neste gir en litt snillere tilbakemelding:
 
-# Sjekker om elevens ball.y er lik løsningens ball.y, etter en delta tid
-assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s" # Den siste delen blir feilmeldingen til eleven
+if not defined("g"):
+    print("Husk å definere 'g'")
+    return False # Her må man returnere False for å stoppe koden
+\`\`\`
 
-# Simulerer både elevens kode og løsningskoden i tre sekunder til
-simulate_to_time(3)
+#### Sjekke verdier
 
-# Sjekker om elevens ball.y er lik løsningens ball.y, på sekund dt+4
-if ball.y != solution("ball.y"):
-    # Legger til en mer detaljert beskrivelse av feilen
-    print("Du er veldig nærme! Men fortsatt feil svar. Du har en error på", abs(ball.y - solution("ball.y")))
-    return False
+\`\`\`python
+assert g == 9.81, "Du må sette g til 9.81"
+\`\`\`
 
-# Om koden ikke har feilet til nå, så er oppgaven fullført
-print("Du klarte deloppgaven!")
-return True # Denne er valgfri
+#### Sjekke med verdier til løsningen
+
+Noen ganger kan det være vanskelig å si om hva verdien skal bli, så da kan man sammenligne med løsningen over sine verdier, med \`solution("variabel")\`:
+
+\`\`\`python
+assert g == solution("g"), f"Du må sette g til {solution("g")}"
+\`\`\`
+
+#### Sjekke verdier etter x sekunder
+
+\`\`\`python
+# Simulerer elevens kode og løsningskoden i 3 sekunder
+simulate(t=3)
+
+# Sjekker om elevens ball.y er lik løsningens ball.y, i t = 3
+assert ball.y == solution("ball.y"), "Du må sette g til 9.81"
+\`\`\`
+
+#### Sjekke verdier etter x steg
+
+\`\`\`python
+# Simulerer elevens kode og løsningskoden 2 ganger til
+simulate(steps=2)
+
+# Sjekker om elevens ball.y nesten lik løsningens ball.y, i den nye tiden
+error = abs(ball.y - solution("ball.y"))
+assert error > 0.01, f"Du er veldig nærme. Du har en error på: {error}"
+\`\`\`
+
+#### Gi tilbakemelding til eleven
+
+\`\`\`python
+print("Du klarte deloppgaven! Godt jobbet!")
+\`\`\`
+
+Om du vil inkludere seksjonsnummer og deloppgavebokstav, så kan det gjøres slik:
+
+\`\`\`python
+print(f"Du klarte deloppgave {section}. {subgoal})!")
 \`\`\`
 `}</Help>
         <CodeEditor

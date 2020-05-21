@@ -179,26 +179,29 @@ __init_solution_code__()
 `
 }
 
+const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
+
 function wrapTestCode(testCode, sectionNo, subgoalNo) {
   return `
 def test():
     section = ${sectionNo + 1}
-    subgoal = ${subgoalNo + 1}
+    subgoal = "${getAlpha(subgoalNo + 1)}"
     t = 0
     try:
         def defined(variable):
             return variable in globals()
-        def simulate_one_time_step():
+        def simulate(t=0, steps=1):
             nonlocal t
-            t += dt
-            loop(t)
-            __loop__(t)
-        def simulate_to_time(time=1):
-            nonlocal t
-            while t < time:
-                t += dt
-                loop(t)
-                __loop__(t)
+            if t:
+              while t < time:
+                  t += dt
+                  loop(t)
+                  __loop__(t)
+            else:
+              for i in range(steps):
+                  t += dt
+                  loop(t)
+                  __loop__(t)
         def solution(variable):
             if "." in variable:
                 levels = variable.split(".")
@@ -211,7 +214,7 @@ def test():
                 return scope
             return __solution_scope__[variable]
 ${indentCode(testCode, 2)}
-        print(f"Du klarte deloppgave {section}.{subgoal}!")
+        print(f"Du klarte deloppgave {section}. {subgoal})!")
         return True
     except BaseException as e:
         raise e
