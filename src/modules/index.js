@@ -244,7 +244,7 @@ export default function TaskCodeEnvironment({
   engine = {},
   ...props
 }) {
-  const { editor, loopEditor, runCode, isEngineReady } = useSelector(
+  const { editor, loopEditor, runCode, isEngineReady, clearLog } = useSelector(
     (state) => state.task
   )
   const dispatch = useDispatch()
@@ -413,6 +413,7 @@ export default function TaskCodeEnvironment({
                       if (loopError) return false
                     }
                     if (withTests) {
+                      clearLog()
                       const {
                         output = '',
                         error: testError = false,
