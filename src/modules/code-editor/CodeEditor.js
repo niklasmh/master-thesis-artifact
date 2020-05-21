@@ -8,6 +8,7 @@ import {
   preDefinedImports,
   preDefinedElements,
   preDefinedVars,
+  preDefinedUserVars,
   createPrintFunction,
   preDefinedElementsLineCount,
   createOnLogInputFunction,
@@ -170,6 +171,157 @@ function CodeEditor(props) {
 
   function handleEditorDidMount(_valueGetter, _editor) {
     setIsEditorReady(true)
+    const types = {
+      Ball: {
+        signature: 'Ball(x=tall, y=tall, r=tall, color="farge")',
+        kind: window.monaco.languages.CompletionItemKind.Function,
+        documentation:
+          'Eksempel på bruk:\n\n```python\nBall(x=0, y=0, r=1)\n```',
+        insertText: 'Ball(x=${1:0}, y=${2:0}, r=${3:1}, color="blue")',
+        parameters: [
+          {
+            label: 'x=tall',
+            documentation: 'Posisjon på x-aksen',
+          },
+          {
+            label: 'y=tall',
+            documentation: 'Posisjon på y-aksen',
+          },
+          {
+            label: 'r=tall',
+            documentation: 'Posisjon på y-aksen',
+          },
+        ],
+      },
+      Blokk: {
+        signature: 'Blokk(x=tall, y=tall, b=tall, h=tall, color="farge")',
+        kind: window.monaco.languages.CompletionItemKind.Function,
+        documentation:
+          'Eksempel på bruk:\n\n```python\nBlokk(x=0, y=0, b=1, h=1)\n```',
+        insertText:
+          'Blokk(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, color="blue")',
+        parameters: [
+          {
+            label: 'x=tall',
+            documentation: 'Posisjon på x-aksen',
+          },
+          {
+            label: 'y=tall',
+            documentation: 'Posisjon på y-aksen',
+          },
+          {
+            label: 'b=tall',
+            documentation: 'Bredde',
+          },
+          {
+            label: 'h=tall',
+            documentation: 'Høyde',
+          },
+        ],
+      },
+      dt: {
+        signature: 'dt',
+        kind: window.monaco.languages.CompletionItemKind.Variable,
+        documentation:
+          'Tidssteg i sekunder. Denne beskriver hvor store tidsssteg simuleringen tar.\n\nF.eks. er dt = 0.1, kjøres simuleringen 10 ganger per sekund. Vanligvis vil man ha dt rundt 0.01 og 0.04, avgengig av hvor viktig at simuleringen ikke hakker.',
+        insertText: 'dt',
+      },
+      t_tot: {
+        signature: 't_tot',
+        kind: window.monaco.languages.CompletionItemKind.Variable,
+        documentation:
+          'Total tid til simuleringen er ferdig. Om du aldri vil at den skal bli ferdig, sett denne til 0. Denne kan også settes mens simuleringen spilles, om du vil stanse den. Eventuelt kan du kjøre `stopp()` for å stoppe simuleringen.',
+        insertText: 't_tot',
+      },
+      stopp: {
+        signature: 'stopp()',
+        kind: window.monaco.languages.CompletionItemKind.Function,
+        documentation:
+          'Denne funksjonen stopper simuleringen.\n\nBrukes slik:\n\n```python\nif t > 1:\n    stopp()\n```',
+        insertText: 'stopp()',
+      },
+    }
+    /* Works in the beginning, but not when dealing with multiple arguments * /
+    window.monaco.languages.registerSignatureHelpProvider('python', {
+      signatureHelpTriggerCharacters: ['(', ','],
+      provideSignatureHelp: async function (model, position, token, context) {
+        const { column, lineNumber } = position
+        const signatures = []
+        const line = model.getLineContent(lineNumber)
+        const start = line.lastIndexOf('(')
+        let activeParameter = line.slice(start).split(',').length - 1
+        if (context.triggerCharacter === '(') {
+          const word = model.getWordAtPosition({
+            column: column - 1,
+            lineNumber,
+          }).word
+          if (word in types) {
+            signatures.push({
+              label: types[word].signature,
+              documentation: {
+                value: types[word].documentation,
+              },
+              parameters: types[word].parameters,
+            })
+          }
+        }
+        return {
+          value: {
+            activeParameter,
+            activeSignature: 0,
+            signatures,
+          },
+          dispose: () => {},
+        }
+      },
+    })
+    /**/
+    window.monaco.languages.registerCompletionItemProvider('python', {
+      provideCompletionItems: async function (model, position) {
+        var word = model.getWordUntilPosition(position)
+        var range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        }
+        const suggestions = Object.values(types).map((type) => ({
+          label: type.signature,
+          kind: type.kind,
+          documentation: {
+            value: type.documentation,
+          },
+          insertText: type.insertText,
+          insertTextRules:
+            window.monaco.languages.CompletionItemInsertTextRule
+              .InsertAsSnippet,
+          range,
+        }))
+        const completions = preDefinedUserVars
+        suggestions.push(
+          ...completions.map((c) => ({ label: c, insertText: c }))
+        )
+        return {
+          suggestions,
+        }
+      },
+    })
+    window.monaco.languages.registerHoverProvider('python', {
+      provideHover: function (model, position) {
+        try {
+          const { word = '' } = model.getWordAtPosition(position)
+          if (word in types) {
+            return {
+              contents: [
+                { value: types[word].signature },
+                { value: types[word].documentation },
+              ],
+            }
+          }
+        } catch (ex) {}
+        return {}
+      },
+    })
     editor.current = _editor
     dispatch({
       type: 'setEditor',
@@ -208,6 +360,12 @@ function CodeEditor(props) {
   }, [isPlaying])
 
   useEffect(() => {
+    if (isEngineReady && window.pyodide) {
+      //window.pyodide.runPython('import pyodide')
+    }
+  }, [isEngineReady])
+
+  useEffect(() => {
     if (isEngineReady) {
       window.pyodide.globals.print = createPrintFunction(writeToLogFunction)
     }
@@ -218,6 +376,19 @@ function CodeEditor(props) {
       window.pyodide.globals.input = createOnLogInputFunction(onLogInput)
     }
   }, [isEngineReady, onLogInput])
+
+  useEffect(() => {
+    if (isEngineReady) {
+      const stopFunction = () => {
+        dispatch({
+          type: 'setIsPlaying',
+          isPlaying: false,
+        })
+      }
+      window.pyodide.globals.stopp = stopFunction
+      window.pyodide.globals.stop = stopFunction
+    }
+  }, [isEngineReady, dispatch])
 
   useEffect(() => {
     if (

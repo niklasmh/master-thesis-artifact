@@ -62,6 +62,14 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Roboto', sans-serif;
   }
 
+  a {
+    color: #5595ff;
+
+    .light & {
+      color: #6861ff;
+    }
+  }
+
   button, .button {
     font-size: 0.8em;
     text-decoration: none;
@@ -90,6 +98,7 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.45;
     background-color: #202124;
     border-radius: 6px;
+    white-space: pre-wrap;
 
     .light & {
       background-color: #fff;

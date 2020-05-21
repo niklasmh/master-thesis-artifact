@@ -9,6 +9,7 @@ import 'highlight.js/styles/vs2015.css'
 
 import { SubTitle, Paragraph } from '../components/Typography'
 import Icon from '../components/Icon'
+import Help from '../components/Help'
 import { Button, Input, RadioGroup, CodeEditor } from '../components/Form'
 import {
   TextEditor,
@@ -61,6 +62,11 @@ const Sections = styled.ol`
   counter-reset: section-counter;
   padding: 0;
   width: 100%;
+  position: relative;
+
+  & ol {
+    margin: 1em;
+  }
 
   > li {
     counter-increment: section-counter;
@@ -699,10 +705,36 @@ ${sections
       </div>
       <div
         style={{
-          display: !useMarkdownOnly ? 'initial' : 'none',
+          display: !useMarkdownOnly ? 'inherit' : 'none',
           width: '100%',
+          position: 'relative',
+          flexDirection: 'inherit',
+          alignItems: 'inherit',
         }}
       >
+        <Help
+          width="800px"
+          y="2em"
+          z={100}
+          absolute
+          right
+          md
+        >{`Skriv inn kort tittel og en kort beskrivelse på oppgaven. Vi anbefaler å heller ha en veldig kort tittel og en lengre beskrivelse enn omvendt.
+
+### Typiske titler:
+
+1. Ball i fritt fall med luftmotstand
+2. Kloss ned skråplan med friksjon
+3. Baller som kolliderer
+4. Planeter i bane
+
+### Typiske beskrivelser til titlene:
+
+1. Her skal vi simulere en ball som faller i fritt fall med luftmotstand.
+2. Her skal vi først få en kloss til å skli ned et skråplan uten friksjon, så skal vi legge til friksjon.
+3. Her starter vi med å få to baller til å kollidere i en dimensjon, så beveger vi oss til to dimensjoner.
+4. Vi starter først med to planeter som tiltrekkes av hverandre. Etterhvert inkluderer vi flere planeter.
+`}</Help>
         <Input
           size="3em"
           width="100%"
@@ -722,16 +754,41 @@ ${sections
           defaultValue={defaultDecription}
           placeholder="Legg til en kort beskrivelse ..."
         />
-        <Paragraph align="left">
-          Det er viktig å dele oppgaven inn i seksjoner. Her er noen eksempler
-          på typiske seksjoner:
-        </Paragraph>
-        <ul style={{ textAlign: 'left', alignSelf: 'flex-start' }}>
-          <li>Definere konstanter</li>
-          <li>Lage en ball</li>
-          <li>Bevege ballen basert på tid</li>
-          <li>Få ballen til å falle med gravitasjonskraften</li>
-        </ul>
+        <Help
+          width="800px"
+          y="0.5em"
+          x="-8em"
+          z={99}
+          right
+          center
+          md
+        >{`Man vil helst fjerne distraksjoner fra det eleven skal lære slik at fokuset blir på faget og ikke koden. Legg det du vil skjule her, slik som funksjoner og verdier. Disse vil videre kunne bli brukt av eleven i deres kode.
+
+### Eksempel på kode
+
+\`\`\`python
+# Funksjon for distanse
+def distanse(x1, y1, x2, y2):
+    """
+    Hjelp til eleven går inn her.
+
+    Gjerne oppgi eksempel på bruk slik:
+    \`\`\`python
+    dist = distanse(0, 0, 3, 4) # \`dist\` får nå verdien 5
+    \`\`\`
+
+    Med å spesifisere "Args" kan du også oppgi beskrivelse av argumentene:
+    Args:
+        x1: Startposisjon i x-aksen
+        y1: Startposisjon i y-aksen
+        x2: Sluttposisjon i x-aksen
+        y2: Sluttposisjon i y-aksen
+    """
+    dx = x2 - x1
+    dy = y2 - y1
+    return (dx**2 + dy**2)**0.5
+\`\`\`
+`}</Help>
         <Button onClick={() => setUseHiddenCode((use) => !use)}>
           <Icon
             key={useHiddenCode}
@@ -739,18 +796,6 @@ ${sections
           />{' '}
           Legg til skjult kode for hele oppgaven
         </Button>
-        <Paragraph
-          style={{
-            display: useHiddenCode ? 'initial' : 'none',
-            maxWidth: '800px',
-            //margin: 'auto',
-          }}
-          align="left"
-        >
-          Ofte vil man fjerne distraksjoner fra det eleven skal lære. Legg det
-          du vil skjule her, slik som funksjoner og verdier. Disse vil videre
-          kunne bli brukt av eleven i deres kode.
-        </Paragraph>
         <CodeEditorWrapper
           style={{
             display: useHiddenCode ? 'initial' : 'none',
@@ -766,6 +811,19 @@ ${sections
           />
         </CodeEditorWrapper>
         <Sections>
+          <Help
+            width="800px"
+            y="1.5em"
+            x="-1em"
+            z={98}
+            md
+          >{`Det er viktig å dele oppgaven inn i seksjoner. Her er noen eksempler på typiske seksjoner:
+
+1. Definere konstanter
+2. Lage en ball
+3. Bevege ballen basert på tid
+4. Få ballen til å falle med gravitasjonskraften
+`}</Help>
           {sections.map((section, i) => (
             <li key={section}>
               <Section
@@ -834,6 +892,10 @@ const SectionContent = styled.ol`
   flex-flow: column nowrap;
   padding: 0;
   width: 100%;
+
+  & ul {
+    margin: 1em;
+  }
 
   > li {
     counter-increment: subgoal-counter;
@@ -965,6 +1027,71 @@ ${subgoals
           name={sectionOpen ? 'expand_more' : 'chevron_right'}
         />
       </SectionHead>
+      <Help
+        width="800px"
+        y="0.5em"
+        x="18em"
+        z={97}
+        center
+        md
+      >{`Denne beskrivelsen skal være en introduksjon til seksjonen. Gjerne oppgi teori som skal brukes i seksjonen.
+
+Beskrivelsen her skrives i [Markdown](https://www.markdownguide.org/cheat-sheet) samtidig som den kan inkludere matematiske likninger i [Latex](https://katex.org/docs/supported.html). Her er noen eksempler:
+
+### Tekst
+
+All tekst, uten formateringene under, vil bli vist som vanlig tekst.
+
+### Kodeblokker med Python
+
+Bruk "\`\`\`" for å markere starten og slutten av en kodeblokk:
+
+\`\`\`\`python
+\`\`\`python
+g = 9.81 # Gravitasjonskonstanten
+
+def kvadrat(x):
+  return x**2
+\`\`\`
+\`\`\`\`
+
+### Likninger
+
+Disse skrives i Latex med \`$\` foran og bak:
+
+\`\`\`latex
+$a_y(t_{i+1}) = g - \\frac{D}{m}$
+\`\`\`
+
+#### Likninger inni en tekst
+
+\`\`\`latex
+Dette er en $\\sqrt{(1+x)^2 + 1}$ tekst.
+\`\`\`
+
+#### Flere likninger sammen
+
+Dette er litt komplekst, men kan komme til nytte:
+
+\`\`\`latex
+$$\\begin{array}{c}
+a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
+v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
+s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
+\\end{array}$$
+\`\`\`
+
+### Tabeller
+
+\`\`\`markdown
+| Tid | Beregnet y | Eksakt y | Error |
+|:---:|:----------:|:--------:|:-----:|
+| 0   | 0          | 0        | 0     |
+| 0.1 | 0.098      | 0.049    | 0.049 |
+| 0.2 | 0.294      | 0.196    | 0.098 |
+| 0.3 | 0.588      | 0.441    | 0.147 |
+\`\`\`
+`}</Help>
       <Button onClick={toggleDescription}>
         <Icon
           key={descriptionOpen}
@@ -973,7 +1100,8 @@ ${subgoals
         Legg til en lengre beskrivelse av seksjonen
       </Button>
       <TextEditor
-        showInitialHelpText={true}
+        showInitialHelpText={false}
+        placeholder="I denne seksjonen skal vi se nærmere på ..."
         ref={descriptionRef}
         defaultValue={defaultData.description}
         style={{ display: descriptionOpen ? 'flex' : 'none' }}
@@ -985,11 +1113,6 @@ ${subgoals
         />{' '}
         Legg til skjult kode for hele seksjonen
       </Button>
-      <Paragraph style={{ display: useHiddenCode ? 'initial' : 'none' }}>
-        Ofte vil man fjerne distraksjoner fra det eleven skal lære. Legg det du
-        vil skjule her, slik som funksjoner og verdier. Disse vil videre kunne
-        bli brukt av eleven i deres kode.
-      </Paragraph>
       <CodeEditorWrapper
         style={{
           display: useHiddenCode ? 'initial' : 'none',
@@ -1005,6 +1128,27 @@ ${subgoals
         />
       </CodeEditorWrapper>
       <SectionContent>
+        {sectionNo === 1 ? (
+          <Help
+            width="800px"
+            y="1em"
+            x="0em"
+            z={95}
+            left
+            md
+          >{`Dette er en deloppgave. Det er denne eleven skal utføre for å komme videre i oppgaven. Deloppgaven trenger en kort beskrivelse som beskriver hva eleven skal gjøre. Om ikke all informasjonen til eleven ligger i seksjonens beskrivelse, kan du oppgi en mer detaljert beskrivelse spesifikt for denne deloppgaven, men ofte er ikke det nødvendig.
+
+### Eksempel på korte deloppgavebeskrivelser:
+
+- Lag gravitasjonskonstanten \\\`g\\\` og sett den til \\\`9.81\\\`
+- Lage en Ball, kalt \\\`ball\\\`, i punkt \\\`(0, 0)\\\`
+- Sette radiusen til ballen til \\\`0.5\\\`
+- Sett ballens y, \\\`ball.y\\\`, til tid \\\`t\\\`
+- Trekk ifra luftmotstand, \\\`k*vy**2\\\`, fra akselerasjonen, \\\`ay\\\`
+
+(Enkeltfnutter "\\\`" vil bli tolket som kode: \\\`g\\\` blir til \`g\`)
+`}</Help>
+        ) : null}
         {subgoals.map((subgoal, i) => (
           <li key={subgoal}>
             <Subgoal
@@ -1214,13 +1358,8 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           key={useHiddenCode}
           name={useHiddenCode ? 'expand_more' : 'chevron_right'}
         />{' '}
-        Legg til skjult kode
+        Legg til skjult kode for deloppgaven
       </Button>
-      <SubgoalParagraph style={{ display: useHiddenCode ? 'initial' : 'none' }}>
-        Ofte vil man fjerne distraksjoner fra det eleven skal lære. Legg det du
-        vil skjule her, slik som funksjoner og verdier. Disse vil videre kunne
-        bli brukt av eleven i deres kode.
-      </SubgoalParagraph>
       <CodeEditorWrapper style={{ display: useHiddenCode ? 'flex' : 'none' }}>
         <CodeEditor
           width={'1000px'}
@@ -1231,16 +1370,26 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
       </CodeEditorWrapper>
       <SubgoalTitle>Kode til eleven</SubgoalTitle>
       {sectionNo === 1 && subgoalNo === 1 ? null : (
-        <RadioGroup
-          labels={[
-            'Fortsett på elevens kode fra forrige deloppgave',
-            'Legg til ny startkode',
-          ]}
-          defaultChecked={0}
-          onChange={(choice) => {
-            setUsePredefinedCode(choice >= 1)
-          }}
-        />
+        <>
+          <Help
+            width="800px"
+            y="1em"
+            x="23em"
+            z={94}
+            center
+            md
+          >{`Det er veldig greit at eleven får gjenbrukt sin egen kode over flere deloppgaver, men pass også på at de får ny startkode en gang i blant slik at de ikke ender opp med å bruke tiden på å finne feil i sin egen kode.`}</Help>
+          <RadioGroup
+            labels={[
+              'Fortsett på elevens kode fra forrige deloppgave',
+              'Legg til ny startkode',
+            ]}
+            defaultChecked={0}
+            onChange={(choice) => {
+              setUsePredefinedCode(choice >= 1)
+            }}
+          />
+        </>
       )}
       <CodeEditorWrapper
         style={{ display: usePredefinedCode ? 'flex' : 'none' }}
@@ -1278,6 +1427,14 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
             Hent inn løsningskoden fra forrige deloppgave
           </button>
         )}
+        <Help
+          width="800px"
+          y="0em"
+          x="0em"
+          z={93}
+          left
+          md
+        >{`Her kan du oppgi kode til eleven på forhånd. Dette kan hjelpe eleven med å se helheten i oppgaven, men pass på at du ikke viser for mye detaljer. Om du har mye kode fra før bør denne skjules i "skjult kode"-blokkene.`}</Help>
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -1291,6 +1448,14 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         gjør løsningen så lesbar som mulig.
       </SubgoalParagraph>
       <CodeEditorWrapper>
+        <Help
+          width="800px"
+          y="0em"
+          x="0em"
+          z={92}
+          left
+          md
+        >{`Denne løsningskoden er viktig for å demonstrere til eleven hva som er forventet resultet, men også for å kunne gi eleven en løsning på oppgaven om de står fast.`}</Help>
         <CodeEditor
           width={'1000px'}
           height={'240px'}
@@ -1308,6 +1473,48 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
       </SubgoalParagraph>
       <CodeEditorWrapper>
         <button onClick={() => console.log('kjøøør')}>Kjør testen</button>
+        <Help
+          width="800px"
+          y="0em"
+          x="0em"
+          z={91}
+          left
+          md
+        >{`For å teste om elvens kode er riktig kan du ta i bruk en rekke funksjoner. Disse er brukt og beskrevet her:
+
+\`\`\`python
+# Sjekke om en variabel ikke er definert, med en if-setning
+if not defined("ball"):
+    print("Husk å definere 'ball'") # Gi tilbakemelding
+    return False # Feilet, så returnerer False
+
+# Sjekker om elevens ball.y er lik løsningens ball.y, på sekund 0
+if ball.y != solution("ball.y"):
+    print("Husk å sette ballens posisjon til (0, 0)")
+    return False
+
+# Simulerer både elevens kode og løsningskoden i èn delta tid (altså en iterasjon)
+simulate_one_time_step()
+
+# Bruke \`assert\` i stedet for \`return\`:
+
+# Sjekker om elevens ball.y er lik løsningens ball.y, etter en delta tid
+assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s" # Den siste delen blir feilmeldingen til eleven
+
+# Simulerer både elevens kode og løsningskoden i tre sekunder til
+simulate_to_time(3)
+
+# Sjekker om elevens ball.y er lik løsningens ball.y, på sekund dt+4
+if ball.y != solution("ball.y"):
+    # Legger til en mer detaljert beskrivelse av feilen
+    print("Du er veldig nærme! Men fortsatt feil svar. Du har en error på", abs(ball.y - solution("ball.y")))
+    return False
+
+# Om koden ikke har feilet til nå, så er oppgaven fullført
+print("Du klarte deloppgaven!")
+return True # Denne er valgfri
+\`\`\`
+`}</Help>
         <CodeEditor
           width={'1000px'}
           height={'320px'}

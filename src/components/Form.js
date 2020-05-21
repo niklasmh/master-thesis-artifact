@@ -28,7 +28,7 @@ export const Input = styled.input`
     color: #fff8;
 
     .light & {
-      color: #2222;
+      color: #2226;
       text-shadow: none;
     }
   }
