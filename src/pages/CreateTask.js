@@ -681,7 +681,6 @@ ${sections
     const hydrate = async (id) => {
       const snap = await firebase.firestore().collection('tasks').doc(id).get()
       const result = snap.data()
-      console.log(result)
       setNewlyHydrated(true)
       setTimeout(() => {
         setNewlyHydrated(false)
@@ -1555,6 +1554,9 @@ function Subgoal({
       )
       setPredefinedCode(before.trim())
       setPredefinedLoopCode(after.join('\n').trim())
+      setUsePredefinedCode(true)
+    } else {
+      setUsePredefinedCode(false)
     }
     if (defaultData.solutionCode) {
       const [before, ...after] = fixNewlines(defaultData.solutionCode).split(
@@ -1824,9 +1826,9 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
             'Fortsett på elevens kode fra forrige deloppgave',
             'Legg til ny startkode',
           ]}
-          defaultChecked={0}
+          checked={usePredefinedCode ? 1 : 0}
           onChange={(choice) => {
-            setUsePredefinedCode(choice >= 1)
+            setUsePredefinedCode(choice === 1)
           }}
         />
       )}
