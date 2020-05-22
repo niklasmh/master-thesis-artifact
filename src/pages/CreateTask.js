@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useParams, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import * as firebase from 'firebase/app'
 import mdIt from 'markdown-it'
@@ -553,6 +554,7 @@ ${code}
 }
 
 const randomString = () => Math.floor(Math.random() * 100000) + ''
+const fixNewlines = (str) => str.replace(/\\n/g, '\n')
 
 const solutionCodes = {}
 const solutionLoopCodes = {}
@@ -582,6 +584,9 @@ const emptySection = {
 export default function CreateTaskPage() {
   const dispatch = useDispatch()
   const { uid } = useSelector((state) => state.user)
+  const { pathname } = useLocation()
+  const { id } = useParams()
+  const [isNew, setIsNew] = useState(null)
   const title = useRef('')
   const description = useRef('')
   const [task, setTask] = useState({
@@ -606,6 +611,9 @@ export default function CreateTaskPage() {
   ] = useState('')
   const hiddenCodeEditor = useRef(null)
   const hiddenLoopCodeEditor = useRef(null)
+  const descriptionRef = useRef(null)
+  const [hiddenCode, setHiddenCode] = useState('')
+  const [hiddenLoopCode, setHiddenLoopCode] = useState('')
   const [defaultData, setDefaultData] = useState({
     hiddenCode: '',
   })
@@ -627,6 +635,10 @@ export default function CreateTaskPage() {
   function handleHiddenLoopCodeEditorDidMount(_valueGetter) {
     hiddenLoopCodeEditor.current = _valueGetter
   }
+
+  useEffect(() => {
+    setIsNew(pathname.indexOf('/endre/') !== -1)
+  }, [pathname])
 
   function buildMarkdownFromGUI(sections, sectionToMarkdownFunctions) {
     return `# ${getCurrentValueOrDefault(title, 'value').trim() || 'Tittel'}
@@ -663,6 +675,34 @@ ${sections
       ),
     }
   }
+
+  const firstTitle = useRef('')
+  useEffect(() => {
+    const hydrate = async (id) => {
+      const snap = await firebase.firestore().collection('tasks').doc(id).get()
+      const result = snap.data()
+      console.log(result)
+      setNewlyHydrated(true)
+      setTimeout(() => {
+        setNewlyHydrated(false)
+      }, 200)
+      title.current.value = result.title
+      firstTitle.current = result.title
+      description.current.value = result.description
+      if (result.hiddenCode) {
+        const [before, ...after] = fixNewlines(result.hiddenCode).split(
+          loopCodeSplit
+        )
+        setHiddenCode(before.trim())
+        setHiddenLoopCode(after.join('\n').trim())
+      }
+      setSectionsData(result.sections)
+      if (result.sections.length !== sections.length) {
+        setSections(result.sections.map(() => randomString()))
+      }
+    }
+    hydrate(id)
+  }, [id])
 
   const saveTask = async () => {
     try {
@@ -735,7 +775,13 @@ ${sections
       }, 200)
       title.current.value = result.title
       description.current.value = result.description
-      setDefaultData({ hiddenCode: result.hiddenCode })
+      if (result.hiddenCode) {
+        const [before, ...after] = fixNewlines(result.hiddenCode).split(
+          loopCodeSplit
+        )
+        setHiddenCode(before.trim())
+        setHiddenLoopCode(after.join('\n').trim())
+      }
       setSectionsData(result.sections)
       if (result.sections.length !== sections.length) {
         setSections(result.sections.map(() => randomString()))
@@ -745,11 +791,18 @@ ${sections
 
   return (
     <Container>
-      <SubTitle style={{ fontSize: '2.5rem' }}>
-        Lag en ny opp
-        <span onClick={() => setUseMarkdownOnly((use) => !use)}>g</span>
-        ave
-      </SubTitle>
+      {isNew ? (
+        <SubTitle style={{ fontSize: '2.5rem' }}>
+          Lag en ny opp
+          <span onClick={() => setUseMarkdownOnly((use) => !use)}>g</span>
+          ave{isNew && id ? ` fra "${firstTitle.current}"` : ''}
+        </SubTitle>
+      ) : (
+        <SubTitle style={{ fontSize: '2.5rem' }}>
+          En<span onClick={() => setUseMarkdownOnly((use) => !use)}>d</span>re "
+          {firstTitle.current}"
+        </SubTitle>
+      )}
       <div
         style={{
           display: useMarkdownOnly ? 'flex' : 'none',
@@ -876,13 +929,13 @@ def distanse(x1, y1, x2, y2):
             <CodeEditor
               width={'48%'}
               height={'240px'}
-              value={defaultData.hiddenCode}
+              value={hiddenCode}
               editorDidMount={handleHiddenCodeEditorDidMount}
             />
             <CodeEditor
               width={'48%'}
               height={'240px'}
-              value={defaultData.hiddenLoopCode}
+              value={hiddenLoopCode}
               editorDidMount={handleHiddenLoopCodeEditorDidMount}
             />
           </DoubleCodeEditor>
@@ -1006,6 +1059,7 @@ const StyledSection = styled.div`
   margin: 1em;
   font-size: 1em;
   width: 100%;
+  position: relative;
 
   &.closed > ${SectionHead} ~ * {
     display: none !important;
@@ -1074,6 +1128,8 @@ function Section({
 }) {
   const title = useRef(null)
   const descriptionRef = useRef(null)
+  const [hiddenCode, setHiddenCode] = useState('')
+  const [hiddenLoopCode, setHiddenLoopCode] = useState('')
   const toMarkdownFunction = useRef(toMarkdown)
   const toJSONFunction = useRef(toJSON)
   const [subgoals, setSubgoals] = useState([randomString()])
@@ -1090,6 +1146,13 @@ function Section({
   ])
 
   useEffect(() => {
+    if (defaultData.hiddenCode) {
+      const [before, ...after] = fixNewlines(defaultData.hiddenCode).split(
+        loopCodeSplit
+      )
+      setHiddenCode(before.trim())
+      setHiddenLoopCode(after.join('\n').trim())
+    }
     if (defaultData.subgoals.length !== subgoals.length) {
       setSubgoals(defaultData.subgoals.map(() => randomString()))
     }
@@ -1170,16 +1233,26 @@ ${subgoals
           name={sectionOpen ? 'expand_more' : 'chevron_right'}
         />
       </SectionHead>
-      <Help
-        width="800px"
-        y="0.5em"
-        x="18.5em"
-        z={97}
-        center
-        md
-      >{`Denne beskrivelsen skal være en introduksjon til seksjonen. Gjerne oppgi teori som skal brukes i seksjonen.
-
-Beskrivelsen her skrives i [Markdown](https://www.markdownguide.org/cheat-sheet) samtidig som den kan inkludere matematiske likninger i [Latex](https://katex.org/docs/supported.html). Her er noen eksempler:
+      {sectionNo === 1 ? (
+        <Help
+          width="800px"
+          y="0.5em"
+          x="18.5em"
+          z={97}
+          center
+          md
+        >{`Denne beskrivelsen skal være en introduksjon til seksjonen. Gjerne oppgi teori som skal brukes i seksjonen.`}</Help>
+      ) : null}
+      {descriptionOpen ? (
+        <Help
+          width="800px"
+          y="6em"
+          x="2em"
+          z={97}
+          absolute
+          right
+          md
+        >{`Beskrivelsen her skrives i [Markdown](https://www.markdownguide.org/cheat-sheet) samtidig som den kan inkludere matematiske likninger i [Latex](https://katex.org/docs/supported.html). Her er noen eksempler:
 
 ### Tekst
 
@@ -1235,6 +1308,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
 | 0.3 | 0.588      | 0.441    | 0.147 |
 \`\`\`
 `}</Help>
+      ) : null}
       <Button onClick={toggleDescription}>
         <Icon
           key={descriptionOpen}
@@ -1275,13 +1349,13 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
           <CodeEditor
             width={'48%'}
             height={'320px'}
-            value={defaultData.hiddenCode}
+            value={hiddenCode}
             editorDidMount={handleHiddenCodeEditorDidMount}
           />
           <CodeEditor
             width={'48%'}
             height={'320px'}
-            value={defaultData.hiddenLoopCode}
+            value={hiddenLoopCode}
             editorDidMount={handleHiddenLoopCodeEditorDidMount}
           />
         </DoubleCodeEditor>
@@ -1366,6 +1440,7 @@ const StyledSubgoal = styled.div`
   flex-flow: column nowrap;
   width: 100%;
   align-items: flex-start;
+  position: relative;
 
   &.closed > ${SubgoalHead} ~ * {
     display: none !important;
@@ -1457,6 +1532,41 @@ function Subgoal({
   const solutionCodeEditor = useRef(null)
   const solutionLoopCodeEditor = useRef(null)
   const testCodeEditor = useRef(null)
+
+  const [hiddenCode, setHiddenCode] = useState('')
+  const [hiddenLoopCode, setHiddenLoopCode] = useState('')
+  const [predefinedCode, setPredefinedCode] = useState('')
+  const [predefinedLoopCode, setPredefinedLoopCode] = useState('')
+  const [solutionCode, setSolutionCode] = useState('')
+  const [solutionLoopCode, setSolutionLoopCode] = useState('')
+  const [testCode, setTestCode] = useState('')
+
+  useEffect(() => {
+    if (defaultData.hiddenCode) {
+      const [before, ...after] = fixNewlines(defaultData.hiddenCode).split(
+        loopCodeSplit
+      )
+      setHiddenCode(before.trim())
+      setHiddenLoopCode(after.join('\n').trim())
+    }
+    if (defaultData.predefinedCode) {
+      const [before, ...after] = fixNewlines(defaultData.predefinedCode).split(
+        loopCodeSplit
+      )
+      setPredefinedCode(before.trim())
+      setPredefinedLoopCode(after.join('\n').trim())
+    }
+    if (defaultData.solutionCode) {
+      const [before, ...after] = fixNewlines(defaultData.solutionCode).split(
+        loopCodeSplit
+      )
+      setSolutionCode(before.trim())
+      setSolutionLoopCode(after.join('\n').trim())
+    }
+    if (defaultData.testCode) {
+      setTestCode(fixNewlines(defaultData.testCode.trim()))
+    }
+  }, [defaultData])
 
   function toggleSubgoal() {
     setSubgoalOpen((open) => !open)
@@ -1590,6 +1700,72 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           name={subgoalOpen ? 'expand_more' : 'chevron_right'}
         />
       </SubgoalHead>
+      {descriptionOpen ? (
+        <Help
+          width="800px"
+          y="6em"
+          x="2em"
+          z={97}
+          absolute
+          right
+          md
+        >{`Beskrivelsen her skrives i [Markdown](https://www.markdownguide.org/cheat-sheet) samtidig som den kan inkludere matematiske likninger i [Latex](https://katex.org/docs/supported.html). Her er noen eksempler:
+
+### Tekst
+
+All tekst, uten formateringene under, vil bli vist som vanlig tekst.
+
+### Kodeblokker med Python
+
+Bruk "\`\`\`" for å markere starten og slutten av en kodeblokk:
+
+\`\`\`\`python
+\`\`\`python
+g = 9.81 # Gravitasjonskonstanten
+
+def kvadrat(x):
+  return x**2
+\`\`\`
+\`\`\`\`
+
+### Likninger
+
+Disse skrives i Latex med \`$\` foran og bak:
+
+\`\`\`latex
+$a_y(t_{i+1}) = g - \\frac{D}{m}$
+\`\`\`
+
+#### Likninger inni en tekst
+
+\`\`\`latex
+Dette er en $\\sqrt{(1+x)^2 + 1}$ tekst.
+\`\`\`
+
+#### Flere likninger sammen
+
+Dette er litt komplekst, men kan komme til nytte:
+
+\`\`\`latex
+$$\\begin{array}{c}
+a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
+v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
+s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
+\\end{array}$$
+\`\`\`
+
+### Tabeller
+
+\`\`\`markdown
+| Tid | Beregnet y | Eksakt y | Error |
+|:---:|:----------:|:--------:|:-----:|
+| 0   | 0          | 0        | 0     |
+| 0.1 | 0.098      | 0.049    | 0.049 |
+| 0.2 | 0.294      | 0.196    | 0.098 |
+| 0.3 | 0.588      | 0.441    | 0.147 |
+\`\`\`
+`}</Help>
+      ) : null}
       <Button onClick={toggleDescription}>
         <Icon
           key={descriptionOpen}
@@ -1618,13 +1794,13 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.hiddenCode}
+            value={hiddenCode}
             editorDidMount={handleHiddenCodeEditorDidMount}
           />
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.hiddenLoopCode}
+            value={hiddenLoopCode}
             editorDidMount={handleLoopHiddenCodeEditorDidMount}
           />
         </DoubleCodeEditor>
@@ -1714,13 +1890,13 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.predefinedCode}
+            value={predefinedCode}
             editorDidMount={handlePredefinedCodeEditorDidMount}
           />
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.predefinedLoopCode}
+            value={predefinedLoopCode}
             editorDidMount={handlePredefinedLoopCodeEditorDidMount}
           />
         </DoubleCodeEditor>
@@ -1747,7 +1923,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.solutionCode}
+            value={solutionCode}
             onChange={(_, value) =>
               (solutionCodes[sectionNo + '-' + subgoalNo] = value)
             }
@@ -1756,7 +1932,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           <CodeEditor
             width={'48%'}
             height={'240px'}
-            value={defaultData.solutionLoopCode}
+            value={solutionLoopCode}
             onChange={(_, value) =>
               (solutionLoopCodes[sectionNo + '-' + subgoalNo] = value)
             }
@@ -1848,7 +2024,7 @@ print(f"Du klarte deloppgave {section}. {subgoal})!")
         <CodeEditor
           width={'1000px'}
           height={'320px'}
-          value={defaultData.testCode}
+          value={testCode}
           editorDidMount={handleTestCodeEditorDidMount}
         />
       </CodeEditorWrapper>

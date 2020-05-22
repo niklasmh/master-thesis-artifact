@@ -179,6 +179,8 @@ function App() {
                 component={uid ? ProfilePage : LandingPage}
               />
               <Route path="/oppgave/ny" component={CreateTaskPage} />
+              <Route path="/oppgave/ny/:id" component={CreateTaskPage} />
+              <Route path="/oppgave/endre/:id" component={CreateTaskPage} />
               <Route path="/oppgave/:id" component={TaskPage} />
               <Route
                 exact

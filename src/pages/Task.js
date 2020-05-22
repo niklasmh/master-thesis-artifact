@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { default as SingleLineMarkdown } from 'markdown-to-jsx'
 import * as firebase from 'firebase/app'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
@@ -93,6 +93,7 @@ const NextButton = styled.button`
 
 function TaskPage() {
   const dispatch = useDispatch()
+  const { uid, user } = useSelector((state) => state.user)
   const { clearLog, clearValues, attempts } = useSelector((state) => state.task)
   const [task, setTask] = useState({
     title: '',
@@ -172,6 +173,16 @@ function TaskPage() {
 
   return (
     <TaskContainer>
+      {task.author && task.author.id === uid ? (
+        <Link className="button" to={`/oppgave/endre/${id}`}>
+          Endre oppgaven <Icon name="edit" />
+        </Link>
+      ) : null}
+      {user.isTeacher ? (
+        <Link className="button" to={`/oppgave/ny/${id}`}>
+          Lag en ny oppgave ut ifra denne <Icon name="file_copy" />
+        </Link>
+      ) : null}
       <Title>
         <SingleLineMarkdown>{task.title}</SingleLineMarkdown>
       </Title>
