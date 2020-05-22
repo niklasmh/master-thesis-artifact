@@ -734,6 +734,7 @@ export default function TaskCodeEnvironment({
       )}
       <ModuleContainer
         className="layout"
+        edit={edit}
         layout={layout}
         cols={12}
         rowHeight={rowHeight}

@@ -60,7 +60,7 @@ const BottomElement = styled(TopElement)`
 
 const Close = styled.button`
   color: red;
-  margin-left: auto;
+  margin-right: auto;
 `
 
 const Open = styled.button`
@@ -91,8 +91,8 @@ function Module({
       <Title>{title}</Title>
       {before || onClose || onOpen ? (
         <TopElement>
-          {before}
           {onClose ? <Close onClick={onClose}>Fjern</Close> : null}
+          {before}
           {onOpen ? <Open onClick={onOpen}>Legg til</Open> : null}
         </TopElement>
       ) : null}

@@ -17,6 +17,7 @@ import {
   parseMarkdownOnly,
 } from '../components/TextEditor'
 import TaskCodeEnvironment from '../modules'
+import { loopCodeSplit } from '../modules'
 
 const md = mdIt({
   langPrefix: 'language-',
@@ -554,6 +555,7 @@ ${code}
 const randomString = () => Math.floor(Math.random() * 100000) + ''
 
 const solutionCodes = {}
+const solutionLoopCodes = {}
 
 function getCurrentValueOrDefault(ref, key = '', defaultValue = '') {
   if (!ref.current) return defaultValue
@@ -603,6 +605,7 @@ export default function CreateTaskPage() {
     setExtendedMarkdownEditorValue,
   ] = useState('')
   const hiddenCodeEditor = useRef(null)
+  const hiddenLoopCodeEditor = useRef(null)
   const [defaultData, setDefaultData] = useState({
     hiddenCode: '',
   })
@@ -621,12 +624,22 @@ export default function CreateTaskPage() {
     hiddenCodeEditor.current = _valueGetter
   }
 
+  function handleHiddenLoopCodeEditorDidMount(_valueGetter) {
+    hiddenLoopCodeEditor.current = _valueGetter
+  }
+
   function buildMarkdownFromGUI(sections, sectionToMarkdownFunctions) {
     return `# ${getCurrentValueOrDefault(title, 'value').trim() || 'Tittel'}
 
 ${getCurrentValueOrDefault(description, 'value')}
 
-${addCode(hiddenCodeEditor.current().trim(), 'skjult')}
+${addCode(
+  hiddenCodeEditor.current().trim() +
+    loopCodeSplit +
+    '\n' +
+    hiddenLoopCodeEditor.current().trim(),
+  'skjult'
+)}
 ${sections
   .map(
     (section, i) =>
@@ -640,7 +653,11 @@ ${sections
     return {
       title: getCurrentValueOrDefault(title, 'value').trim() || 'Tittel',
       description: getCurrentValueOrDefault(description, 'value'),
-      hiddenCode: hiddenCodeEditor.current().trim(),
+      hiddenCode:
+        hiddenCodeEditor.current().trim() +
+        loopCodeSplit +
+        '\n' +
+        hiddenLoopCodeEditor.current().trim(),
       sections: sections.map(
         (section, i) => sectionToJSONFunctions[i] && sectionToJSONFunctions[i]()
       ),
@@ -847,12 +864,28 @@ def distanse(x1, y1, x2, y2):
             //margin: '1em auto 0',
           }}
         >
-          <CodeEditor
-            width={'100%'}
-            height={'240px'}
-            value={defaultData.hiddenCode}
-            editorDidMount={handleHiddenCodeEditorDidMount}
-          />
+          <Help
+            width="800px"
+            y="2em"
+            z={92}
+            absolute
+            right
+            md
+          >{`I denne kodeblokken kan du oppgi kode som skal simuleres. Denne blokken kjøres hver \`dt\` og du har tilgang til alle variablene fra den andre blokken her. Videre er det også mulig å bruke variabelen \`t\` for å hente ut tiden.`}</Help>
+          <DoubleCodeEditor>
+            <CodeEditor
+              width={'48%'}
+              height={'240px'}
+              value={defaultData.hiddenCode}
+              editorDidMount={handleHiddenCodeEditorDidMount}
+            />
+            <CodeEditor
+              width={'48%'}
+              height={'240px'}
+              value={defaultData.hiddenLoopCode}
+              editorDidMount={handleHiddenLoopCodeEditorDidMount}
+            />
+          </DoubleCodeEditor>
         </CodeEditorWrapper>
         <Sections>
           <Help
@@ -947,7 +980,8 @@ def distanse(x1, y1, x2, y2):
         }}
       />
       <div ref={testTaskAnchor} />
-      <AddNewSection onClick={saveTask}>Lagre oppgaven</AddNewSection>
+      <SubTitle>Ferdig med å lage oppgaven?</SubTitle>
+      <AddNewSection onClick={saveTask}>Lagre</AddNewSection>
       <Paragraph>{saveFeedback}</Paragraph>
     </Container>
   )
@@ -1047,6 +1081,7 @@ function Section({
   const [descriptionOpen, setDescriptionOpen] = useState(false)
   const [useHiddenCode, setUseHiddenCode] = useState(false)
   const hiddenCodeEditor = useRef(null)
+  const hiddenLoopCodeEditor = useRef(null)
   const [subgoalToMarkdownFunctions, setSubgoalToMarkdownFunctions] = useState([
     () => ``,
   ])
@@ -1067,7 +1102,13 @@ function Section({
 
 ${getCurrentValueOrDefault(descriptionRef, 'value').trim()}
 
-${addCode(hiddenCodeEditor.current.getValue().trim(), 'skjult')}
+${addCode(
+  hiddenCodeEditor.current.getValue().trim() +
+    loopCodeSplit +
+    '\n' +
+    hiddenLoopCodeEditor.current.getValue().trim(),
+  'skjult'
+)}
 ${subgoals
   .map(
     (subgoal, i) =>
@@ -1084,7 +1125,11 @@ ${subgoals
       toJSONFunction.current(() => ({
         title: getCurrentValueOrDefault(title, 'value').trim(),
         description: getCurrentValueOrDefault(descriptionRef, 'value').trim(),
-        hiddenCode: hiddenCodeEditor.current.getValue().trim(),
+        hiddenCode:
+          hiddenCodeEditor.current.getValue().trim() +
+          loopCodeSplit +
+          '\n' +
+          hiddenLoopCodeEditor.current.getValue().trim(),
         subgoals: subgoals.map(
           (subgoal, i) =>
             subgoalToJSONFunctions[i] && subgoalToJSONFunctions[i]()
@@ -1103,6 +1148,10 @@ ${subgoals
 
   function handleHiddenCodeEditorDidMount(_, _editor) {
     hiddenCodeEditor.current = _editor
+  }
+
+  function handleHiddenLoopCodeEditorDidMount(_, _editor) {
+    hiddenLoopCodeEditor.current = _editor
   }
 
   return (
@@ -1214,12 +1263,28 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
           margin: 'auto',
         }}
       >
-        <CodeEditor
-          width={'100%'}
-          height={'320px'}
-          value={defaultData.hiddenCode}
-          editorDidMount={handleHiddenCodeEditorDidMount}
-        />
+        <Help
+          width="800px"
+          y="2em"
+          z={92}
+          absolute
+          right
+          md
+        >{`I denne kodeblokken kan du oppgi kode som skal simuleres. Denne blokken kjøres hver \`dt\` og du har tilgang til alle variablene fra den andre blokken her. Videre er det også mulig å bruke variabelen \`t\` for å hente ut tiden.`}</Help>
+        <DoubleCodeEditor>
+          <CodeEditor
+            width={'48%'}
+            height={'320px'}
+            value={defaultData.hiddenCode}
+            editorDidMount={handleHiddenCodeEditorDidMount}
+          />
+          <CodeEditor
+            width={'48%'}
+            height={'320px'}
+            value={defaultData.hiddenLoopCode}
+            editorDidMount={handleHiddenLoopCodeEditorDidMount}
+          />
+        </DoubleCodeEditor>
       </CodeEditorWrapper>
       <SectionContent>
         {sectionNo === 1 ? (
@@ -1323,6 +1388,7 @@ const SubgoalParagraph = styled(Paragraph)`
 `
 
 const CodeEditorWrapper = styled.div`
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -1332,6 +1398,29 @@ const CodeEditorWrapper = styled.div`
     margin-bottom: 1em;
   }
 `
+
+const DoubleCodeEditor = styled.div`
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  ::before,
+  ::after {
+    content: 'Kode som kjører en gang';
+    display: inline-block;
+    flex: 1 0 48%;
+    order: -1;
+    margin-bottom: 0.5em;
+    font-size: 0.9em;
+  }
+
+  ::after {
+    content: 'Kode som kjører hvert tidssteg, dt';
+  }
+`
+
 const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
 
 function Subgoal({
@@ -1362,8 +1451,11 @@ function Subgoal({
     sectionNo === 1 && subgoalNo === 1
   )
   const hiddenCodeEditor = useRef(null)
+  const hiddenLoopCodeEditor = useRef(null)
   const predefinedCodeEditor = useRef(null)
+  const predefinedLoopCodeEditor = useRef(null)
   const solutionCodeEditor = useRef(null)
+  const solutionLoopCodeEditor = useRef(null)
   const testCodeEditor = useRef(null)
 
   function toggleSubgoal() {
@@ -1378,13 +1470,26 @@ function Subgoal({
     hiddenCodeEditor.current = _editor
   }
 
+  function handleLoopHiddenCodeEditorDidMount(_, _editor) {
+    hiddenLoopCodeEditor.current = _editor
+  }
+
   function handlePredefinedCodeEditorDidMount(_, _editor) {
     predefinedCodeEditor.current = _editor
+  }
+
+  function handlePredefinedLoopCodeEditorDidMount(_, _editor) {
+    predefinedLoopCodeEditor.current = _editor
   }
 
   function handleSolutionCodeEditorDidMount(_, _editor) {
     solutionCodeEditor.current = _editor
     solutionCodes[sectionNo + '-' + subgoalNo] = _editor.getValue()
+  }
+
+  function handleSolutionLoopCodeEditorDidMount(_, _editor) {
+    solutionLoopCodeEditor.current = _editor
+    solutionLoopCodes[sectionNo + '-' + subgoalNo] = _editor.getValue()
   }
 
   function handleTestCodeEditorDidMount(_, _editor) {
@@ -1397,13 +1502,37 @@ function Subgoal({
 
 ${descriptionRef.current.value.trim()}
 
-${addCode(hiddenCodeEditor.current.getValue().trim(), 'skjult')}
+${addCode(
+  hiddenCodeEditor.current.getValue().trim() +
+    loopCodeSplit +
+    '\n' +
+    hiddenLoopCodeEditor.current.getValue().trim() +
+    loopCodeSplit +
+    '\n',
+  'skjult'
+)}
 ${
   usePredefinedCode
-    ? `${addCode(predefinedCodeEditor.current.getValue().trim(), 'startkode')}`
+    ? `${addCode(
+        predefinedCodeEditor.current.getValue().trim() +
+          loopCodeSplit +
+          '\n' +
+          predefinedLoopCodeEditor.current.getValue().trim() +
+          loopCodeSplit +
+          '\n',
+        'startkode'
+      )}`
     : ''
 }
-${addCode(solutionCodeEditor.current.getValue().trim(), 'løsning')}
+${addCode(
+  solutionCodeEditor.current.getValue().trim() +
+    loopCodeSplit +
+    '\n' +
+    solutionLoopCodeEditor.current.getValue().trim() +
+    loopCodeSplit +
+    '\n',
+  'løsning'
+)}
 ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
 `
     )
@@ -1413,11 +1542,23 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
     toJSONFunction.current(() => ({
       title: title.current.value.trim(),
       description: descriptionRef.current.value.trim(),
-      hiddenCode: hiddenCodeEditor.current.getValue().trim(),
+      hiddenCode:
+        hiddenCodeEditor.current.getValue().trim() +
+        loopCodeSplit +
+        '\n' +
+        hiddenLoopCodeEditor.current.getValue().trim(),
       ...(usePredefinedCode && {
-        predefinedCode: predefinedCodeEditor.current.getValue().trim(),
+        predefinedCode:
+          predefinedCodeEditor.current.getValue().trim() +
+          loopCodeSplit +
+          '\n' +
+          predefinedLoopCodeEditor.current.getValue().trim(),
       }),
-      solutionCode: solutionCodeEditor.current.getValue().trim(),
+      solutionCode:
+        solutionCodeEditor.current.getValue().trim() +
+        loopCodeSplit +
+        '\n' +
+        solutionLoopCodeEditor.current.getValue().trim(),
       testCode: testCodeEditor.current.getValue().trim(),
     }))
   }, [subgoalNo, usePredefinedCode])
@@ -1462,12 +1603,20 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         Legg til skjult kode for deloppgaven <Icon name="visibility_off" />
       </Button>
       <CodeEditorWrapper style={{ display: useHiddenCode ? 'flex' : 'none' }}>
-        <CodeEditor
-          width={'1000px'}
-          height={'240px'}
-          value={defaultData.hiddenCode}
-          editorDidMount={handleHiddenCodeEditorDidMount}
-        />
+        <DoubleCodeEditor>
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.hiddenCode}
+            editorDidMount={handleHiddenCodeEditorDidMount}
+          />
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.hiddenLoopCode}
+            editorDidMount={handleLoopHiddenCodeEditorDidMount}
+          />
+        </DoubleCodeEditor>
       </CodeEditorWrapper>
       <SubgoalTitle>
         Kode til eleven <Icon name="code" />
@@ -1477,7 +1626,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           width="800px"
           y="1em"
           x="23em"
-          z={90}
+          z={80}
           center
           md
         >{`Det er veldig greit at eleven får gjenbrukt sin egen kode over flere deloppgaver, men pass også på at de får ny startkode en gang i blant slik at de ikke ender opp med å bruke tiden på å finne feil i sin egen kode.`}</Help>
@@ -1533,19 +1682,37 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         {sectionNo === 1 && subgoalNo === 1 ? (
           <Help
             width="800px"
-            y="0em"
+            y="2em"
             x="0em"
             z={93}
             left
             md
           >{`Her kan du oppgi kode til eleven på forhånd. Dette kan hjelpe eleven med å se helheten i oppgaven, men pass på at du ikke viser for mye detaljer. Om du har mye kode fra før bør denne skjules i "skjult kode"-blokkene.`}</Help>
         ) : null}
-        <CodeEditor
-          width={'1000px'}
-          height={'240px'}
-          value={defaultData.predefinedCode}
-          editorDidMount={handlePredefinedCodeEditorDidMount}
-        />
+        {sectionNo === 1 && subgoalNo === 1 ? (
+          <Help
+            width="800px"
+            y="2em"
+            x="23em"
+            z={92}
+            center
+            md
+          >{`I denne kodeblokken kan du oppgi kode som skal simuleres. Denne blokken kjøres hver \`dt\` og du har tilgang til alle variablene fra den andre blokken her. Videre er det også mulig å bruke variabelen \`t\` for å hente ut tiden.`}</Help>
+        ) : null}
+        <DoubleCodeEditor>
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.predefinedCode}
+            editorDidMount={handlePredefinedCodeEditorDidMount}
+          />
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.predefinedLoopCode}
+            editorDidMount={handlePredefinedLoopCodeEditorDidMount}
+          />
+        </DoubleCodeEditor>
       </CodeEditorWrapper>
       <SubgoalTitle>
         Løsning på deloppgaven <Icon name="visibility" />
@@ -1560,20 +1727,31 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
             width="800px"
             y="0em"
             x="0em"
-            z={92}
+            z={91}
             left
             md
           >{`Denne løsningskoden er viktig for å demonstrere til eleven hva som er forventet resultet, men også for å kunne gi eleven en løsning på oppgaven om de står fast.`}</Help>
         ) : null}
-        <CodeEditor
-          width={'1000px'}
-          height={'240px'}
-          value={defaultData.solutionCode}
-          onChange={(_, value) =>
-            (solutionCodes[sectionNo + '-' + subgoalNo] = value)
-          }
-          editorDidMount={handleSolutionCodeEditorDidMount}
-        />
+        <DoubleCodeEditor>
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.solutionCode}
+            onChange={(_, value) =>
+              (solutionCodes[sectionNo + '-' + subgoalNo] = value)
+            }
+            editorDidMount={handleSolutionCodeEditorDidMount}
+          />
+          <CodeEditor
+            width={'48%'}
+            height={'240px'}
+            value={defaultData.solutionLoopCode}
+            onChange={(_, value) =>
+              (solutionLoopCodes[sectionNo + '-' + subgoalNo] = value)
+            }
+            editorDidMount={handleSolutionLoopCodeEditorDidMount}
+          />
+        </DoubleCodeEditor>
       </CodeEditorWrapper>
       <SubgoalTitle>
         Tester <Icon name="assignment_turned_in" />
@@ -1587,7 +1765,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
           width="800px"
           y="0em"
           x="0em"
-          z={91}
+          z={90}
           left
           md
         >{`For å teste om elvens kode er riktig kan du ta i bruk en rekke funksjoner. Disse er beskrevet her:
