@@ -1539,28 +1539,39 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
   }, [subgoalNo, usePredefinedCode])
 
   useEffect(() => {
-    toJSONFunction.current(() => ({
-      title: title.current.value.trim(),
-      description: descriptionRef.current.value.trim(),
-      hiddenCode:
-        hiddenCodeEditor.current.getValue().trim() +
-        loopCodeSplit +
-        '\n' +
-        hiddenLoopCodeEditor.current.getValue().trim(),
-      ...(usePredefinedCode && {
-        predefinedCode:
-          predefinedCodeEditor.current.getValue().trim() +
+    toJSONFunction.current(() => {
+      const predefinedLoopCodeEditorValue = predefinedLoopCodeEditor.current
+        .getValue()
+        .trim()
+      const solutionLoopCodeEditorValue = solutionLoopCodeEditor.current
+        .getValue()
+        .trim()
+      const hasLoopCode = !!(
+        predefinedLoopCodeEditorValue || solutionLoopCodeEditorValue
+      )
+      return {
+        title: title.current.value.trim(),
+        description: descriptionRef.current.value.trim(),
+        hiddenCode:
+          hiddenCodeEditor.current.getValue().trim() +
           loopCodeSplit +
           '\n' +
-          predefinedLoopCodeEditor.current.getValue().trim(),
-      }),
-      solutionCode:
-        solutionCodeEditor.current.getValue().trim() +
-        loopCodeSplit +
-        '\n' +
-        solutionLoopCodeEditor.current.getValue().trim(),
-      testCode: testCodeEditor.current.getValue().trim(),
-    }))
+          hiddenLoopCodeEditor.current.getValue().trim(),
+        ...(usePredefinedCode && {
+          predefinedCode:
+            predefinedCodeEditor.current.getValue().trim() +
+            (hasLoopCode
+              ? loopCodeSplit + '\n' + predefinedLoopCodeEditorValue
+              : ''),
+        }),
+        solutionCode:
+          solutionCodeEditor.current.getValue().trim() +
+          (hasLoopCode
+            ? loopCodeSplit + '\n' + solutionLoopCodeEditorValue
+            : ''),
+        testCode: testCodeEditor.current.getValue().trim(),
+      }
+    })
   }, [subgoalNo, usePredefinedCode])
 
   return (
@@ -1805,7 +1816,7 @@ assert g == solution("g"), f"Du må sette g til {solution("g")}"
 
 \`\`\`python
 # Simulerer elevens kode og løsningskoden i 3 sekunder
-simulate(t=3)
+simulate(time=3)
 
 # Sjekker om elevens ball.y er lik løsningens ball.y, i t = 3
 assert ball.y == solution("ball.y"), "Du må sette g til 9.81"
