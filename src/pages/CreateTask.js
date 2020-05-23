@@ -619,12 +619,10 @@ export default function CreateTaskPage() {
   })
   const defaultTitle = ''
   const defaultDecription = ''
-  const [sectionToMarkdownFunctions, setSectionToMarkdownFunctions] = useState([
-    () => ``,
-  ])
-  const [sectionToJSONFunctions, setSectionToJSONFunctions] = useState([
-    () => ``,
-  ])
+  const [sectionToMarkdownFunctions, setSectionToMarkdownFunctions] = useState(
+    {}
+  )
+  const [sectionToJSONFunctions, setSectionToJSONFunctions] = useState({})
   const [useMarkdownOnly, setUseMarkdownOnly] = useState(false)
   const testTaskAnchor = useRef(null)
 
@@ -637,7 +635,7 @@ export default function CreateTaskPage() {
   }
 
   useEffect(() => {
-    setIsNew(pathname.indexOf('/endre/') !== -1)
+    setIsNew(pathname.indexOf('/endre/') === -1)
   }, [pathname])
 
   function buildMarkdownFromGUI(sections, sectionToMarkdownFunctions) {
@@ -662,45 +660,59 @@ ${sections
   }
 
   function buildJSONFromGUI(sections, sectionToJSONFunctions) {
+    const newTitle = getCurrentValueOrDefault(title, 'value').trim() || 'Tittel'
+    const newDescription = getCurrentValueOrDefault(description, 'value')
+    const newHiddenCode =
+      hiddenCodeEditor.current().trim() +
+      loopCodeSplit +
+      '\n' +
+      hiddenLoopCodeEditor.current().trim()
+    const newSections = sections.map((section, i) => {
+      if (sectionToJSONFunctions[i]) {
+        const result = sectionToJSONFunctions[i]()
+        return result
+      }
+      return false
+    })
     return {
-      title: getCurrentValueOrDefault(title, 'value').trim() || 'Tittel',
-      description: getCurrentValueOrDefault(description, 'value'),
-      hiddenCode:
-        hiddenCodeEditor.current().trim() +
-        loopCodeSplit +
-        '\n' +
-        hiddenLoopCodeEditor.current().trim(),
-      sections: sections.map(
-        (section, i) => sectionToJSONFunctions[i] && sectionToJSONFunctions[i]()
-      ),
+      title: newTitle,
+      description: newDescription,
+      hiddenCode: newHiddenCode,
+      sections: newSections,
     }
   }
 
   const firstTitle = useRef('')
   useEffect(() => {
-    const hydrate = async (id) => {
-      const snap = await firebase.firestore().collection('tasks').doc(id).get()
-      const result = snap.data()
-      setNewlyHydrated(true)
-      setTimeout(() => {
-        setNewlyHydrated(false)
-      }, 200)
-      title.current.value = result.title
-      firstTitle.current = result.title
-      description.current.value = result.description
-      if (result.hiddenCode) {
-        const [before, ...after] = fixNewlines(result.hiddenCode).split(
-          loopCodeSplit
-        )
-        setHiddenCode(before.trim())
-        setHiddenLoopCode(after.join('\n').trim())
+    if (id) {
+      const hydrate = async (id) => {
+        const snap = await firebase
+          .firestore()
+          .collection('tasks')
+          .doc(id)
+          .get()
+        const result = snap.data()
+        setNewlyHydrated(true)
+        setTimeout(() => {
+          setNewlyHydrated(false)
+        }, 200)
+        title.current.value = result.title
+        firstTitle.current = result.title
+        description.current.value = result.description
+        if (result.hiddenCode) {
+          const [before, ...after] = fixNewlines(result.hiddenCode).split(
+            loopCodeSplit
+          )
+          setHiddenCode(before.trim())
+          setHiddenLoopCode(after.join('\n').trim())
+        }
+        setSectionsData(result.sections)
+        if (result.sections.length !== sections.length) {
+          setSections(result.sections.map(() => randomString()))
+        }
       }
-      setSectionsData(result.sections)
-      if (result.sections.length !== sections.length) {
-        setSections(result.sections.map(() => randomString()))
-      }
+      hydrate(id)
     }
-    hydrate(id)
   }, [id])
 
   const saveTask = async () => {
@@ -724,6 +736,10 @@ ${sections
       setSaveFeedback(
         'Vi klarte ikke å lagre oppgaven din akkurat nå. Prøv igjen senere. Eventuelt ta vare på Markdownversjonen av oppgaven'
       )
+      console.log(ex)
+      try {
+        console.log(buildJSONFromGUI(sections, sectionToJSONFunctions))
+      } catch (e) {}
     }
   }
 
@@ -737,6 +753,12 @@ ${sections
         block: 'end',
       })
     }, 100)
+    setTimeout(() => {
+      testTaskAnchor.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      })
+    }, 500)
   }
 
   const prevSectionNo = useRef(-1)
@@ -961,20 +983,12 @@ def distanse(x1, y1, x2, y2):
                 setSubgoalNo={setSubgoalNo}
                 setUpdatedTask={setUpdatedTask}
                 defaultData={sectionsData[i]}
-                toMarkdown={(fn) => {
-                  setSectionToMarkdownFunctions((stm) => [
-                    ...stm.slice(0, i),
-                    fn,
-                    ...stm.slice(i + 1, -1),
-                  ])
-                }}
-                toJSON={(fn) => {
-                  setSectionToJSONFunctions((stm) => [
-                    ...stm.slice(0, i),
-                    fn,
-                    ...stm.slice(i + 1, -1),
-                  ])
-                }}
+                toMarkdown={(fn) =>
+                  setSectionToMarkdownFunctions((stm) => ({ ...stm, [i]: fn }))
+                }
+                toJSON={(fn) =>
+                  setSectionToJSONFunctions((stm) => ({ ...stm, [i]: fn }))
+                }
               />
             </li>
           ))}
@@ -1137,12 +1151,10 @@ function Section({
   const [useHiddenCode, setUseHiddenCode] = useState(false)
   const hiddenCodeEditor = useRef(null)
   const hiddenLoopCodeEditor = useRef(null)
-  const [subgoalToMarkdownFunctions, setSubgoalToMarkdownFunctions] = useState([
-    () => ``,
-  ])
-  const [subgoalToJSONFunctions, setSubgoalToJSONFunctions] = useState([
-    () => ``,
-  ])
+  const [subgoalToMarkdownFunctions, setSubgoalToMarkdownFunctions] = useState(
+    {}
+  )
+  const [subgoalToJSONFunctions, setSubgoalToJSONFunctions] = useState({})
 
   useEffect(() => {
     if (defaultData.hiddenCode) {
@@ -1391,20 +1403,12 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
               setUpdatedTask={setUpdatedTask}
               defaultData={defaultData.subgoals[i]}
               prevSubgoal={i > 0 ? defaultData.subgoals[i - 1] : null}
-              toMarkdown={(fn) => {
-                setSubgoalToMarkdownFunctions((stm) => [
-                  ...stm.slice(0, i),
-                  fn,
-                  ...stm.slice(i + 1, -1),
-                ])
-              }}
-              toJSON={(fn) => {
-                setSubgoalToJSONFunctions((stm) => [
-                  ...stm.slice(0, i),
-                  fn,
-                  ...stm.slice(i + 1, -1),
-                ])
-              }}
+              toMarkdown={(fn) =>
+                setSubgoalToMarkdownFunctions((stm) => ({ ...stm, [i]: fn }))
+              }
+              toJSON={(fn) =>
+                setSubgoalToJSONFunctions((stm) => ({ ...stm, [i]: fn }))
+              }
             />
           </li>
         ))}
@@ -1698,7 +1702,7 @@ ${addCode(testCodeEditor.current.getValue().trim(), 'test')}
         <Icon
           onClick={toggleSubgoal}
           size="2em"
-          key={subgoalOpen}
+          key={subgoalOpen ? 'expand_more' : 'chevron_right'}
           name={subgoalOpen ? 'expand_more' : 'chevron_right'}
         />
       </SubgoalHead>
@@ -1854,14 +1858,21 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
                   if (prevID in solutionCodes) {
                     code = solutionCodes[prevID]
                   }
+                  if (prevID in solutionLoopCodes) {
+                    code = solutionLoopCodes[prevID]
+                  }
                 } else {
                   const prevSubgoalNo = subgoalNo - 1
                   const prevID = sectionNo + '-' + prevSubgoalNo
                   if (prevID in solutionCodes) {
                     code = solutionCodes[prevID]
                   }
+                  if (prevID in solutionLoopCodes) {
+                    code = solutionLoopCodes[prevID]
+                  }
                 }
                 predefinedCodeEditor.current.setValue(code)
+                predefinedLoopCodeEditor.current.setValue(code)
               }
             }}
           >
