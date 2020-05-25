@@ -294,7 +294,7 @@ function CodeEditor(props) {
             type: 'setPosition',
             position: {
               x: -(newScale * (minX + maxX)) / 2,
-              y: -(newScale * (minY + maxY)) / 2,
+              y: (newScale * (minY + maxY)) / 2,
             },
           })
         } else {
@@ -307,7 +307,7 @@ function CodeEditor(props) {
             type: 'setPosition',
             solutionPosition: {
               x: -(newScale * (minX + maxX)) / 2,
-              y: -(newScale * (minY + maxY)) / 2,
+              y: (newScale * (minY + maxY)) / 2,
             },
           })
         }
