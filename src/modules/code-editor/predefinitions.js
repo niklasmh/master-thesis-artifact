@@ -31,7 +31,6 @@ class Ball:
         self.m = -1
         self.color = color
         self.drawforces = False
-        self.type = "Ball"
         for k, i in kwargs.items():
             if k == "vx":
                 self.vx = i
@@ -45,13 +44,58 @@ class Ball:
             elif k == "ay":
                 self.ay = i
                 self.ay0 = i
-            elif k == "m": self.m = i if i >= 0 else pi*r**2
             elif k == "drawforces": self.drawforces = i
         __elements__.append(self)
     def render(self, ctx):
         ctx.drawCircle(self)
         if self.drawforces:
                 ctx.drawForces(self)
+        return {
+          "minx": self.x - self.r,
+          "maxx": self.x + self.r,
+          "miny": self.y - self.r,
+          "maxy": self.y + self.r,
+        }
+
+class Planet:
+    def __init__(self, x=0, y=0, r=1, m=1, color="blue", **kwargs):
+        self.x = x
+        self.y = y
+        self.x0 = x
+        self.y0 = y
+        self.vx = 0
+        self.vy = 0
+        self.ax = 0
+        self.ay = 0
+        self.r = r
+        self.m = m
+        self.color = color
+        self.drawforces = False
+        for k, i in kwargs.items():
+            if k == "vx":
+                self.vx = i
+                self.vx0 = i
+            elif k == "vy":
+                self.vy = i
+                self.vy0 = i
+            if k == "ax":
+                self.ax = i
+                self.ax0 = i
+            elif k == "ay":
+                self.ay = i
+                self.ay0 = i
+            elif k == "drawforces": self.drawforces = i
+        __elements__.append(self)
+    def render(self, ctx):
+        ctx.drawCircle(self)
+        if self.drawforces:
+                ctx.drawForces(self)
+        return {
+          "minx": self.x - self.r,
+          "maxx": self.x + self.r,
+          "miny": self.y - self.r,
+          "maxy": self.y + self.r,
+        }
 `
 export const preDefinedElementsLineCount = (
   preDefinedImports + preDefinedElements
@@ -59,7 +103,7 @@ export const preDefinedElementsLineCount = (
 export const classTypes = preDefinedElements
   .split('\n')
   .filter((e) => e.indexOf('class') === 0)
-  .map((c) => c.replace(/class ([A-Za-z]+).*/, '$1'))
+  .map((c) => c.replace(/^class ([A-Za-z]+).*$/, '$1'))
 
 export const preDefinedVars = [
   '__name__',

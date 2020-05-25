@@ -37,6 +37,7 @@ const ModuleContent = styled.div`
   border-radius: 6px;
   box-shadow: ${(props) => (props.outerShadow ? '0 0 8px #0005' : 'none')};
   cursor: default;
+  position: relative;
 
   .light & {
     background: #fff;

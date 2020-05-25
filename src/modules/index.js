@@ -265,7 +265,7 @@ export default function TaskCodeEnvironment({
   const scriptsLoaded = useRef(new Set())
   const attepmtedToLoad = useRef(false)
   useEffect(() => {
-    if (!attepmtedToLoad.current && engine.scripts) {
+    if (!attepmtedToLoad.current && engine.scripts && true) {
       async function loadScripts(scripts) {
         for (let {
           src,

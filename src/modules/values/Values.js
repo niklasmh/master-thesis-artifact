@@ -227,51 +227,56 @@ function Values(props) {
                     </Variable>
                   )
                 case 'function':
-                  if (classTypes.includes(value.type)) {
-                    const args = ['vx', 'vy', 'ax', 'ay', 'r', 'w', 'h']
-                      .filter((arg) => value[arg])
-                      .map((arg) => (
-                        <SubVariable key={arg}>
-                          <Key>{arg}</Key>
-                          <Sign>=</Sign>
-                          <Value>{value[arg].toFixed(2)}</Value>
-                          {comment}
-                        </SubVariable>
-                      ))
-                    let figure = null
-                    if (value.type === 'Ball') {
-                      figure = (
-                        <Figure
-                          title={value.color}
-                          style={{
-                            borderRadius: '50%',
-                            backgroundColor: value.color,
-                          }}
-                        />
+                  try {
+                    const type = value.__class__.__name__
+                    if (classTypes.includes(type)) {
+                      const args = ['vx', 'vy', 'ax', 'ay', 'r', 'm', 'w', 'h']
+                        .filter((arg) => value[arg])
+                        .map((arg) => (
+                          <SubVariable key={arg}>
+                            <Key>{arg}</Key>
+                            <Sign>=</Sign>
+                            <Value>{value[arg].toFixed(2)}</Value>
+                            {comment}
+                          </SubVariable>
+                        ))
+                      let figure = null
+                      if (type === 'Ball' || type === 'Planet') {
+                        figure = (
+                          <Figure
+                            title={value.color}
+                            style={{
+                              borderRadius: '50%',
+                              backgroundColor: value.color,
+                            }}
+                          />
+                        )
+                      }
+                      return (
+                        <Variable key={key}>
+                          <RemoveButton onClick={() => clearValue(key)} />{' '}
+                          <Key>{key}</Key> <Sign>=</Sign>{' '}
+                          <ObjectValue>
+                            {figure} <Viz>{type}(</Viz>
+                            <SubVariable>
+                              <Key>x</Key>
+                              <Sign>=</Sign>
+                              <Value>{value.x.toFixed(2)}</Value>
+                            </SubVariable>
+                            <SubVariable>
+                              <Key>y</Key>
+                              <Sign>=</Sign>
+                              <Value>{value.y.toFixed(2)}</Value>
+                            </SubVariable>
+                            {args}
+                            <Viz style={{ marginLeft: '1em' }}>)</Viz>
+                          </ObjectValue>
+                          {'\n'}
+                        </Variable>
                       )
                     }
-                    return (
-                      <Variable key={key}>
-                        <RemoveButton onClick={() => clearValue(key)} />{' '}
-                        <Key>{key}</Key> <Sign>=</Sign>{' '}
-                        <ObjectValue>
-                          {figure} <Viz>Ball(</Viz>
-                          <SubVariable>
-                            <Key>x</Key>
-                            <Sign>=</Sign>
-                            <Value>{value.x.toFixed(2)}</Value>
-                          </SubVariable>
-                          <SubVariable>
-                            <Key>y</Key>
-                            <Sign>=</Sign>
-                            <Value>{value.y.toFixed(2)}</Value>
-                          </SubVariable>
-                          {args}
-                          <Viz style={{ marginLeft: '1em' }}>)</Viz>
-                        </ObjectValue>
-                        {'\n'}
-                      </Variable>
-                    )
+                  } catch (ex) {
+                    console.log(ex)
                   }
                   break
                 default:

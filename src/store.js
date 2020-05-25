@@ -74,6 +74,12 @@ export function task(
     totalTime: 0,
     solutionDeltaTime: 0.02,
     solutionTotalTime: 0,
+    scale: 5,
+    solutionScale: 5,
+    position: 1,
+    solutionPosition: 1,
+    timeScale: 1,
+    solutionTimeScale: 1,
     isPlaying: false,
     withError: false,
     attempts: 0,
@@ -90,11 +96,11 @@ export function task(
     codeEditorRun: () => {},
     codeEditorSize: { w: 0, h: 0 },
     resultCanvasContext: null,
+    traceResultCanvasContext: null,
     resultCanvasSize: { w: 0, h: 0 },
-    resultCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
     goalCanvasContext: null,
+    traceGoalCanvasContext: null,
     goalCanvasSize: { w: 0, h: 0 },
-    goalCanvasSettings: { scale: 1, position: { w: 0, h: 0 } },
     values: [],
     clearValues: () => {},
     valuesSize: { w: 0, h: 0 },
@@ -125,6 +131,24 @@ export function task(
           'solutionTotalTime' in action
             ? action.solutionTotalTime
             : state.solutionTotalTime,
+      }
+    case 'setScale':
+      return {
+        ...state,
+        scale: action.scale || state.scale,
+        solutionScale: action.solutionScale || state.solutionScale,
+      }
+    case 'setTimeScale':
+      return {
+        ...state,
+        timeScale: action.timeScale || state.timeScale,
+        solutionTimeScale: action.solutionTimeScale || state.solutionTimeScale,
+      }
+    case 'setPosition':
+      return {
+        ...state,
+        position: action.position || state.position,
+        solutionPosition: action.solutionPosition || state.solutionPosition,
       }
     case 'setIsPlaying':
       return {
@@ -171,45 +195,31 @@ export function task(
       return {
         ...state,
         resultCanvasContext: action.context,
-        resultCanvasSize: {
-          w: action.context.canvas.width,
-          h: action.context.canvas.height,
-        },
+      }
+    case 'setTraceResultCanvasContext':
+      return {
+        ...state,
+        traceResultCanvasContext: action.context,
       }
     case 'setResultCanvasSize':
       return {
         ...state,
         resultCanvasSize: action.size,
       }
-    case 'setResultCanvasSettings':
-      return {
-        ...state,
-        resultCanvasSettings: {
-          scale: action.scale || state.resultCanvasSettings.scale,
-          position: action.position || state.resultCanvasSettings.position,
-        },
-      }
     case 'setGoalCanvasContext':
       return {
         ...state,
         goalCanvasContext: action.context,
-        goalCanvasSize: {
-          w: action.context.canvas.width,
-          h: action.context.canvas.height,
-        },
+      }
+    case 'setTraceGoalCanvasContext':
+      return {
+        ...state,
+        traceGoalCanvasContext: action.context,
       }
     case 'setGoalCanvasSize':
       return {
         ...state,
         goalCanvasSize: action.size,
-      }
-    case 'setGoalCanvasSettings':
-      return {
-        ...state,
-        goalCanvasSettings: {
-          scale: action.scale || state.goalCanvasSettings.scale,
-          position: action.position || state.goalCanvasSettings.position,
-        },
       }
     case 'setValues':
       window.values = action.values

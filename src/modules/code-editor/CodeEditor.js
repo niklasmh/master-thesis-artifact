@@ -84,8 +84,10 @@ function CodeEditor(props) {
     codeEditorSize,
     resultCanvasSize,
     resultCanvasContext,
+    traceResultCanvasContext,
     goalCanvasSize,
     goalCanvasContext,
+    traceGoalCanvasContext,
     writeToLogFunction,
     clearLog,
     clearValues,
@@ -98,6 +100,10 @@ function CodeEditor(props) {
     totalTime,
     solutionDeltaTime,
     solutionTotalTime,
+    position,
+    solutionPosition,
+    scale,
+    solutionScale,
     runCode,
     onLogInput,
   } = useSelector((state) => state.task)
@@ -144,17 +150,73 @@ function CodeEditor(props) {
     }
   }, [code, isSolution])
 
-  function renderToCanvas(ctx, result) {
-    if (ctx !== null) {
-      ctx.fillStyle = '#ddd'
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      const scale = 50
-      const [cx, cy] = [ctx.canvas.width / 2, ctx.canvas.height / 2]
+  function drawGrid(
+    ctx,
+    { w, h, ccx, ccy, cx, cy, scale = 1, color = '#000' }
+  ) {
+    const minGrid = 10
+    const dist = (minGrid * scale) / Math.pow(10, Math.floor(Math.log10(scale)))
+    const offset = 0
+    ctx.strokeStyle = color
+    ctx.beginPath()
+    ctx.lineWidth = 3
+    for (let y = ccy; y <= h - offset - cy; y += dist * 10) {
+      ctx.moveTo(offset, cy + y)
+      ctx.lineTo(w - offset, cy + y)
+    }
+    for (let y = ccy - dist * 10; y > offset - cy; y -= dist * 10) {
+      ctx.moveTo(offset, cy + y)
+      ctx.lineTo(w - offset, cy + y)
+    }
+    for (let x = ccx; x <= w - offset - cx; x += dist * 10) {
+      ctx.moveTo(cx + x, offset)
+      ctx.lineTo(cx + x, h - offset)
+    }
+    for (let x = ccx - dist * 10; x > offset - cx; x -= dist * 10) {
+      ctx.moveTo(cx + x, offset)
+      ctx.lineTo(cx + x, h - offset)
+    }
+    ctx.stroke()
+    ctx.lineWidth = 1
+    for (let y = ccy + dist; y <= h - offset - cy; y += dist) {
+      ctx.moveTo(offset, cy + y)
+      ctx.lineTo(w - offset, cy + y)
+    }
+    for (let y = ccy - dist; y > offset - cy; y -= dist) {
+      ctx.moveTo(offset, cy + y)
+      ctx.lineTo(w - offset, cy + y)
+    }
+    for (let x = ccx + dist; x <= w - offset - cx; x += dist) {
+      ctx.moveTo(cx + x, offset)
+      ctx.lineTo(cx + x, h - offset)
+    }
+    for (let x = ccx - dist; x > offset - cx; x -= dist) {
+      ctx.moveTo(cx + x, offset)
+      ctx.lineTo(cx + x, h - offset)
+    }
+    ctx.stroke()
+  }
+
+  const positionRef = useRef(0)
+  const scaleRef = useRef(0)
+  const solutionPositionRef = useRef(0)
+  const solutionScaleRef = useRef(0)
+  function renderToCanvas(ctx, result, solution = false) {
+    if (ctx && ctx !== null) {
+      ctx.fillStyle = 'transparent'
+      const w = ctx.canvas.width
+      const h = ctx.canvas.height
+      ctx.clearRect(0, 0, w, h)
+      const [ccx, ccy] = [w / 2, h / 2]
+      const { x: cx, y: cy } = solution
+        ? solutionPositionRef.current
+        : positionRef.current
+      const scale = solution ? solutionScaleRef.current : scaleRef.current
       ctx.drawCircle = (self) => {
         ctx.beginPath()
         ctx.arc(
-          cx + self.x * scale,
-          cy - self.y * scale,
+          cx + ccx + self.x * scale,
+          cy + ccy - self.y * scale,
           self.r * scale,
           0,
           2 * Math.PI,
@@ -165,6 +227,90 @@ function CodeEditor(props) {
       }
       if ('elements' in result) {
         result.elements.forEach((element) => element.render(ctx))
+      }
+    }
+  }
+
+  function renderTraceToCanvas(ctx, result, solution = false) {
+    if (ctx && ctx !== null) {
+      const w = ctx.canvas.width
+      const h = ctx.canvas.height
+      const [ccx, ccy] = [w / 2, h / 2]
+      const { x: cx, y: cy } = solution
+        ? solutionPositionRef.current
+        : positionRef.current
+      const scale = solution ? solutionScaleRef.current : scaleRef.current
+      if ('clear' in result && result.clear) {
+        ctx.fillStyle = '#ddd'
+        ctx.fillRect(0, 0, w, h)
+        drawGrid(ctx, {
+          w,
+          h,
+          ccx,
+          ccy,
+          cx,
+          cy,
+          scale,
+        })
+      }
+      let minX = 0
+      let minY = 0
+      let maxX = 0
+      let maxY = 0
+      ctx.drawCircle = (self) => {
+        ctx.beginPath()
+        ctx.arc(
+          cx + ccx + self.x * scale,
+          cy + ccy - self.y * scale,
+          self.r * scale,
+          0,
+          2 * Math.PI,
+          false
+        )
+        ctx.fillStyle = self.color || '#0aa'
+        ctx.fill()
+      }
+      if ('elements' in result) {
+        result.elements.forEach((element) => {
+          const { minx = 0, miny = 0, maxx = 0, maxy = 0 } =
+            element.render(ctx) || {}
+          minX = Math.min(minX, minx)
+          minY = Math.min(minY, miny)
+          maxX = Math.max(maxX, maxx)
+          maxY = Math.max(maxY, maxy)
+        })
+      }
+      const dx = maxX - minX
+      const dy = maxY - minY
+      const dist = Math.max(dx, dy)
+      if (dist > 0) {
+        if (!solution) {
+          const newScale = 160 / dist
+          dispatch({
+            type: 'setScale',
+            scale: Math.log2(newScale),
+          })
+          dispatch({
+            type: 'setPosition',
+            position: {
+              x: -(newScale * (minX + maxX)) / 2,
+              y: -(newScale * (minY + maxY)) / 2,
+            },
+          })
+        } else {
+          const newScale = 160 / dist
+          dispatch({
+            type: 'setScale',
+            solutionScale: Math.log2(newScale),
+          })
+          dispatch({
+            type: 'setPosition',
+            solutionPosition: {
+              x: -(newScale * (minX + maxX)) / 2,
+              y: -(newScale * (minY + maxY)) / 2,
+            },
+          })
+        }
       }
     }
   }
@@ -391,6 +537,20 @@ function CodeEditor(props) {
   }, [isEngineReady, dispatch])
 
   useEffect(() => {
+    scaleRef.current = Math.max(Number.MIN_VALUE, Math.pow(2, scale))
+    positionRef.current = position
+    if (resultCanvasContext && resultCanvasContext !== null) {
+      renderToCanvas(resultCanvasContext, currentState)
+    }
+    if (traceResultCanvasContext && traceResultCanvasContext !== null) {
+      renderTraceToCanvas(traceResultCanvasContext, {
+        elements: [],
+        clear: true,
+      })
+    }
+  }, [scale, position, resultCanvasContext])
+
+  useEffect(() => {
     if (
       resultCanvasContext &&
       resultCanvasContext !== null &&
@@ -398,9 +558,40 @@ function CodeEditor(props) {
         prevResultSize.current.w !== resultCanvasSize.w)
     ) {
       renderToCanvas(resultCanvasContext, currentState)
+      if (traceResultCanvasContext && traceResultCanvasContext !== null) {
+        renderTraceToCanvas(traceResultCanvasContext, currentState)
+      }
     }
     prevResultSize.current = resultCanvasSize
-  }, [prevResultSize, resultCanvasSize, resultCanvasContext])
+  }, [
+    prevResultSize,
+    resultCanvasSize,
+    resultCanvasContext,
+    traceResultCanvasContext,
+  ])
+
+  useEffect(() => {
+    solutionScaleRef.current = Math.max(
+      Number.MIN_VALUE,
+      Math.pow(2, solutionScale)
+    )
+    solutionPositionRef.current = solutionPosition
+    if (goalCanvasContext && goalCanvasContext !== null) {
+      renderToCanvas(goalCanvasContext, currentSolutionState, true)
+    }
+    if (traceGoalCanvasContext && traceGoalCanvasContext !== null) {
+      renderTraceToCanvas(
+        traceGoalCanvasContext,
+        { elements: [], clear: true },
+        true
+      )
+    }
+  }, [
+    solutionScale,
+    solutionPosition,
+    goalCanvasContext,
+    traceGoalCanvasContext,
+  ])
 
   useEffect(() => {
     if (
@@ -409,10 +600,13 @@ function CodeEditor(props) {
       (prevGoalSize.current.h !== goalCanvasSize.h ||
         prevGoalSize.current.w !== goalCanvasSize.w)
     ) {
-      renderToCanvas(goalCanvasContext, currentSolutionState)
+      renderToCanvas(goalCanvasContext, currentSolutionState, true)
+      if (traceGoalCanvasContext && traceGoalCanvasContext !== null) {
+        renderTraceToCanvas(traceGoalCanvasContext, currentSolutionState, true)
+      }
     }
     prevGoalSize.current = goalCanvasSize
-  }, [prevGoalSize, goalCanvasSize, goalCanvasContext])
+  }, [prevGoalSize, goalCanvasSize, goalCanvasContext, traceGoalCanvasContext])
 
   useEffect(() => {
     function execAndGetCurrentVariableValues(runBefore = '', variables = null) {
@@ -426,7 +620,8 @@ function CodeEditor(props) {
                 typeof k[1] === 'string' ||
                 typeof k[1] === 'number' ||
                 typeof k[1] === 'boolean' ||
-                classTypes.includes(k[1].type)
+                ('__class__' in k[1] &&
+                  classTypes.includes(k[1].__class__.__name__))
             )
           //.reduce((acc, n) => Object.assign(acc, { [n[0]]: n[1] }), {});
         } else if (variables === false) {
@@ -468,23 +663,37 @@ function CodeEditor(props) {
             value +
             '\n'
         )
-        if (resultCanvasContext !== null) {
+        {
           const t_tot = window.pyodide.globals.t_tot
           currentState = {
             dt: window.pyodide.globals.dt || 0.02,
             t_tot: typeof t_tot === 'number' ? t_tot : 1,
             elements: window.pyodide.globals.__elements__ || [],
           }
-          renderToCanvas(resultCanvasContext, currentState)
+          if (resultCanvasContext !== null) {
+            renderToCanvas(resultCanvasContext, currentState)
+          }
+          if (traceResultCanvasContext !== null) {
+            renderTraceToCanvas(traceResultCanvasContext, currentState)
+          }
         }
-        if (goalCanvasContext !== null) {
+        {
           const t_tot = window.pyodide.globals.__t_tot__
           currentSolutionState = {
             dt: window.pyodide.globals.__dt__ || 0.02,
             t_tot: typeof t_tot === 'number' ? t_tot : 1,
             elements: window.pyodide.globals.__solution_elements__ || [],
           }
-          renderToCanvas(goalCanvasContext, currentSolutionState)
+          if (goalCanvasContext !== null) {
+            renderToCanvas(goalCanvasContext, currentSolutionState, true)
+          }
+          if (traceGoalCanvasContext !== null) {
+            renderTraceToCanvas(
+              traceGoalCanvasContext,
+              currentSolutionState,
+              true
+            )
+          }
         }
         if (updateVariables) {
           const variables = execAndGetCurrentVariableValues()
@@ -513,7 +722,14 @@ function CodeEditor(props) {
       type: 'setRunCodeFunction',
       function: runCode,
     })
-  }, [dispatch, writeToLogFunction, resultCanvasContext, goalCanvasContext])
+  }, [
+    dispatch,
+    writeToLogFunction,
+    resultCanvasContext,
+    goalCanvasContext,
+    traceResultCanvasContext,
+    traceGoalCanvasContext,
+  ])
 
   useEffect(() => {
     _time = time
@@ -522,8 +738,9 @@ function CodeEditor(props) {
   useEffect(() => {
     if (isEngineReady) {
       if (isPlaying && intervalID === null) {
-        const minDeltaTime = Math.min(deltaTime, solutionDeltaTime)
         const maxTotalTime = Math.max(totalTime, solutionTotalTime)
+        const minDeltaTime = Math.min(deltaTime, solutionDeltaTime)
+        const steps = maxTotalTime / minDeltaTime
         intervalID = setInterval(() => {
           if (totalTime > 0 && _time + minDeltaTime >= maxTotalTime) {
             clearInterval(intervalID)
@@ -542,7 +759,7 @@ function CodeEditor(props) {
               time: _time + minDeltaTime,
             })
           }
-        }, minDeltaTime * 1000)
+        }, Math.min(minDeltaTime * 1000, 100))
       } else if (intervalID !== null) {
         clearInterval(intervalID)
         intervalID = null
