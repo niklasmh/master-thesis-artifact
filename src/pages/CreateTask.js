@@ -1544,33 +1544,38 @@ function Subgoal({
   const [solutionLoopCode, setSolutionLoopCode] = useState('')
   const [testCode, setTestCode] = useState('')
 
+  const prevDefaultData = useRef('')
   useEffect(() => {
-    if (defaultData.hiddenCode) {
-      const [before, ...after] = fixNewlines(defaultData.hiddenCode).split(
-        loopCodeSplit
-      )
-      setHiddenCode(before.trim())
-      setHiddenLoopCode(after.join('\n').trim())
-    }
-    if (defaultData.predefinedCode) {
-      const [before, ...after] = fixNewlines(defaultData.predefinedCode).split(
-        loopCodeSplit
-      )
-      setPredefinedCode(before.trim())
-      setPredefinedLoopCode(after.join('\n').trim())
-      setUsePredefinedCode(true)
-    } else {
-      setUsePredefinedCode(false)
-    }
-    if (defaultData.solutionCode) {
-      const [before, ...after] = fixNewlines(defaultData.solutionCode).split(
-        loopCodeSplit
-      )
-      setSolutionCode(before.trim())
-      setSolutionLoopCode(after.join('\n').trim())
-    }
-    if (defaultData.testCode) {
-      setTestCode(fixNewlines(defaultData.testCode.trim()))
+    const stringified = JSON.stringify(defaultData)
+    if (prevDefaultData.current !== stringified) {
+      prevDefaultData.current = stringified
+      if (defaultData.hiddenCode) {
+        const [before, ...after] = fixNewlines(defaultData.hiddenCode).split(
+          loopCodeSplit
+        )
+        setHiddenCode(before.trim())
+        setHiddenLoopCode(after.join('\n').trim())
+      }
+      if (typeof defaultData.predefinedCode === 'string') {
+        const [before, ...after] = fixNewlines(
+          defaultData.predefinedCode
+        ).split(loopCodeSplit)
+        setPredefinedCode(before.trim())
+        setPredefinedLoopCode(after.join('\n').trim())
+        setUsePredefinedCode(true)
+      } else {
+        setUsePredefinedCode(false)
+      }
+      if (defaultData.solutionCode) {
+        const [before, ...after] = fixNewlines(defaultData.solutionCode).split(
+          loopCodeSplit
+        )
+        setSolutionCode(before.trim())
+        setSolutionLoopCode(after.join('\n').trim())
+      }
+      if (defaultData.testCode) {
+        setTestCode(fixNewlines(defaultData.testCode.trim()))
+      }
     }
   }, [defaultData])
 
@@ -1831,9 +1836,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
             'Legg til ny startkode',
           ]}
           checked={usePredefinedCode ? 1 : 0}
-          onChange={(choice) => {
-            setUsePredefinedCode(choice === 1)
-          }}
+          onChange={(choice) => setUsePredefinedCode(choice === 1)}
         />
       )}
       <CodeEditorWrapper
@@ -1845,6 +1848,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
             onClick={() => {
               if (sectionNo > 1 || subgoalNo > 1) {
                 let code = ''
+                let loopCode = ''
                 const ID = sectionNo + '-' + subgoalNo
                 if (subgoalNo <= 1) {
                   const prevSectionNo = sectionNo - 1
@@ -1859,7 +1863,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
                     code = solutionCodes[prevID]
                   }
                   if (prevID in solutionLoopCodes) {
-                    code = solutionLoopCodes[prevID]
+                    loopCode = solutionLoopCodes[prevID]
                   }
                 } else {
                   const prevSubgoalNo = subgoalNo - 1
@@ -1868,11 +1872,11 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
                     code = solutionCodes[prevID]
                   }
                   if (prevID in solutionLoopCodes) {
-                    code = solutionLoopCodes[prevID]
+                    loopCode = solutionLoopCodes[prevID]
                   }
                 }
                 predefinedCodeEditor.current.setValue(code)
-                predefinedLoopCodeEditor.current.setValue(code)
+                predefinedLoopCodeEditor.current.setValue(loopCode)
               }
             }}
           >
