@@ -476,23 +476,27 @@ function CodeEditor(props) {
     setIsEditorReady(true)
     const types = {
       Ball: {
-        signature: 'Ball(x=tall, y=tall, r=tall, color="farge")',
+        signature: 'Ball(x=meter, y=meter, r=meter, m=kilogram, color="farge")',
         kind: window.monaco.languages.CompletionItemKind.Function,
         documentation:
           'Eksempel på bruk:\n\n```python\nBall(x=0, y=0, r=1)\n```',
         insertText: 'Ball(x=${1:0}, y=${2:0}, r=${3:1}, color="blue")',
         parameters: [
           {
-            label: 'x=tall',
+            label: 'x=meter',
             documentation: 'Posisjon på x-aksen',
           },
           {
-            label: 'y=tall',
+            label: 'y=meter',
             documentation: 'Posisjon på y-aksen',
           },
           {
-            label: 'r=tall',
-            documentation: 'Posisjon på y-aksen',
+            label: 'r=meter',
+            documentation: 'Radius i meter',
+          },
+          {
+            label: 'm=kilogram',
+            documentation: 'Massen til ballen',
           },
           {
             label: 'color="farge"',
@@ -500,9 +504,40 @@ function CodeEditor(props) {
           },
         ],
       },
+      Planet: {
+        signature:
+          'Planet(x=meter, y=meter, r=meter, m=kilogram, color="farge")',
+        kind: window.monaco.languages.CompletionItemKind.Function,
+        documentation:
+          'Eksempel på bruk:\n\n```python\nPlanet(x=0, y=0, r=1.23e4, m=1.23e4)\n```',
+        insertText:
+          'Planet(x=${1:0}, y=${2:0}, r=${3:1}, m=${4:1}, color="blue")',
+        parameters: [
+          {
+            label: 'x=meter',
+            documentation: 'Posisjon på x-aksen',
+          },
+          {
+            label: 'y=meter',
+            documentation: 'Posisjon på y-aksen',
+          },
+          {
+            label: 'r=meter',
+            documentation: 'Radius i meter',
+          },
+          {
+            label: 'm=kilogram',
+            documentation: 'Massen til planeten',
+          },
+          {
+            label: 'color="farge"',
+            documentation: 'Farge på planeten',
+          },
+        ],
+      },
       Blokk: {
         signature:
-          'Blokk(x=tall, y=tall, b=tall, h=tall, rot=radianer, color="farge")',
+          'Blokk(x=meter, y=meter, b=meter, h=meter, rot=radianer, m=kilogram, color="farge")',
         kind: window.monaco.languages.CompletionItemKind.Function,
         documentation:
           'Eksempel på bruk:\n\n```python\nBlokk(x=0, y=0, b=1, h=1, rot=45*pi/180, color="blue")\n```',
@@ -510,24 +545,28 @@ function CodeEditor(props) {
           'Blokk(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, rot=0*pi/180, color="blue")',
         parameters: [
           {
-            label: 'x=tall',
+            label: 'x=meter',
             documentation: 'Posisjon på x-aksen',
           },
           {
-            label: 'y=tall',
+            label: 'y=meter',
             documentation: 'Posisjon på y-aksen',
           },
           {
-            label: 'b=tall',
+            label: 'b=meter',
             documentation: 'Bredde',
           },
           {
-            label: 'h=tall',
+            label: 'h=meter',
             documentation: 'Høyde',
           },
           {
             label: 'rot=radianer',
             documentation: 'Vinkel i radianer',
+          },
+          {
+            label: 'm=kilogram',
+            documentation: 'Massen til blokken',
           },
           {
             label: 'color="farge"',
@@ -537,7 +576,7 @@ function CodeEditor(props) {
       },
       Linje: {
         signature:
-          'Linje(x1=tall, y1=tall, x2=tall, y2=tall, w=tall, color="farge")',
+          'Linje(x1=meter, y1=meter, x2=meter, y2=meter, w=meter, color="farge")',
         kind: window.monaco.languages.CompletionItemKind.Function,
         documentation:
           'Eksempel på bruk:\n\n```pythonLinje(x1=0, y1=0, x2=1, y2=1, w=3)\n```',
@@ -545,23 +584,23 @@ function CodeEditor(props) {
           'Linje(x1=${1:0}, y1=${2:0}, x2=${3:1}, y2=${4:1}, w=${5:3}, color="black")',
         parameters: [
           {
-            label: 'x1=tall',
+            label: 'x1=meter',
             documentation: 'Startposisjon på x-aksen',
           },
           {
-            label: 'y1=tall',
+            label: 'y1=meter',
             documentation: 'Startposisjon på y-aksen',
           },
           {
-            label: 'x2=tall',
+            label: 'x2=meter',
             documentation: 'Sluttposisjon på x-aksen',
           },
           {
-            label: 'y2=tall',
+            label: 'y2=meter',
             documentation: 'Sluttposisjon på y-aksen',
           },
           {
-            label: 'w=tall',
+            label: 'w=meter',
             documentation: 'Bredde på linjen i pixler (ikke meter)',
           },
           {
