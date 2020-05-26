@@ -583,6 +583,7 @@ const emptySection = {
 
 export default function CreateTaskPage() {
   const dispatch = useDispatch()
+  const { resultCanvasContext } = useSelector((state) => state.task)
   const { uid } = useSelector((state) => state.user)
   const { pathname } = useLocation()
   const { id } = useParams()
@@ -722,6 +723,7 @@ ${sections
         .collection('tasks')
         .add({
           ...buildJSONFromGUI(sections, sectionToJSONFunctions),
+          image: resultCanvasContext.canvas.toDataURL('image/jpeg', 0.1),
           author: firebase.firestore().collection('users').doc(uid),
         })
       await firebase
