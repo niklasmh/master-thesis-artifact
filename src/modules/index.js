@@ -214,7 +214,6 @@ def test():
                 return scope
             return __solution_scope__[variable]
 ${indentCode(testCode, 2)}
-        print(f"Du klarte deloppgave {section}. {subgoal})!")
         return True
     except BaseException as e:
         raise e
