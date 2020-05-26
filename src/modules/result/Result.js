@@ -93,7 +93,7 @@ function Result({ ...props }) {
 
   return (
     <StyledModule
-      title="Resultat"
+      title="Din løsning"
       height={resultCanvasSize.h + 'px'}
       width={resultCanvasSize.w + 'px'}
       {...props}

@@ -92,7 +92,7 @@ function Goal({ ...props }) {
 
   return (
     <StyledModule
-      title="Løsning"
+      title="Fasit"
       height={goalCanvasSize.h + 'px'}
       width={goalCanvasSize.w + 'px'}
       {...props}
