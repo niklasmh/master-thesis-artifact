@@ -510,15 +510,15 @@ export default function TaskCodeEnvironment({
         currentSolutionCode
       if (code !== prevCode.current) {
         prevCode.current = code
-        console.log(currentHiddenCode)
-        console.log(currentStartCode)
-        console.log(currentLoopCode)
-        console.log(
-          makeAllVariablesChangeableInLoop(
-            wrapSolutionCode(currentHiddenCode, ...currentSolutionCode),
-            1
-          )
-        )
+        //console.log(currentHiddenCode)
+        //console.log(currentStartCode)
+        //console.log(currentLoopCode)
+        //console.log(
+        //  makeAllVariablesChangeableInLoop(
+        //    wrapSolutionCode(currentHiddenCode, ...currentSolutionCode),
+        //    1
+        //  )
+        //)
         prevSubgoalID.current = subgoalID
         const runCodes = async () => {
           await runCode(currentHiddenCode, true, true)

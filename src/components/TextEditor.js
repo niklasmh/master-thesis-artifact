@@ -316,13 +316,6 @@ function renderMarkdownOnly(markdown) {
               />
             )
           }
-          if (type === 'test') {
-            render.push(
-              <button key={'run-test-' + i} onClick={() => console.log('test')}>
-                Kjør test
-              </button>
-            )
-          }
           render.push(
             <CodeEditor
               key={

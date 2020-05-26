@@ -127,7 +127,7 @@ function TaskPage() {
           setSubgoalNoMax(taskData.sections[0].subgoals.length - 1)
         }
       }
-      console.log(taskData)
+      //console.log(taskData)
       setTask(taskData)
     }
   }, [taskData, task.title])

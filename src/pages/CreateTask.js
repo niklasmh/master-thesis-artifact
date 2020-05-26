@@ -747,7 +747,7 @@ ${sections
 
   const testTask = () => {
     const newTask = buildJSONFromGUI(sections, sectionToJSONFunctions)
-    console.log(newTask)
+    //console.log(newTask)
     setTask(newTask)
     setTimeout(() => {
       testTaskAnchor.current.scrollIntoView({
