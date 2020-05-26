@@ -1,19 +1,26 @@
 import { combineReducers } from 'redux'
 
-export const getLocalStorage = (key, defaultValue) => {
-  try {
-    return window.localStorage.getItem(key)
-  } catch (ex) {
-    return defaultValue
-  }
-}
-
 export const setLocalStorage = (key, value) => {
   try {
     window.localStorage.setItem(key, value)
     return true
   } catch (ex) {
     return false
+  }
+}
+
+export const getLocalStorage = (key, defaultValue, setIfDefault = false) => {
+  try {
+    const value = window.localStorage.getItem(key)
+    if (value === null) {
+      if (setIfDefault) {
+        setLocalStorage(key, defaultValue)
+      }
+      return defaultValue
+    }
+    return value
+  } catch (ex) {
+    return defaultValue
   }
 }
 
@@ -24,7 +31,7 @@ const setTheme = (theme) => {
   )
 }
 
-const theme = getLocalStorage('theme', 'dark')
+const theme = getLocalStorage('theme', 'dark', true)
 setTheme(theme)
 
 export function user(
