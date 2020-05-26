@@ -309,7 +309,7 @@ function Values(props) {
                           <ObjectValue>
                             {figure} <Viz>{type}(</Viz>
                             {args}
-                            <Viz style={{ marginLeft: '1em' }}>)</Viz>
+                            <Viz style={{ marginLeft: '0.66em' }}>)</Viz>
                           </ObjectValue>
                           {'\n'}
                         </Variable>
