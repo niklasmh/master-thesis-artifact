@@ -164,7 +164,7 @@ export default function Header() {
           Du er logget inn som: {user.displayName || user.email}
         </Paragraph>
       ) : null}
-      {(location.pathname || '').indexOf('/oppgave/ny') !== 0 ? (
+      {user && (location.pathname || '').indexOf('/oppgave/ny') !== 0 ? (
         <Link className="button" to="/oppgave/ny">
           + Lag ny oppgave
         </Link>
