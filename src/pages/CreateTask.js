@@ -87,20 +87,13 @@ const Sections = styled.ol`
 
 const placeholders = {
   testCode: `
-# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
-assert defined('g'), "Du må definere 'g'" # Sender tilbakemelding til eleven om dette feiler
-
-# Sjekke om en variabel er lik fasitverdien
+assert defined('g'), "Du må definere 'g'"
 assert g == 9.81, "Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma."
-
-# Simulere 2 sekunder frem i tid
-simulate(t=2)
-
-# Sjekke om elevens ball.y er lik løsningen over sin ball.y i sekund 2
+simulate(time=2)
 assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s"
 
 # Om testen ikke har feilet til nå, så er den
-print("Du klarte oppgaven!")
+print(f"Du klarte deloppgave {section}. {subgoal})!")
 `,
   testMarkdown: `# Ball i fritt fall
 
