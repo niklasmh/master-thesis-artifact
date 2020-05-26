@@ -35,13 +35,14 @@ function Result({ ...props }) {
   const canvas = useRef(null)
   const traceCanvas = useRef(null)
   const dispatch = useDispatch()
-  const { resultCanvasSize, scale } = useSelector((state) => state.task)
+  const { resultCanvasSize, scale, position } = useSelector(
+    (state) => state.task
+  )
   const [canvasPosition, setCanvasPosition] = useState({ x: -1, y: -1 })
   const [mouseDown, setMouseDown] = useState(false)
   const [mouseDownPosition, setMouseDownPosition] = useState({ x: -1, y: -1 })
   const [mouseUpPosition, setMouseUpPosition] = useState({ x: -1, y: -1 })
   const [mousePosition, setMousePosition] = useState({ x: -1, y: -1 })
-  const [position, setPosition] = useState({ x: 0, y: 0 })
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
 
   const prevScale = useRef(5)
@@ -80,16 +81,12 @@ function Result({ ...props }) {
     if (mouseDown) {
       const x = startPosition.x + mousePosition.x - mouseDownPosition.x
       const y = startPosition.y + mousePosition.y - mouseDownPosition.y
-      setPosition({ x, y })
+      dispatch({
+        type: 'setPosition',
+        position: { x, y },
+      })
     }
   }, [mouseDown, mouseDownPosition, mousePosition, startPosition, dispatch])
-
-  useEffect(() => {
-    dispatch({
-      type: 'setPosition',
-      position,
-    })
-  }, [position, dispatch])
 
   return (
     <StyledModule

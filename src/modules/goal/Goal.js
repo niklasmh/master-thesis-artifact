@@ -34,13 +34,14 @@ function Goal({ ...props }) {
   const canvas = useRef(null)
   const traceCanvas = useRef(null)
   const dispatch = useDispatch()
-  const { goalCanvasSize, solutionScale } = useSelector((state) => state.task)
+  const { goalCanvasSize, solutionScale, solutionPosition } = useSelector(
+    (state) => state.task
+  )
   const [canvasPosition, setCanvasPosition] = useState({ x: -1, y: -1 })
   const [mouseDown, setMouseDown] = useState(false)
   const [mouseDownPosition, setMouseDownPosition] = useState({ x: -1, y: -1 })
   const [mouseUpPosition, setMouseUpPosition] = useState({ x: -1, y: -1 })
   const [mousePosition, setMousePosition] = useState({ x: -1, y: -1 })
-  const [position, setPosition] = useState({ x: 0, y: 0 })
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
 
   const prevScale = useRef(5)
@@ -79,16 +80,12 @@ function Goal({ ...props }) {
     if (mouseDown) {
       const x = startPosition.x + mousePosition.x - mouseDownPosition.x
       const y = startPosition.y + mousePosition.y - mouseDownPosition.y
-      setPosition({ x, y })
+      dispatch({
+        type: 'setPosition',
+        solutionPosition: { x, y },
+      })
     }
   }, [mouseDown, mouseDownPosition, mousePosition, startPosition, dispatch])
-
-  useEffect(() => {
-    dispatch({
-      type: 'setPosition',
-      solutionPosition: position,
-    })
-  }, [position, dispatch])
 
   return (
     <StyledModule
@@ -111,7 +108,7 @@ function Goal({ ...props }) {
               setMouseDown(true)
               const { left, top } = canvas.current.getBoundingClientRect()
               setCanvasPosition({ x: left, y: top })
-              setStartPosition(position)
+              setStartPosition(solutionPosition)
               setMouseDownPosition({ x: e.clientX - left, y: e.clientY - top })
               setMousePosition({
                 x: e.clientX - left,
