@@ -216,7 +216,7 @@ function CodeEditor(props) {
         ctx.beginPath()
         ctx.arc(
           cx + ccx + self.x * scale,
-          cy + ccy - self.y * scale,
+          cy + ccy + self.y * scale,
           self.r * scale,
           0,
           2 * Math.PI,
@@ -224,6 +224,45 @@ function CodeEditor(props) {
         )
         ctx.fillStyle = self.color || '#0aa'
         ctx.fill()
+      }
+      ctx.drawBlock = (self) => {
+        ctx.beginPath()
+        const a = self.rot
+        const sinA = Math.sin(a)
+        const cosA = Math.cos(a)
+        const cw = (self.b * scale) / 2
+        const ch = (self.h * scale) / 2
+        const x1 = cw * cosA - ch * sinA
+        const x2 = cw * cosA + ch * sinA
+        const y1 = -ch * cosA - cw * sinA
+        const y2 = ch * cosA - cw * sinA
+        ctx.moveTo(
+          cx + ccx + self.x * scale + x1,
+          cy + ccy + self.y * scale + y1
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale + x2,
+          cy + ccy + self.y * scale + y2
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale - x1,
+          cy + ccy + self.y * scale - y1
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale - x2,
+          cy + ccy + self.y * scale - y2
+        )
+        ctx.fillStyle = self.color || '#0aa'
+        ctx.closePath()
+        ctx.fill()
+      }
+      ctx.drawLine = (self) => {
+        ctx.beginPath()
+        ctx.lineWidth = self.w
+        ctx.moveTo(cx + ccx + self.x1 * scale, cy + ccy + self.y1 * scale)
+        ctx.lineTo(cx + ccx + self.x2 * scale, cy + ccy + self.y2 * scale)
+        ctx.strokeStyle = self.color || '#0aa'
+        ctx.stroke()
       }
       if ('elements' in result) {
         result.elements.forEach((element) => element.render(ctx))
@@ -261,7 +300,7 @@ function CodeEditor(props) {
         ctx.beginPath()
         ctx.arc(
           cx + ccx + self.x * scale,
-          cy + ccy - self.y * scale,
+          cy + ccy + self.y * scale,
           self.r * scale,
           0,
           2 * Math.PI,
@@ -269,6 +308,45 @@ function CodeEditor(props) {
         )
         ctx.fillStyle = self.color || '#0aa'
         ctx.fill()
+      }
+      ctx.drawBlock = (self) => {
+        ctx.beginPath()
+        const a = self.rot
+        const sinA = Math.sin(a)
+        const cosA = Math.cos(a)
+        const cw = (self.b * scale) / 2
+        const ch = (self.h * scale) / 2
+        const x1 = cw * cosA - ch * sinA
+        const x2 = cw * cosA + ch * sinA
+        const y1 = -ch * cosA - cw * sinA
+        const y2 = ch * cosA - cw * sinA
+        ctx.moveTo(
+          cx + ccx + self.x * scale + x1,
+          cy + ccy + self.y * scale + y1
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale + x2,
+          cy + ccy + self.y * scale + y2
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale - x1,
+          cy + ccy + self.y * scale - y1
+        )
+        ctx.lineTo(
+          cx + ccx + self.x * scale - x2,
+          cy + ccy + self.y * scale - y2
+        )
+        ctx.fillStyle = self.color || '#0aa'
+        ctx.closePath()
+        ctx.fill()
+      }
+      ctx.drawLine = (self) => {
+        ctx.beginPath()
+        ctx.lineWidth = self.w
+        ctx.moveTo(cx + ccx + self.x1 * scale, cy + ccy + self.y1 * scale)
+        ctx.lineTo(cx + ccx + self.x2 * scale, cy + ccy + self.y2 * scale)
+        ctx.strokeStyle = self.color || '#0aa'
+        ctx.stroke()
       }
       if ('elements' in result) {
         result.elements.forEach((element) => {
@@ -294,7 +372,7 @@ function CodeEditor(props) {
             type: 'setPosition',
             position: {
               x: -(newScale * (minX + maxX)) / 2,
-              y: (newScale * (minY + maxY)) / 2,
+              y: -(newScale * (minY + maxY)) / 2,
             },
           })
         } else {
@@ -307,7 +385,7 @@ function CodeEditor(props) {
             type: 'setPosition',
             solutionPosition: {
               x: -(newScale * (minX + maxX)) / 2,
-              y: (newScale * (minY + maxY)) / 2,
+              y: -(newScale * (minY + maxY)) / 2,
             },
           })
         }
@@ -337,15 +415,20 @@ function CodeEditor(props) {
             label: 'r=tall',
             documentation: 'Posisjon på y-aksen',
           },
+          {
+            label: 'color="farge"',
+            documentation: 'Farge på ballen',
+          },
         ],
       },
       Blokk: {
-        signature: 'Blokk(x=tall, y=tall, b=tall, h=tall, color="farge")',
+        signature:
+          'Blokk(x=tall, y=tall, b=tall, h=tall, rot=radianer, color="farge")',
         kind: window.monaco.languages.CompletionItemKind.Function,
         documentation:
-          'Eksempel på bruk:\n\n```python\nBlokk(x=0, y=0, b=1, h=1)\n```',
+          'Eksempel på bruk:\n\n```python\nBlokk(x=0, y=0, b=1, h=1, rot=45*pi/180, color="blue")\n```',
         insertText:
-          'Blokk(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, color="blue")',
+          'Blokk(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, rot=0*pi/180, color="blue")',
         parameters: [
           {
             label: 'x=tall',
@@ -362,6 +445,49 @@ function CodeEditor(props) {
           {
             label: 'h=tall',
             documentation: 'Høyde',
+          },
+          {
+            label: 'rot=radianer',
+            documentation: 'Vinkel i radianer',
+          },
+          {
+            label: 'color="farge"',
+            documentation: 'Farge på blokken',
+          },
+        ],
+      },
+      Linje: {
+        signature:
+          'Linje(x1=tall, y1=tall, x2=tall, y2=tall, w=tall, color="farge")',
+        kind: window.monaco.languages.CompletionItemKind.Function,
+        documentation:
+          'Eksempel på bruk:\n\n```pythonLinje(x1=0, y1=0, x2=1, y2=1, w=3)\n```',
+        insertText:
+          'Linje(x1=${1:0}, y1=${2:0}, x2=${3:1}, y2=${4:1}, w=${5:3}, color="black")',
+        parameters: [
+          {
+            label: 'x1=tall',
+            documentation: 'Startposisjon på x-aksen',
+          },
+          {
+            label: 'y1=tall',
+            documentation: 'Startposisjon på y-aksen',
+          },
+          {
+            label: 'x2=tall',
+            documentation: 'Sluttposisjon på x-aksen',
+          },
+          {
+            label: 'y2=tall',
+            documentation: 'Sluttposisjon på y-aksen',
+          },
+          {
+            label: 'w=tall',
+            documentation: 'Bredde på linjen i pixler (ikke meter)',
+          },
+          {
+            label: 'color="farge"',
+            documentation: 'Farge på linja',
           },
         ],
       },

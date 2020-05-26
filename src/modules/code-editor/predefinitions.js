@@ -96,6 +96,71 @@ class Planet:
           "miny": self.y - self.r,
           "maxy": self.y + self.r,
         }
+
+class Blokk:
+    def __init__(self, x=0, y=0, b=1, h=1, m=1, rot=0, color="blue", **kwargs):
+        self.x = x
+        self.y = y
+        self.x0 = x
+        self.y0 = y
+        self.vx = 0
+        self.vy = 0
+        self.ax = 0
+        self.ay = 0
+        self.b = b
+        self.h = h
+        self.m = m
+        self.rot = rot
+        self.color = color
+        self.drawforces = False
+        for k, i in kwargs.items():
+            if k == "vx":
+                self.vx = i
+                self.vx0 = i
+            elif k == "vy":
+                self.vy = i
+                self.vy0 = i
+            if k == "ax":
+                self.ax = i
+                self.ax0 = i
+            elif k == "ay":
+                self.ay = i
+                self.ay0 = i
+            elif k == "drawforces": self.drawforces = i
+        __elements__.append(self)
+    def render(self, ctx):
+        ctx.drawBlock(self)
+        if self.drawforces:
+                ctx.drawForces(self)
+        r = max(self.b, self.h) # Approx
+        return {
+          "minx": self.x - r,
+          "maxx": self.x + r,
+          "miny": self.y - r,
+          "maxy": self.y + r,
+        }
+
+class Linje:
+    def __init__(self, x1=0, y1=0, x2=1, y2=1, color="black", w=3, **kwargs):
+        self.x1 = x1
+        self.y1 = y1
+        self.x10 = x1
+        self.y10 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.x20 = x2
+        self.y20 = y2
+        self.color = color
+        self.w = w
+        __elements__.append(self)
+    def render(self, ctx):
+        ctx.drawLine(self)
+        return {
+          "minx": min(self.x1, self.x2),
+          "maxx": max(self.x1, self.x2),
+          "miny": min(self.y1, self.y2),
+          "maxy": max(self.y1, self.y2),
+        }
 `
 export const preDefinedElementsLineCount = (
   preDefinedImports + preDefinedElements

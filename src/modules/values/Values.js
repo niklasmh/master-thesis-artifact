@@ -230,7 +230,22 @@ function Values(props) {
                   try {
                     const type = value.__class__.__name__
                     if (classTypes.includes(type)) {
-                      const args = ['vx', 'vy', 'ax', 'ay', 'r', 'm', 'w', 'h']
+                      const args = [
+                        'x',
+                        'y',
+                        'vx',
+                        'vy',
+                        'ax',
+                        'ay',
+                        'x1',
+                        'y1',
+                        'x2',
+                        'y2',
+                        'r',
+                        'm',
+                        'w',
+                        'h',
+                      ]
                         .filter((arg) => value[arg])
                         .map((arg) => (
                           <SubVariable key={arg}>
@@ -252,22 +267,47 @@ function Values(props) {
                           />
                         )
                       }
+                      if (type === 'Blokk') {
+                        const sideRatio = value.b / value.h
+                        figure = (
+                          <Figure
+                            title={value.color}
+                            style={{
+                              width: `${sideRatio > 1 ? 1 : sideRatio}em`,
+                              height: `${sideRatio < 1 ? 1 : 1 / sideRatio}em`,
+                              transform: `scale(0.9) rotate(${
+                                (-value.rot * 180) / Math.PI
+                              }deg)`,
+                              backgroundColor: value.color,
+                            }}
+                          />
+                        )
+                      }
+                      if (type === 'Linje') {
+                        figure = (
+                          <Figure
+                            title={value.color}
+                            style={{
+                              width: '3px',
+                              transform: `scale(0.9) rotate(${
+                                (-Math.atan2(
+                                  value.x2 - value.x1,
+                                  value.y2 - value.y1
+                                ) *
+                                  180) /
+                                Math.PI
+                              }deg)`,
+                              backgroundColor: value.color,
+                            }}
+                          />
+                        )
+                      }
                       return (
                         <Variable key={key}>
                           <RemoveButton onClick={() => clearValue(key)} />{' '}
                           <Key>{key}</Key> <Sign>=</Sign>{' '}
                           <ObjectValue>
                             {figure} <Viz>{type}(</Viz>
-                            <SubVariable>
-                              <Key>x</Key>
-                              <Sign>=</Sign>
-                              <Value>{value.x.toFixed(2)}</Value>
-                            </SubVariable>
-                            <SubVariable>
-                              <Key>y</Key>
-                              <Sign>=</Sign>
-                              <Value>{value.y.toFixed(2)}</Value>
-                            </SubVariable>
                             {args}
                             <Viz style={{ marginLeft: '1em' }}>)</Viz>
                           </ObjectValue>
