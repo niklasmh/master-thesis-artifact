@@ -18,7 +18,7 @@ const StyledModule = styled(Module)`
       touch-action: none;
 
       :first-of-type {
-        opacity: 0.3;
+        opacity: 1;
       }
     }
   }

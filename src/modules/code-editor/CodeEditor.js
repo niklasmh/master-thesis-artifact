@@ -76,6 +76,44 @@ let currentSolutionState = {
 
 let _time = 0
 let intervalID = 0
+const units = {
+  //'-24': 'ym',
+  //'-23': '0ym',
+  //'-22': '00ym',
+  //'-21': 'zm',
+  //'-20': '0zm',
+  //'-19': '00zm',
+  //'-18': 'am',
+  //'-17': '0am',
+  //'-16': '00am',
+  //'-15': 'fm',
+  //'-14': '0fm',
+  //'-13': '00fm',
+  //'-12': 'pm',
+  //'-11': '0pm',
+  //'-10': '00pm',
+  '-9': ['nm', 1],
+  '-8': ['nm', 10],
+  '-7': ['nm', 100],
+  '-6': ['μm', 1],
+  '-5': ['μm', 10],
+  '-4': ['μm', 100],
+  '-3': ['mm', 1],
+  '-2': ['cm', 1],
+  '-1': ['dm', 1],
+  '0': ['m', 1],
+  '1': ['m', 10],
+  '2': ['m', 100],
+  '3': ['km', 1],
+  '4': ['km', 10],
+  //'5': '00km',
+  //'6': '000km',
+  //'7': '0000km',
+  //'8': '00000km',
+  //'9': '000000km',
+  //'10': '0000000km',
+  //'11': '00000000km',
+}
 
 function CodeEditor(props) {
   const {
@@ -152,7 +190,7 @@ function CodeEditor(props) {
 
   function drawGrid(
     ctx,
-    { w, h, ccx, ccy, cx, cy, scale = 1, color = '#000' }
+    { w, h, ccx, ccy, cx, cy, scale = 1, color = '#0006' }
   ) {
     const minGrid = 10
     const dist = (minGrid * scale) / Math.pow(10, Math.floor(Math.log10(scale)))
@@ -195,6 +233,47 @@ function CodeEditor(props) {
       ctx.lineTo(cx + x, h - offset)
     }
     ctx.stroke()
+    ctx.fillStyle = 'black'
+    const sizeW = 2
+    const sizeH = 12
+    const textOffset = offset - sizeH * 4
+    const potent = 1 - Math.floor(Math.log10(scale))
+    const unit = potent in units ? units[potent] : ['e' + potent + 'm', 1]
+    const jump = dist < 64 ? (dist < 32 ? (dist < 16 ? 5 : 2.5) : 1) : 0.5
+    ctx.font = sizeH + 'px Roboto'
+    const textXPos = Math.max(sizeW, Math.min(w - sizeW, ccx + cx + sizeW))
+    const textYPos = Math.max(sizeH, Math.min(h - sizeW, ccy + cy + sizeH))
+    ctx.fillText(0, ccx + cx + sizeW, ccy + cy + sizeH)
+    ctx.textAlign = ccx + cx > w - 64 ? 'right' : 'left'
+    for (
+      let y = ccy + dist * jump, i = jump, x = textXPos;
+      y <= h - offset - cy;
+      y += dist * jump, i += jump
+    ) {
+      ctx.fillText(i * unit[1] + unit[0], x, cy + y + sizeH)
+    }
+    for (
+      let y = ccy - dist * jump, i = -jump, x = textXPos;
+      y > textOffset - cy;
+      y -= dist * jump, i -= jump
+    ) {
+      ctx.fillText(i * unit[1] + unit[0], x, cy + y + sizeH)
+    }
+    ctx.textAlign = 'left'
+    for (
+      let x = ccx + dist * jump, i = jump, y = textYPos;
+      x <= w - offset - cx;
+      x += dist * jump, i += jump
+    ) {
+      ctx.fillText(i * unit[1] + unit[0], cx + x + sizeW, y)
+    }
+    for (
+      let x = ccx - dist * jump, i = -jump, y = textYPos;
+      x > textOffset - cx;
+      x -= dist * jump, i -= jump
+    ) {
+      ctx.fillText(i * unit[1] + unit[0], cx + x + sizeW, y)
+    }
   }
 
   const positionRef = useRef(0)

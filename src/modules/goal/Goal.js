@@ -17,7 +17,7 @@ const StyledModule = styled(Module)`
       left: 0;
 
       :first-of-type {
-        opacity: 0.3;
+        opacity: 1;
       }
     }
   }
