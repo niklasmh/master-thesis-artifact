@@ -1648,8 +1648,10 @@ function Subgoal({
 
   const [addToTestButtons, setAddToTestButtons] = useState([])
 
-  function updateAddToTestButtons(code) {
-    const hasLoopCode = !!solutionLoopCodeEditor.current.getValue().trim()
+  function updateAddToTestButtons(code, noLoop = false) {
+    const hasLoopCode = noLoop
+      ? false
+      : !!solutionLoopCodeEditor.current.getValue().trim()
     const buttons = []
     code.split(`\n`).forEach((line) => {
       if (/^[\w_][\w_0-9]* *=/.test(line)) {
@@ -1693,6 +1695,10 @@ function Subgoal({
     })
     setAddToTestButtons(buttons)
   }
+
+  useEffect(() => {
+    updateAddToTestButtons('', true)
+  }, [])
 
   useEffect(() => {
     toMarkdownFunction.current(
