@@ -249,7 +249,7 @@ ball = Ball(x=0, y=0, color="red")
 
 # Sjekke om en variabel ikke er lik fasitverdien
 if ball.color != "red":
-  print("Du må sette verdien \"red\" til ballen. Les instruksjonen.")
+  print("Du må sette verdien "red" til ballen. Les instruksjonen.")
   return False
 
 # Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
@@ -606,12 +606,8 @@ export default function CreateTaskPage() {
   ] = useState('')
   const hiddenCodeEditor = useRef(null)
   const hiddenLoopCodeEditor = useRef(null)
-  const descriptionRef = useRef(null)
   const [hiddenCode, setHiddenCode] = useState('')
   const [hiddenLoopCode, setHiddenLoopCode] = useState('')
-  const [defaultData, setDefaultData] = useState({
-    hiddenCode: '',
-  })
   const defaultTitle = ''
   const defaultDecription = ''
   const [sectionToMarkdownFunctions, setSectionToMarkdownFunctions] = useState(
@@ -973,6 +969,25 @@ def distanse(x1, y1, x2, y2):
 `}</Help>
           {sections.map((section, i) => (
             <li key={section}>
+              <Icon
+                name="delete"
+                onClick={() => {
+                  const answer = prompt("Skriv 'fjern' for å fjerne:")
+                  if (answer === 'fjern') {
+                    setSections((s) => [...s.slice(0, i), ...s.slice(i + 1)])
+                    setSectionsData((s) => [
+                      ...s.slice(0, i),
+                      ...s.slice(i + 1),
+                    ])
+                  }
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '-2em',
+                  top: '1.5em',
+                  fontSize: '1.5em',
+                }}
+              />
               <Section
                 sectionNo={i + 1}
                 setSectionNo={setSectionNo}
@@ -1094,6 +1109,7 @@ const SectionContent = styled.ol`
     border-radius: 6px;
     margin-top: 1em;
     padding: 0 0.5em 0 1em;
+    position: relative;
 
     .light & {
       background-color: #fff8;
@@ -1391,6 +1407,25 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
         ) : null}
         {subgoals.map((subgoal, i) => (
           <li key={subgoal}>
+            <Icon
+              name="delete"
+              onClick={() => {
+                const answer = prompt("Skriv 'fjern' for å fjerne:")
+                if (answer === 'fjern') {
+                  setSubgoals((s) => [...s.slice(0, i), ...s.slice(i + 1)])
+                  defaultData.subgoals = [
+                    ...defaultData.subgoals.slice(0, i),
+                    ...defaultData.subgoals.slice(i + 1),
+                  ]
+                }
+              }}
+              style={{
+                position: 'absolute',
+                right: '-1.6em',
+                top: '0.7em',
+                fontSize: '1.5em',
+              }}
+            />
             <Subgoal
               sectionNo={sectionNo}
               subgoalNo={i + 1}
@@ -1494,8 +1529,6 @@ const DoubleCodeEditor = styled.div`
     content: 'Kode som kjører hvert tidssteg, dt';
   }
 `
-
-const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
 
 function Subgoal({
   defaultData = {
@@ -1893,7 +1926,6 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
               if (sectionNo > 1 || subgoalNo > 1) {
                 let code = ''
                 let loopCode = ''
-                const ID = sectionNo + '-' + subgoalNo
                 if (subgoalNo <= 1) {
                   const prevSectionNo = sectionNo - 1
                   const prevSubgoalNo = Math.max(
