@@ -64,6 +64,21 @@ export const RenderedMarkdown = styled.div`
     color: #000;
   }
 
+  blockquote {
+    border-left: 4px solid #fff4;
+    padding: 1px 0 1px 1em;
+    margin: 0;
+    background-color: #fff1;
+    border-radius: 6px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+
+    .light & {
+      border-left-color: #fff;
+      background-color: #0001;
+    }
+  }
+
   table {
     border-spacing: 0;
     border-collapse: collapse;
@@ -140,9 +155,13 @@ export const TextEditor = forwardRef(
     const renderedHTMLElement = useRef(null)
 
     function onChangeHandler(e) {
-      onChange(e.target.value)
-      if (e.target.value) {
-        setDescriptionRendered(md.render(e.target.value))
+      onValueChange(e.target.value)
+    }
+
+    function onValueChange(value) {
+      onChange(value)
+      if (value) {
+        setDescriptionRendered(md.render(value))
       } else {
         setDescriptionRendered(md.render(savedPlaceholderValue.current))
       }
@@ -152,25 +171,165 @@ export const TextEditor = forwardRef(
       setDescriptionRendered(md.render(savedPlaceholderValue.current))
     }, [savedPlaceholderValue])
 
+    const [addToDescriptionButtons] = useState([
+      {
+        text: 'Kodeblokk',
+        insert: '```python\n# Skriv Python kode her\n```',
+      },
+      {
+        text: 'Likning',
+        insert: '$a_y(t_{i+1}) = g - \\frac{D}{m}$',
+      },
+      {
+        text: 'Flerlinjet likning',
+        insert: `$$\\begin{array}{c}
+a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
+v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
+s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
+\\end{array}$$`,
+      },
+      {
+        text: 'Tabell',
+        insert: `| Tid | Beregnet y | Eksakt y | Error |
+|:---:|:----------:|:--------:|:-----:|
+| 0   | 0          | 0        | 0     |
+| 0.1 | 0.098      | 0.049    | 0.049 |
+| 0.2 | 0.294      | 0.196    | 0.098 |
+| 0.3 | 0.588      | 0.441    | 0.147 |`,
+      },
+      {
+        text: 'Bilde (via URL)',
+        insert: `![Leonhard Euler](https://upload.wikimedia.org/wikipedia/commons/6/60/Leonhard_Euler_2.jpg)`,
+      },
+      {
+        text: 'Lenke',
+        insert: `[Leonhard Euler](https://no.wikipedia.org/wiki/Leonhard_Euler)`,
+      },
+      {
+        text: 'Sitat',
+        insert: `> Logic is the foundation of the certainty of all the knowledge we acquire\n>\n> -- _Leonhard Euler_`,
+      },
+    ])
+
+    const [addTemplateToDescriptionButtons] = useState([
+      {
+        text: 'Konstanter',
+        insert: `For å lage en konstant kan man bruke \`=\`, slik:
+
+\`\`\`python
+a = 1.23
+\`\`\`
+
+Legg merke til at desimaltall bruker punktum og ikke komma.`,
+      },
+      {
+        text: "Euler's metode",
+        insert: `Euler's metode fungerer slik:
+
+\`\`\`python
+ny_verdi = gammel_verdi + endring*tidssteg
+\`\`\`
+
+For å ta det inn i vårt eksempel, så kan vi gjøre dette med posisjon, fart og akselerasjon, hver for seg. Slik:
+
+\`\`\`python
+ay = g
+vy = vy + ay*dt # Her er 'vy' gammel verdi og 'ay' endringen
+y = y + vy*dt # Her er 'y' gammel verdi og 'vy' endringen
+\`\`\``,
+      },
+      {
+        text: 'Luftmotstand',
+        insert: `Luftmotstand er en kraft som alltid går i mot akselerasjonen:
+
+\`\`\`python
+ay = g - luftmotstand / masse # Viktig å huske at luftmotstand er en kraft, og må derfor deles på massen for å få akselerasjon
+\`\`\`
+
+Selve luftmotstanden kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
+
+\`\`\`python
+luftmotstand = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye luftmotstand
+\`\`\``,
+      },
+      {
+        text: 'Kontaktfriksjon',
+        insert: `Kontaktfriksjon er en kraft som alltid går i mot akselerasjonen:
+
+\`\`\`python
+ay = g - friksjonskraft / masse # Viktig å huske at friksjonskraften er en kraft, og må derfor deles på massen for å få akselerasjon
+\`\`\`
+
+Selve friksjonskraften kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
+
+\`\`\`python
+friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye friksjonskraft
+\`\`\``,
+      },
+    ])
+
     return (
-      <StyledTextEditor style={style}>
-        <TextArea
-          size="1em"
-          minHeight="100%"
-          onChange={onChangeHandler}
-          defaultValue={defaultValue}
-          placeholder={savedPlaceholderValue.current}
-          ref={ref}
-          {...props}
-        ></TextArea>
-        <RenderedMarkdown
-          style={{
-            paddingLeft: '1.5em',
-          }}
-          ref={renderedHTMLElement}
-          dangerouslySetInnerHTML={{ __html: descriptionRendered }}
-        />
-      </StyledTextEditor>
+      <>
+        <StyledTextEditor style={style}>
+          <TextArea
+            size="1em"
+            minHeight="100%"
+            onChange={onChangeHandler}
+            defaultValue={defaultValue}
+            placeholder={savedPlaceholderValue.current}
+            ref={ref}
+            {...props}
+          ></TextArea>
+          <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
+            <RenderedMarkdown
+              style={{
+                paddingLeft: '1.5em',
+                width: '100%',
+              }}
+              ref={renderedHTMLElement}
+              dangerouslySetInnerHTML={{ __html: descriptionRendered }}
+            />
+            <h2
+              style={{ width: '100%', margin: '0 1em', fontWeight: 'normal' }}
+            >
+              Legg til elementer:
+            </h2>
+            {addToDescriptionButtons.map(({ text, insert }) => (
+              <button
+                onClick={() => {
+                  const oldValue = ref.current.value
+                  ref.current.value =
+                    (oldValue ? oldValue.trim() + '\n\n' : '') + insert + '\n'
+                  onValueChange(ref.current.value)
+                }}
+                key={text}
+              >
+                {text}
+              </button>
+            ))}
+            {addTemplateToDescriptionButtons.length ? (
+              <h2
+                style={{ width: '100%', margin: '0 1em', fontWeight: 'normal' }}
+              >
+                Legg til forklaringsmaler:
+              </h2>
+            ) : null}
+            {addTemplateToDescriptionButtons.map(({ text, insert }) => (
+              <button
+                onClick={() => {
+                  const oldValue = ref.current.value
+                  ref.current.value =
+                    (oldValue ? oldValue.trim() + '\n\n' : '') + insert + '\n'
+                  onValueChange(ref.current.value)
+                }}
+                key={text}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        </StyledTextEditor>
+      </>
     )
   }
 )
