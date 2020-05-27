@@ -1635,7 +1635,7 @@ function Subgoal({
             text: `Sjekk om '${name}' er lik ${value}`,
             insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'. Husk å bruke punktum og ikke komma."`,
           })
-        } else if (/^(Ball|Planet|Blokk|Linje)\(/.test(value)) {
+        } else if (/^(Ball|Planet|Kloss|Linje)\(/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}.y' er lik løsningen sin '${name}.y'`,
             insert: `assert ${name}.y == solution('${name}.y'), "Har du husket å sette rikig startverdi?"`,

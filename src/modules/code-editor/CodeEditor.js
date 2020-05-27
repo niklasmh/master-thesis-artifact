@@ -535,14 +535,14 @@ function CodeEditor(props) {
           },
         ],
       },
-      Blokk: {
+      Kloss: {
         signature:
-          'Blokk(x=meter, y=meter, b=meter, h=meter, rot=radianer, m=kilogram, color="farge")',
+          'Kloss(x=meter, y=meter, b=meter, h=meter, rot=radianer, m=kilogram, color="farge")',
         kind: window.monaco.languages.CompletionItemKind.Function,
         documentation:
-          'Eksempel på bruk:\n\n```python\nBlokk(x=0, y=0, b=1, h=1, rot=45*pi/180, color="blue")\n```',
+          'Eksempel på bruk:\n\n```python\nKloss(x=0, y=0, b=1, h=1, rot=45*pi/180, color="blue")\n```',
         insertText:
-          'Blokk(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, rot=0*pi/180, color="blue")',
+          'Kloss(x=${1:0}, y=${2:0}, b=${3:1}, h=${4:1}, rot=0*pi/180, color="blue")',
         parameters: [
           {
             label: 'x=meter',
@@ -566,11 +566,11 @@ function CodeEditor(props) {
           },
           {
             label: 'm=kilogram',
-            documentation: 'Massen til blokken',
+            documentation: 'Massen til klossen',
           },
           {
             label: 'color="farge"',
-            documentation: 'Farge på blokken',
+            documentation: 'Farge på klossen',
           },
         ],
       },

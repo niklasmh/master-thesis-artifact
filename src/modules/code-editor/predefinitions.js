@@ -97,7 +97,7 @@ class Planet:
           "maxy": self.y + self.r,
         }
 
-class Blokk:
+class Kloss:
     def __init__(self, x=0, y=0, b=1, h=1, m=1, rot=0, color="blue", **kwargs):
         self.x = x
         self.y = y

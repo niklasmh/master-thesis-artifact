@@ -267,7 +267,7 @@ function Values(props) {
                           />
                         )
                       }
-                      if (type === 'Blokk') {
+                      if (type === 'Kloss') {
                         const sideRatio = value.b / value.h
                         figure = (
                           <Figure
