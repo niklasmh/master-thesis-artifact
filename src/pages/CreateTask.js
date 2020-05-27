@@ -1654,7 +1654,7 @@ function Subgoal({
       buttons.push({ text: 'Simuler et steg', insert: 'simulate(steps=1)' })
     }
     buttons.push({
-      text: 'Lag til tilbakemelding',
+      text: 'Legg til tilbakemelding',
       insert:
         '# Alle tester bør skje før du sier om oppgaven ble gjennomført\nprint(f"Du klarte deloppgave {section}. {subgoal})!")',
     })
