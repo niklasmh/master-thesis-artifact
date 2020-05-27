@@ -86,7 +86,7 @@ const Sections = styled.ol`
 `
 
 const placeholders = {
-  testCode: `
+  oldTestCode: `
 assert defined('g'), "Du må definere 'g'"
 assert g == 9.81, "Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma."
 simulate(time=2)
@@ -95,6 +95,7 @@ assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s"
 # Om testen ikke har feilet til nå, så er den
 print(f"Du klarte deloppgave {section}. {subgoal})!")
 `,
+  testCode: '',
   testMarkdown: `# Ball i fritt fall
 
 Her skal du simulere en ball som faller i fritt fall.
@@ -1612,6 +1613,54 @@ function Subgoal({
     testCodeEditor.current = _editor
   }
 
+  const [addToTestButtons, setAddToTestButtons] = useState([])
+
+  function updateAddToTestButtons(code) {
+    const hasLoopCode = !!solutionLoopCodeEditor.current.getValue().trim()
+    const buttons = []
+    code.split(`\n`).forEach((line) => {
+      if (/^[\w_][\w_0-9]* *=/.test(line)) {
+        const [name, value] = line.split('=').map((e) => e.trim())
+        buttons.push({
+          text: `Sjekk om '${name}' er definert`,
+          insert: `assert defined('${name}'), "Du må definere '${name}'"`,
+        })
+        if (/[0-9]+/.test(value)) {
+          buttons.push({
+            text: `Sjekk om '${name}' er lik ${value}`,
+            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'."`,
+          })
+        } else if (/[0-9]*\.[0-9]+/.test(value)) {
+          buttons.push({
+            text: `Sjekk om '${name}' er lik ${value}`,
+            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'. Husk å bruke punktum og ikke komma."`,
+          })
+        } else if (/^(Ball|Planet|Blokk|Linje)\(/.test(value)) {
+          buttons.push({
+            text: `Sjekk om '${name}.y' er lik løsningen sin '${name}.y'`,
+            insert: `assert ${name}.y == solution('${name}.y'), "Har du husket å sette rikig startverdi?"`,
+          })
+          if (hasLoopCode) {
+            buttons.push({
+              text: `Sjekk om '${name}.y' er nesten lik løsningen sin '${name}.y'`,
+              insert: `error = abs(${name}.y - solution('${name}.y'))\nassert error < 0.01, "Har du husket å sette rikig startverdi på '${name}.y'?"`,
+            })
+          }
+        }
+      }
+    })
+    if (hasLoopCode) {
+      buttons.push({ text: 'Simuler 1 sekund', insert: 'simulate(time=1)' })
+      buttons.push({ text: 'Simuler et steg', insert: 'simulate(steps=1)' })
+    }
+    buttons.push({
+      text: 'Lag til tilbakemelding',
+      insert:
+        '# Alle tester bør skje før du sier om oppgaven ble gjennomført\nprint(f"Du klarte deloppgave {section}. {subgoal})!")',
+    })
+    setAddToTestButtons(buttons)
+  }
+
   useEffect(() => {
     toMarkdownFunction.current(
       () => `### ${title.current.value.trim()}
@@ -1936,18 +1985,20 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
             width={'48%'}
             height={'240px'}
             value={solutionCode}
-            onChange={(_, value) =>
-              (solutionCodes[sectionNo + '-' + subgoalNo] = value)
-            }
+            onChange={(_, value) => {
+              solutionCodes[sectionNo + '-' + subgoalNo] = value
+              updateAddToTestButtons(value)
+            }}
             editorDidMount={handleSolutionCodeEditorDidMount}
           />
           <CodeEditor
             width={'48%'}
             height={'240px'}
             value={solutionLoopCode}
-            onChange={(_, value) =>
-              (solutionLoopCodes[sectionNo + '-' + subgoalNo] = value)
-            }
+            onChange={(_, value) => {
+              solutionLoopCodes[sectionNo + '-' + subgoalNo] = value
+              updateAddToTestButtons(solutionCodeEditor.current.getValue())
+            }}
             editorDidMount={handleSolutionLoopCodeEditorDidMount}
           />
         </DoubleCodeEditor>
@@ -1960,6 +2011,21 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
         tilpasset tilbakemelding til eleven om hva som er feil.
       </SubgoalParagraph>
       <CodeEditorWrapper>
+        <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
+          {addToTestButtons.map(({ text, insert }) => (
+            <button
+              onClick={() => {
+                const oldValue = testCodeEditor.current.getValue()
+                testCodeEditor.current.setValue(
+                  (oldValue ? oldValue.trim() + '\n\n' : '') + insert + '\n'
+                )
+              }}
+              key={text}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
         <Help
           width="800px"
           y="0em"
@@ -2018,7 +2084,7 @@ simulate(steps=2)
 
 # Sjekker om elevens ball.y nesten lik løsningens ball.y, i den nye tiden
 error = abs(ball.y - solution("ball.y"))
-assert error > 0.01, f"Du er veldig nærme. Du har en error på: {error}"
+assert error < 0.01, f"Du er veldig nærme. Du har en error på: {error}"
 \`\`\`
 
 #### Gi tilbakemelding til eleven
