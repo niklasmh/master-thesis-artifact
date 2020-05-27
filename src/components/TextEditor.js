@@ -440,11 +440,11 @@ function renderMarkdownOnly(markdown) {
           if (type === 'skjult') {
             typeNo.skjult++
             acc += '\n#### Skjult kode'
-            if (acc.level === 0) {
+            if (level === 0) {
               acc += ' for hele oppgaven'
-            } else if (acc.level === 1) {
+            } else if (level === 1) {
               acc += ' for hele seksjonen'
-            } else if (acc.level === 2) {
+            } else if (level === 2) {
               acc += ' for bare deloppgaven'
             }
           } else if (type === 'startkode') {

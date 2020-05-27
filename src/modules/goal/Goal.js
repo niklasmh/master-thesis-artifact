@@ -40,7 +40,7 @@ function Goal({ ...props }) {
   const [canvasPosition, setCanvasPosition] = useState({ x: -1, y: -1 })
   const [mouseDown, setMouseDown] = useState(false)
   const [mouseDownPosition, setMouseDownPosition] = useState({ x: -1, y: -1 })
-  const [mouseUpPosition, setMouseUpPosition] = useState({ x: -1, y: -1 })
+  const [, setMouseUpPosition] = useState({ x: -1, y: -1 })
   const [mousePosition, setMousePosition] = useState({ x: -1, y: -1 })
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 })
 

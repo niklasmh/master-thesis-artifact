@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
-import Markdown from 'markdown-to-jsx'
 import GridLayout from 'react-grid-layout'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -249,7 +248,6 @@ export default function TaskCodeEnvironment({
   const dispatch = useDispatch()
   const [layout, setLayout] = useState(initialLayout)
   const [visible, setVisible] = useState(allVisible)
-  const [attempts, setAttempts] = useState(0)
   const [currentStartCode, setCurrentStartCode] = useState('')
   const [currentLoopCode, setCurrentLoopCode] = useState('')
   const [currentHiddenCode, setCurrentHiddenCode] = useState('')
@@ -299,11 +297,6 @@ export default function TaskCodeEnvironment({
       loadScripts(engine.scripts)
     }
   }, [engine])
-
-  const [codeEditorSize, setCodeEditorSize] = useState({
-    w: colWidth + marginX * sizeFactorW - marginX * sizeOffFactorW,
-    h: rowHeight + marginY * sizeFactorH - marginY * sizeOffFactorH,
-  })
 
   useEffect(() => {
     if (task && 'title' in task) {
@@ -388,7 +381,8 @@ export default function TaskCodeEnvironment({
                     type: 'setWithError',
                     withError: error,
                   })
-                  const { error: solutionError = false } = await runCode(
+                  //const { error: solutionError = false } = await runCode(
+                  await runCode(
                     makeAllVariablesChangeableInLoop(
                       wrapSolutionCode(
                         hiddenCode,
@@ -415,7 +409,7 @@ export default function TaskCodeEnvironment({
                       clearLog()
                       const {
                         output = '',
-                        error: testError = false,
+                        //error: testError = false,
                       } = await runCode(
                         wrapTestCode(
                           fixNewlines(testCode),
@@ -495,6 +489,7 @@ export default function TaskCodeEnvironment({
     runCode,
     editor,
     loopEditor,
+    dispatch,
   ])
 
   const prevSubgoalID = useRef('-')
@@ -563,6 +558,7 @@ export default function TaskCodeEnvironment({
     isEngineReady,
     sectionNo,
     subgoalNo,
+    dispatch,
   ])
 
   useEffect(() => {
@@ -722,7 +718,7 @@ export default function TaskCodeEnvironment({
             })}
         </Disabled>
       ) : null}
-      {edit ? <SubTitle>Oppsett for oppgave</SubTitle> : null}
+      {edit ? <SubTitle>Prøv ut oppgaven her</SubTitle> : null}
       {isEngineReady ? null : (
         <>
           <SubTitle>
