@@ -1970,6 +1970,21 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
         gjør løsningen så lesbar som mulig.
       </SubgoalParagraph>
       <CodeEditorWrapper>
+        {usePredefinedCode ? (
+          <button
+            style={{ alignSelf: 'flex-start' }}
+            onClick={() => {
+              solutionCodeEditor.current.setValue(
+                predefinedCodeEditor.current.getValue()
+              )
+              solutionLoopCodeEditor.current.setValue(
+                predefinedLoopCodeEditor.current.getValue()
+              )
+            }}
+          >
+            Kopier inn fra koden til eleven <Icon name="file_copy" />
+          </button>
+        ) : null}
         {sectionNo === 1 && subgoalNo === 1 ? (
           <Help
             width="800px"
