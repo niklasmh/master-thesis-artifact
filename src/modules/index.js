@@ -220,6 +220,30 @@ test()
 `
 }
 
+const fixNewlines = (str) => str.replace(/\\n/g, '\n')
+
+function getInitialAndLoopCode(code) {
+  if (code) {
+    const [initial, loop = ''] = fixNewlines(code).split(loopCodeSplit)
+    return { initial, loop }
+  }
+  return { initial: '', loop: '' }
+}
+
+function getInitialAndLoopCodes(codes) {
+  if (codes.length) {
+    const initial = []
+    const loop = []
+    codes.forEach((code) => {
+      const result = getInitialAndLoopCode(code)
+      initial.push(result.initial)
+      loop.push(result.loop)
+    })
+    return { initial: initial.join('\n'), loop: loop.join('\n') }
+  }
+  return { initial: '', loop: '' }
+}
+
 export function wrapLoopCode(loopCode) {
   return `def loop(t):
 ${indentCode(loopCode, 1)}
@@ -301,12 +325,15 @@ export default function TaskCodeEnvironment({
   useEffect(() => {
     if (task && 'title' in task) {
       try {
-        const { hiddenCode: taskHiddenCode = '' } = task
+        const { hiddenCode: taskHiddenCode = '' } = task || {}
         if (task.sections && task.sections.length > sectionNo) {
-          const fixNewlines = (str) => str.replace(/\\n/g, '\n')
           const section = task.sections[sectionNo]
-          const { hiddenCode: sectionHiddenCode = '' } = section
-          if (section.subgoals && section.subgoals.length > subgoalNo) {
+          if (
+            section &&
+            section.subgoals &&
+            section.subgoals.length > subgoalNo
+          ) {
+            const { hiddenCode: sectionHiddenCode = '' } = section
             dispatch({
               type: 'resetAttempts',
             })
@@ -320,9 +347,13 @@ export default function TaskCodeEnvironment({
               testCode = '',
             } = subgoal
             description = fixNewlines(description)
-            hiddenCode = fixNewlines(
-              [taskHiddenCode, sectionHiddenCode, hiddenCode].join('\n')
-            )
+            const initialAndLoopCode = getInitialAndLoopCodes([
+              taskHiddenCode,
+              sectionHiddenCode,
+              hiddenCode,
+            ])
+            hiddenCode = initialAndLoopCode.initial
+            const hiddenLoopCode = initialAndLoopCode.loop
             setCurrentHiddenCode(hiddenCode)
             predefinedCode =
               predefinedCode !== false ? fixNewlines(predefinedCode) : false
@@ -331,7 +362,10 @@ export default function TaskCodeEnvironment({
               loopCodeSplit
             )
             solutionCode = beforeLoop
-            setCurrentSolutionCode([solutionCode, solutionLoopCode])
+            setCurrentSolutionCode([
+              solutionCode,
+              (hiddenLoopCode || '') + '\n' + (solutionLoopCode || ''),
+            ])
             testCode = fixNewlines(testCode)
 
             if (editor) {
@@ -339,12 +373,16 @@ export default function TaskCodeEnvironment({
                 editor.getValue()
               )
               let loopEditorCode = ''
-              if (loopEditor) {
+              if (loopEditor || hiddenLoopCode) {
                 loopEditorCode = makeAllVariablesChangeableInLoop(
-                  wrapLoopCode(loopEditor.getValue()),
+                  wrapLoopCode(
+                    (hiddenLoopCode || '') +
+                      '\n' +
+                      (loopEditor ? loopEditor.getValue() : '')
+                  ),
                   0,
                   4,
-                  getVariables(editorCode)
+                  getVariables(hiddenCode + '\n' + editorCode)
                 )
               }
               setCurrentStartCode(editorCode)
@@ -362,12 +400,16 @@ export default function TaskCodeEnvironment({
                     editor.getValue()
                   )
                   let loopEditorCode = ''
-                  if (loopEditor) {
+                  if (loopEditor || hiddenLoopCode) {
                     loopEditorCode = makeAllVariablesChangeableInLoop(
-                      wrapLoopCode(loopEditor.getValue()),
+                      wrapLoopCode(
+                        (hiddenLoopCode || '') +
+                          '\n' +
+                          (loopEditor ? loopEditor.getValue() : '')
+                      ),
                       0,
                       4,
-                      getVariables(editorCode)
+                      getVariables(hiddenCode + '\n' + editorCode)
                     )
                   }
                   await runCode(hiddenCode, true, true)
@@ -387,7 +429,7 @@ export default function TaskCodeEnvironment({
                       wrapSolutionCode(
                         hiddenCode,
                         solutionCode,
-                        solutionLoopCode
+                        (hiddenLoopCode || '') + '\n' + (solutionLoopCode || '')
                       ),
                       1
                     ),
@@ -401,7 +443,7 @@ export default function TaskCodeEnvironment({
                         false,
                         false,
                         loopEditor,
-                        2
+                        2 + hiddenLoopCode.split('\n').length
                       )
                       if (loopError) return false
                     }
@@ -441,7 +483,9 @@ export default function TaskCodeEnvironment({
                           wrapSolutionCode(
                             hiddenCode,
                             solutionCode,
-                            solutionLoopCode
+                            (hiddenLoopCode || '') +
+                              '\n' +
+                              (solutionLoopCode || '')
                           ),
                           1
                         ),
@@ -449,6 +493,21 @@ export default function TaskCodeEnvironment({
                         false
                       )
                       await runCode(loopEditorCode, false, false, loopEditor, 2)
+                      //console.log(hiddenCode)
+                      //console.log(editorCode)
+                      //console.log(
+                      //  makeAllVariablesChangeableInLoop(
+                      //    wrapSolutionCode(
+                      //      hiddenCode,
+                      //      solutionCode,
+                      //      (hiddenLoopCode || '') +
+                      //        '\n' +
+                      //        (solutionLoopCode || '')
+                      //    ),
+                      //    1
+                      //  )
+                      //)
+                      //console.log(loopEditorCode)
                     }
                   } else {
                     return false
@@ -477,7 +536,9 @@ export default function TaskCodeEnvironment({
           setVisible(l.map((e) => e.i))
           setLayout(l)
         }
-      } catch (ex) {}
+      } catch (ex) {
+        console.log(ex)
+      }
     }
   }, [
     task,
