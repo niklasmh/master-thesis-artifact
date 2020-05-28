@@ -75,6 +75,7 @@ const Sections = styled.ol`
     counter-increment: section-counter;
     display: flex;
     flex-flow: row nowrap;
+    position: relative;
 
     ::before {
       content: counter(section-counter) '. ';
@@ -800,7 +801,7 @@ ${sections
         setSections(result.sections.map(() => randomString()))
       }
     }
-  }, [useMarkdownOnly, sections, sectionToMarkdownFunctions])
+  }, [useMarkdownOnly, sectionToMarkdownFunctions])
 
   return (
     <Container>
@@ -979,6 +980,34 @@ def distanse(x1, y1, x2, y2):
                       ...s.slice(0, i),
                       ...s.slice(i + 1),
                     ])
+                    Object.keys(solutionCodes)
+                      .map((c) => c.split('-').map((no) => parseInt(no)))
+                      .filter((c) => c[0] === i + 1)
+                      .forEach((c) => delete solutionCodes[c[0] + '-' + c[1]])
+                    Object.keys(solutionLoopCodes)
+                      .map((c) => c.split('-').map((no) => parseInt(no)))
+                      .filter((c) => c[0] === i + 1)
+                      .forEach(
+                        (c) => delete solutionLoopCodes[c[0] + '-' + c[1]]
+                      )
+                    Object.keys(solutionCodes)
+                      .map((c) => c.split('-').map((no) => parseInt(no)))
+                      .filter((c) => c[0] > i + 1)
+                      .sort((a, b) => a[0] - b[0])
+                      .forEach((c) => {
+                        solutionCodes[c[0] - 1 + '-' + (c[1] - 1)] =
+                          solutionCodes[c[0] + '-' + c[1]]
+                        delete solutionCodes[c[0] + '-' + c[1]]
+                      })
+                    Object.keys(solutionLoopCodes)
+                      .map((c) => c.split('-').map((no) => parseInt(no)))
+                      .filter((c) => c[0] > i + 1)
+                      .sort((a, b) => a[0] - b[0])
+                      .forEach((c) => {
+                        solutionLoopCodes[c[0] - 1 + '-' + (c[1] - 1)] =
+                          solutionLoopCodes[c[0] + '-' + c[1]]
+                        delete solutionLoopCodes[c[0] + '-' + c[1]]
+                      })
                   }
                 }}
                 style={{
@@ -1417,6 +1446,27 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
                     ...defaultData.subgoals.slice(0, i),
                     ...defaultData.subgoals.slice(i + 1),
                   ]
+                  const ID = sectionNo + '-' + (i + 1)
+                  if (ID in solutionCodes) delete solutionCodes[ID]
+                  if (ID in solutionLoopCodes) delete solutionLoopCodes[ID]
+                  Object.keys(solutionCodes)
+                    .map((c) => c.split('-').map((no) => parseInt(no)))
+                    .filter((c) => c[0] === sectionNo && c[1] > i + 1)
+                    .sort((a, b) => a[1] - b[1])
+                    .forEach((c) => {
+                      solutionCodes[sectionNo + '-' + (c[1] - 1)] =
+                        solutionCodes[sectionNo + '-' + c[1]]
+                      delete solutionCodes[sectionNo + '-' + c[1]]
+                    })
+                  Object.keys(solutionLoopCodes)
+                    .map((c) => c.split('-').map((no) => parseInt(no)))
+                    .filter((c) => c[0] === sectionNo && c[1] > i + 1)
+                    .sort((a, b) => a[1] - b[1])
+                    .forEach((c) => {
+                      solutionLoopCodes[sectionNo + '-' + (c[1] - 1)] =
+                        solutionLoopCodes[sectionNo + '-' + c[1]]
+                      delete solutionLoopCodes[sectionNo + '-' + c[1]]
+                    })
                 }
               }}
               style={{
