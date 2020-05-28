@@ -675,18 +675,28 @@ function CodeEditor(props) {
           startColumn: word.startColumn,
           endColumn: word.endColumn,
         }
-        const suggestions = Object.values(types).map((type) => ({
-          label: type.signature,
-          kind: type.kind,
-          documentation: {
-            value: type.documentation,
-          },
-          insertText: type.insertText,
-          insertTextRules:
-            window.monaco.languages.CompletionItemInsertTextRule
-              .InsertAsSnippet,
-          range,
-        }))
+        let hasUpperCase = false
+        if (word.word) {
+          if (/^[A-Z]/.test(word.word)) {
+            hasUpperCase = true
+          }
+        }
+        const suggestions = Object.values(types)
+          .filter((type) =>
+            hasUpperCase ? true : /^[a-z]/.test(type.signature)
+          )
+          .map((type) => ({
+            label: type.signature,
+            kind: type.kind,
+            documentation: {
+              value: type.documentation,
+            },
+            insertText: type.insertText,
+            insertTextRules:
+              window.monaco.languages.CompletionItemInsertTextRule
+                .InsertAsSnippet,
+            range,
+          }))
         const completions = preDefinedUserVars
         suggestions.push(
           ...completions.map((c) => ({ label: c, insertText: c }))
