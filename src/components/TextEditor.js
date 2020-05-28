@@ -174,14 +174,17 @@ export const TextEditor = forwardRef(
     const [addToDescriptionButtons] = useState([
       {
         text: 'Kodeblokk',
+        icon: 'code',
         insert: '```python\n# Skriv Python kode her\n```',
       },
       {
         text: 'Likning',
+        icon: 'functions',
         insert: '$a_y(t_{i+1}) = g - \\frac{D}{m}$',
       },
       {
         text: 'Flerlinjet likning',
+        icon: 'functions',
         insert: `$$\\begin{array}{c}
 a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
 v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
@@ -190,6 +193,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
       },
       {
         text: 'Tabell',
+        icon: 'view_list',
         insert: `| Tid | Beregnet y | Eksakt y | Error |
 |:---:|:----------:|:--------:|:-----:|
 | 0   | 0          | 0        | 0     |
@@ -198,15 +202,30 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
 | 0.3 | 0.588      | 0.441    | 0.147 |`,
       },
       {
+        text: 'Nummerert liste',
+        icon: 'format_list_numbered',
+        insert: `1. ...
+2. ...`,
+      },
+      {
+        text: 'Unummerert liste',
+        icon: 'format_list_bulleted',
+        insert: `* ...
+* ...`,
+      },
+      {
         text: 'Bilde (via URL)',
+        icon: 'insert_photo',
         insert: `![Leonhard Euler](https://upload.wikimedia.org/wikipedia/commons/6/60/Leonhard_Euler_2.jpg)`,
       },
       {
         text: 'Lenke',
+        icon: 'link',
         insert: `[Leonhard Euler](https://no.wikipedia.org/wiki/Leonhard_Euler)`,
       },
       {
         text: 'Sitat',
+        icon: 'format_quote',
         insert: `> Logic is the foundation of the certainty of all the knowledge we acquire\n>\n> -- _Leonhard Euler_`,
       },
     ])
@@ -217,10 +236,50 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
         insert: `For å lage en konstant kan man bruke \`=\`, slik:
 
 \`\`\`python
-a = 1.23
+navn_på_konstant = 1.23
 \`\`\`
 
 Legg merke til at desimaltall bruker punktum og ikke komma.`,
+      },
+      {
+        text: 'Lage en kloss',
+        insert: `For å lage en kloss kan du gjøre slik:
+
+\`\`\`python
+kloss = Kloss(x=0, y=0, b=1, h=1, rot=0, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`b\` og \`h\` er bredden og høyden i meter. \`rot\` er rotasjonen i radianer, og \`color\` er fargen.`,
+      },
+      {
+        text: 'Lage en ball',
+        insert: `For å lage en ball kan du gjøre slik:
+
+\`\`\`python
+ball = Ball(x=0, y=0, r=1, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter og \`color\` er fargen.`,
+      },
+      {
+        text: 'Lage en planet',
+        insert: `For å lage en planet kan du gjøre slik:
+
+\`\`\`python
+planet = Planet(x=0, y=0, r=1, m=1, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter, \`m\` er massen i kilogram og \`color\` er fargen.`,
+      },
+      {
+        text: 'Lage en linje',
+        insert: `For å lage en linje kan du gjøre slik:
+
+\`\`\`python
+linje = Linje(x1=0, y1=0, x2=1, y2=1, w=3, color="black")
+\`\`\`
+
+Her er \`x1\` og \`y1\` startposisjonen i meter. \`x2\` og \`y2\` er sluttposisjonen i meter. \`w\` er bredden til linja i pixler på skjermen. \`color\` er fargen.`,
       },
       {
         text: "Euler's metode",
@@ -294,7 +353,7 @@ friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor
             >
               Legg til elementer:
             </h2>
-            {addToDescriptionButtons.map(({ text, insert }) => (
+            {addToDescriptionButtons.map(({ text, icon, insert }) => (
               <button
                 onClick={() => {
                   const oldValue = ref.current.value
@@ -305,6 +364,12 @@ friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor
                 key={text}
               >
                 {text}
+                {icon ? (
+                  <>
+                    {' '}
+                    <Icon name={icon} />
+                  </>
+                ) : null}
               </button>
             ))}
             {addTemplateToDescriptionButtons.length ? (
