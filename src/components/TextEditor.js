@@ -8,6 +8,7 @@ import 'highlight.js/styles/vs2015.css'
 import { lightCodeTheme } from '../utils/light-code-theme'
 
 import { TextArea, RadioGroup, CodeEditor } from './Form'
+import Icon from './Icon'
 
 const md = mdIt({
   langPrefix: 'language-',
