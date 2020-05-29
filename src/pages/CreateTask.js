@@ -1580,6 +1580,18 @@ const DoubleCodeEditor = styled.div`
   }
 `
 
+const AddButton = styled.button`
+  &.check {
+    background-color: #aa7220;
+  }
+  &.time {
+    background-color: #2196f3;
+  }
+  &.feedback {
+    background-color: #248f28;
+  }
+`
+
 function Subgoal({
   defaultData = {
     title: '',
@@ -1708,26 +1720,36 @@ function Subgoal({
         const [name, value] = line.split('=').map((e) => e.trim())
         buttons.push({
           text: `Sjekk om '${name}' er definert`,
+          type: 'check',
+          icon: 'check',
           insert: `assert defined('${name}'), "Du må definere '${name}'"`,
         })
         if (/[0-9]+/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}' er lik ${value}`,
+            type: 'check',
+            icon: <i className="fas fa-ruler"></i>,
             insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'."`,
           })
         } else if (/[0-9]*\.[0-9]+/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}' er lik ${value}`,
+            type: 'check',
+            icon: <i className="fas fa-ruler"></i>,
             insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'. Husk å bruke punktum og ikke komma."`,
           })
         } else if (/^(Ball|Planet|Kloss|Linje)\(/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}.y' er lik løsningen sin '${name}.y'`,
+            type: 'check',
+            icon: <i className="fas fa-ruler"></i>,
             insert: `assert ${name}.y == solution('${name}.y'), "Har du husket å sette rikig startverdi?"`,
           })
           if (hasLoopCode) {
             buttons.push({
               text: `Sjekk om '${name}.y' er nesten lik løsningen sin '${name}.y'`,
+              type: 'check',
+              icon: <i className="fas fa-ruler"></i>,
               insert: `error = abs(${name}.y - solution('${name}.y'))\nassert error < 0.01, "Har du husket å sette rikig startverdi på '${name}.y'?"`,
             })
           }
@@ -1735,11 +1757,23 @@ function Subgoal({
       }
     })
     if (hasLoopCode) {
-      buttons.push({ text: 'Simuler 1 sekund', insert: 'simulate(time=1)' })
-      buttons.push({ text: 'Simuler et steg', insert: 'simulate(steps=1)' })
+      buttons.push({
+        text: 'Simuler 1 sekund',
+        type: 'time',
+        icon: 'update',
+        insert: 'simulate(time=1)',
+      })
+      buttons.push({
+        text: 'Simuler et steg',
+        type: 'time',
+        icon: 'skip_next',
+        insert: 'simulate(steps=1)',
+      })
     }
     buttons.push({
       text: 'Legg til tilbakemelding',
+      type: 'feedback',
+      icon: 'feedback',
       insert:
         '# Alle tester bør skje før du sier om oppgaven ble gjennomført\nprint(f"Du klarte deloppgave {section}. {subgoal})!")',
     })
@@ -2115,8 +2149,9 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
       </SubgoalParagraph>
       <CodeEditorWrapper>
         <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
-          {addToTestButtons.map(({ text, insert }) => (
-            <button
+          {addToTestButtons.map(({ text, icon, type, insert }) => (
+            <AddButton
+              className={type}
               onClick={() => {
                 const oldValue = testCodeEditor.current.getValue()
                 testCodeEditor.current.setValue(
@@ -2126,7 +2161,10 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
               key={text}
             >
               {text}
-            </button>
+              {icon ? (
+                <> {typeof icon === 'string' ? <Icon name={icon} /> : icon}</>
+              ) : null}
+            </AddButton>
           ))}
         </div>
         <Help
