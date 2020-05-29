@@ -234,6 +234,7 @@ s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
     const [addTemplateToDescriptionButtons] = useState([
       {
         text: 'Konstanter',
+        icon: 'square_foot',
         insert: `For å lage en konstant kan man bruke \`=\`, slik:
 
 \`\`\`python
@@ -244,6 +245,7 @@ Legg merke til at desimaltall bruker punktum og ikke komma.`,
       },
       {
         text: 'Lage en kloss',
+        icon: 'stop',
         insert: `For å lage en kloss kan du gjøre slik:
 
 \`\`\`python
@@ -254,6 +256,7 @@ Her er \`x\` og \`y\` posisjonen i meter. \`b\` og \`h\` er bredden og høyden i
       },
       {
         text: 'Lage en ball',
+        icon: 'fiber_manual_record',
         insert: `For å lage en ball kan du gjøre slik:
 
 \`\`\`python
@@ -264,6 +267,7 @@ Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter og \`color\`
       },
       {
         text: 'Lage en planet',
+        icon: 'public',
         insert: `For å lage en planet kan du gjøre slik:
 
 \`\`\`python
@@ -274,6 +278,7 @@ Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter, \`m\` er ma
       },
       {
         text: 'Lage en linje',
+        icon: 'show_chart',
         insert: `For å lage en linje kan du gjøre slik:
 
 \`\`\`python
@@ -300,6 +305,7 @@ y = y + vy*dt # Her er 'y' gammel verdi og 'vy' endringen
       },
       {
         text: 'Luftmotstand',
+        icon: <i className="fas fa-wind"></i>,
         insert: `Luftmotstand er en kraft som alltid går i mot akselerasjonen:
 
 \`\`\`python
@@ -314,6 +320,7 @@ luftmotstand = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor m
       },
       {
         text: 'Kontaktfriksjon',
+        icon: 'keyboard_backspace',
         insert: `Kontaktfriksjon er en kraft som alltid går i mot akselerasjonen:
 
 \`\`\`python
@@ -366,10 +373,7 @@ friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor
               >
                 {text}
                 {icon ? (
-                  <>
-                    {' '}
-                    <Icon name={icon} />
-                  </>
+                  <> {typeof icon === 'string' ? <Icon name={icon} /> : icon}</>
                 ) : null}
               </button>
             ))}
@@ -380,7 +384,7 @@ friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor
                 Legg til forklaringsmaler:
               </h2>
             ) : null}
-            {addTemplateToDescriptionButtons.map(({ text, insert }) => (
+            {addTemplateToDescriptionButtons.map(({ text, icon, insert }) => (
               <button
                 onClick={() => {
                   const oldValue = ref.current.value
@@ -391,6 +395,9 @@ friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor
                 key={text}
               >
                 {text}
+                {icon ? (
+                  <> {typeof icon === 'string' ? <Icon name={icon} /> : icon}</>
+                ) : null}
               </button>
             ))}
           </div>
