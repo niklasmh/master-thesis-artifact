@@ -208,7 +208,29 @@ export const exceptions = {
   },
   TabError: (message, line, prev, code) => message,
   SystemError: (message, line, prev, code) => message,
-  TypeError: (message, line, prev, code) => message,
+  TypeError: (message, line, prev, code) => {
+    if (/^unsupported operand type\(s\) for .+: 'ellipsis' and/.test(message)) {
+      let indexOfEllipsis = -1
+      try {
+        let i = 0
+        while (indexOfEllipsis === -1) {
+          if (code(i).indexOf('...')) {
+            indexOfEllipsis = i
+          }
+          i++
+        }
+      } catch (ex) {
+        console.log(ex)
+      }
+      return `Du må fylle inn svaret ditt her:${ifline(
+        '',
+        indexOfEllipsis,
+        getncode(code, indexOfEllipsis, 2, { postLine: ' <-- Linje ' + line }),
+        '',
+        false
+      )}`
+    }
+  },
   ValueError: (message, line, prev, code) => message,
   UnicodeError: (message, line, prev, code) => message,
   UnicodeDecodeError: (message, line, prev, code) => message,
