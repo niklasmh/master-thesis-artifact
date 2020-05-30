@@ -230,6 +230,7 @@ export const exceptions = {
         false
       )}`
     }
+    return message
   },
   ValueError: (message, line, prev, code) => message,
   UnicodeError: (message, line, prev, code) => message,
