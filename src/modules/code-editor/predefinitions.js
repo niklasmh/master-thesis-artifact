@@ -18,7 +18,7 @@ def enablePrint():
 
 __elements__ = []
 class Ball:
-    def __init__(self, x=0, y=0, r=1, color="blue", **kwargs):
+    def __init__(self, x=0, y=0, r=1, m=1, color="blue", **kwargs):
         self.x = x
         self.y = y
         self.x0 = x
@@ -32,7 +32,7 @@ class Ball:
         self.ax0 = 0
         self.ay0 = 0
         self.r = r
-        self.m = -1
+        self.m = m
         self.color = color
         self.drawforces = False
         for k, i in kwargs.items():
