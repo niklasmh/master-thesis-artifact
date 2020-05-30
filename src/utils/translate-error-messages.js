@@ -209,7 +209,7 @@ export const exceptions = {
   TabError: (message, line, prev, code) => message,
   SystemError: (message, line, prev, code) => message,
   TypeError: (message, line, prev, code) => {
-    if (/^unsupported operand type\(s\) for .+: 'ellipsis' and/.test(message)) {
+    if (/^unsupported operand type\(s\) for.+'ellipsis'/.test(message)) {
       let indexOfEllipsis = -1
       try {
         let i = 0
