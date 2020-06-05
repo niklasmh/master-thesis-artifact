@@ -91,6 +91,8 @@ const NextButton = styled.button`
   font-size: 1.5em;
 `
 
+const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
+
 function TaskPage() {
   const dispatch = useDispatch()
   const { uid, user } = useSelector((state) => state.user)
@@ -200,7 +202,7 @@ function TaskPage() {
             >
               {sectionNo > i ? <Checked>✓ </Checked> : null}
               <SingleLineMarkdown>
-                {`Del ${i + 1}: ${section.title} (${
+                {`Seksjon ${i + 1}: ${section.title} (${
                   sectionNo > i ? task.sections[i].subgoals.length : subgoalNo
                 }/${task.sections[i].subgoals.length})`}
               </SingleLineMarkdown>
@@ -248,9 +250,9 @@ function TaskPage() {
                 {subgoalNo === i && subgoal.description ? (
                   <>
                     {
-                      /**/ <SingleLineMarkdown>{`Steg ${i + 1}: ${
-                        subgoal.title
-                      }`}</SingleLineMarkdown> /**/
+                      /**/ <SingleLineMarkdown>{`Deloppgave ${getAlpha(
+                        i + 1
+                      )}) ${subgoal.title}`}</SingleLineMarkdown> /**/
                     }
                     <Markdown
                       style={{
@@ -273,11 +275,11 @@ function TaskPage() {
                       name="subdirectory_arrow_right"
                       style={{ marginLeft: '3.3em' }}
                     />* /}
-                    <SingleLineMarkdown>{`Steg ${i + 1}: ${
+                    <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
                       subgoal.title
                     }`}</SingleLineMarkdown>
                   </>*/ null : (
-                  <SingleLineMarkdown>{`Steg ${i + 1}: ${
+                  <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
                     subgoal.title
                   }`}</SingleLineMarkdown>
                 )}
