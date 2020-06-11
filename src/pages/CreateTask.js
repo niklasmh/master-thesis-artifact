@@ -1122,6 +1122,7 @@ const StyledSection = styled.div`
 const SectionContent = styled.ol`
   display: flex;
   flex-flow: column nowrap;
+  counter-reset: subgoal-counter;
   padding: 0;
   width: 100%;
 
