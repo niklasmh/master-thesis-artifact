@@ -96,7 +96,7 @@ const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
 
 function TaskPage() {
   const dispatch = useDispatch()
-  const { uid, user } = useSelector((state) => state.user)
+  const { uid, userData } = useSelector((state) => state.user)
   const { clearLog, clearValues, attempts } = useSelector((state) => state.task)
   const [task, setTask] = useState({
     title: '',
@@ -181,7 +181,7 @@ function TaskPage() {
           Endre oppgaven <Icon name="edit" />
         </Link>
       ) : null}
-      {user && user.isTeacher ? (
+      {userData && userData.isTeacher ? (
         <Link className="button" to={`/oppgave/ny/${id}`}>
           Lag en ny oppgave ut ifra denne <Icon name="file_copy" />
         </Link>
