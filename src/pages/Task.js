@@ -11,6 +11,7 @@ import { Title, SubTitle } from '../components/Typography'
 import { Markdown } from '../components/TextEditor'
 import Icon from '../components/Icon'
 import Loading from '../components/Loading'
+import Outline from '../components/Outline'
 
 const TaskContainer = styled.div`
   text-align: center;
@@ -195,81 +196,111 @@ function TaskPage() {
       ) : null}
       {task.sections && task.sections.length ? (
         <>
-          {task.sections.slice(0, sectionNo + 1).map((section, i) => (
-            <SubTitle
-              key={i}
-              style={{ margin: 0, opacity: sectionNo === i ? 1 : 0.4 }}
-            >
-              {sectionNo > i ? <Checked>✓ </Checked> : null}
-              <SingleLineMarkdown>
-                {`Seksjon ${i + 1}: ${section.title} (${
-                  sectionNo > i ? task.sections[i].subgoals.length : subgoalNo
-                }/${task.sections[i].subgoals.length})`}
-              </SingleLineMarkdown>
-            </SubTitle>
-          ))}
           <div
-            ref={topOfSectionRef}
-            style={{ position: 'relative', top: '-75px' }}
-          />
-          {task.sections[sectionNo].description ? (
-            <Markdown
+            style={{
+              display: 'flex',
+              flexFlow: 'row wrap',
+              position: 'relative',
+            }}
+          >
+            <Outline
+              task={task}
+              sectionNo={sectionNo}
+              subgoalNo={subgoalNo}
+              testsPassed={testsPassed}
               style={{
-                width: '800px',
-                textAlign: 'left',
-                fontSize: '1.25em',
-                margin: '1em auto',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                height: '100%',
+                borderRadius: '6px',
+              }}
+            />
+            <div
+              style={{
+                flex: '1 0 auto',
+                flexFlow: 'column nowrap',
+                marginLeft: 'calc(320px + 3em)',
               }}
             >
-              {task.sections[sectionNo].description}
-            </Markdown>
-          ) : (
-            <div style={{ height: '1em' }} />
-          )}
-          <Subgoals>
-            {task.sections[sectionNo].subgoals.map((subgoal, i) => (
-              <SubgoalDescription
-                key={subgoal.title}
-                className={
-                  subgoalNo === i
-                    ? 'current' + (subgoal.description ? ' description' : '')
-                    : ''
-                }
-              >
-                {subgoalNo === i ? (
-                  <div
-                    ref={topOfSubgoalRef}
-                    style={{ position: 'relative', top: '-16px' }}
-                  />
-                ) : null}
-                {testsPassed[sectionNo + '-' + i] ? (
-                  <Checked>✓ </Checked>
-                ) : testsPassed[sectionNo + '-' + i] === false ? (
-                  <Failed>✕ </Failed>
-                ) : null}
-                {subgoalNo === i && subgoal.description ? (
-                  <>
-                    {
-                      /**/ <SingleLineMarkdown>{`Deloppgave ${getAlpha(
-                        i + 1
-                      )}) ${subgoal.title}`}</SingleLineMarkdown> /**/
+              {task.sections.slice(0, sectionNo + 1).map((section, i) => (
+                <SubTitle
+                  key={i}
+                  style={{ margin: 0, opacity: sectionNo === i ? 1 : 0.4 }}
+                >
+                  {sectionNo > i ? <Checked>✓ </Checked> : null}
+                  <SingleLineMarkdown>
+                    {`Seksjon ${i + 1}: ${section.title} (${
+                      sectionNo > i
+                        ? task.sections[i].subgoals.length
+                        : subgoalNo
+                    }/${task.sections[i].subgoals.length})`}
+                  </SingleLineMarkdown>
+                </SubTitle>
+              ))}
+              <div
+                ref={topOfSectionRef}
+                style={{ position: 'relative', top: '-75px' }}
+              />
+              {task.sections[sectionNo].description ? (
+                <Markdown
+                  style={{
+                    width: '800px',
+                    textAlign: 'left',
+                    fontSize: '1.25em',
+                    margin: '1em auto',
+                  }}
+                >
+                  {task.sections[sectionNo].description}
+                </Markdown>
+              ) : (
+                <div style={{ height: '1em' }} />
+              )}
+              <Subgoals>
+                {task.sections[sectionNo].subgoals.map((subgoal, i) => (
+                  <SubgoalDescription
+                    key={subgoal.title}
+                    className={
+                      subgoalNo === i
+                        ? 'current' +
+                          (subgoal.description ? ' description' : '')
+                        : ''
                     }
-                    <Markdown
-                      style={{
-                        width: 'calc(100% - 3.3em)',
-                        fontSize: '0.7em',
-                        background: '#0002',
-                        borderRadius: '6px',
-                        padding: '0.5em 1em',
-                        margin: '1em auto 1em 3.3em',
-                      }}
-                    >
-                      {subgoal.description}
-                    </Markdown>
-                  </>
-                ) : null}
-                {subgoalNo === i &&
-                subgoal.description ? /*<>
+                  >
+                    {subgoalNo === i ? (
+                      <div
+                        ref={topOfSubgoalRef}
+                        style={{ position: 'relative', top: '-16px' }}
+                      />
+                    ) : null}
+                    {testsPassed[sectionNo + '-' + i] ? (
+                      <Checked>✓ </Checked>
+                    ) : testsPassed[sectionNo + '-' + i] === false ? (
+                      <Failed>✕ </Failed>
+                    ) : null}
+                    {subgoalNo === i && subgoal.description ? (
+                      <>
+                        {
+                          /**/ <SingleLineMarkdown>{`Deloppgave ${getAlpha(
+                            i + 1
+                          )}) ${subgoal.title}`}</SingleLineMarkdown> /**/
+                        }
+                        <Markdown
+                          style={{
+                            width: 'calc(100% - 3.3em)',
+                            fontSize: '0.7em',
+                            background: '#0002',
+                            borderRadius: '6px',
+                            padding: '0.5em 1em',
+                            margin: '1em auto 1em 3.3em',
+                          }}
+                        >
+                          {subgoal.description}
+                        </Markdown>
+                      </>
+                    ) : null}
+                    {subgoalNo === i &&
+                    subgoal.description ? /*<>
                     {/*<Icon
                       key={'sun'}
                       name="subdirectory_arrow_right"
@@ -279,13 +310,15 @@ function TaskPage() {
                       subgoal.title
                     }`}</SingleLineMarkdown>
                   </>*/ null : (
-                  <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
-                    subgoal.title
-                  }`}</SingleLineMarkdown>
-                )}
-              </SubgoalDescription>
-            ))}
-          </Subgoals>
+                      <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
+                        subgoal.title
+                      }`}</SingleLineMarkdown>
+                    )}
+                  </SubgoalDescription>
+                ))}
+              </Subgoals>
+            </div>
+          </div>
           {subgoalFinished ? (
             subgoalNo === subgoalNoMax && sectionNo === sectionNoMax ? (
               <SubTitle>Du er ferdig med alle deloppgavene!</SubTitle>
