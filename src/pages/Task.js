@@ -180,7 +180,7 @@ function TaskPage() {
           Endre oppgaven <Icon name="edit" />
         </Link>
       ) : null}
-      {user.isTeacher ? (
+      {user && user.isTeacher ? (
         <Link className="button" to={`/oppgave/ny/${id}`}>
           Lag en ny oppgave ut ifra denne <Icon name="file_copy" />
         </Link>
