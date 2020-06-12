@@ -1718,7 +1718,10 @@ function Subgoal({
     const buttons = []
     code.split(`\n`).forEach((line) => {
       if (/^[\w_][\w_0-9]* *=/.test(line)) {
-        const [name, value] = line.split('=').map((e) => e.trim())
+        const [name, value] = line
+          .split('#')[0]
+          .split('=')
+          .map((e) => e.trim())
         buttons.push({
           text: `Sjekk om '${name}' er definert`,
           type: 'check',
