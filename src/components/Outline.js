@@ -81,6 +81,10 @@ const OrderedList = styled.ol`
   overflow-y: auto;
   margin: 0;
 
+  .light & {
+    color: #000d;
+  }
+
   > li {
     display: flex;
     flex-flow: column nowrap;
@@ -93,6 +97,10 @@ const OrderedList = styled.ol`
 
       ::before {
         color: #fff4;
+
+        .light & {
+          color: #000d;
+        }
       }
     }
   }
@@ -104,11 +112,19 @@ const SectionList = styled(OrderedList)`
   border-radius: 6px;
   margin-top: 1em;
 
+  .light & {
+    background: #fff4;
+  }
+
   > li {
     counter-increment: section-counter;
 
     &.current > span {
       color: #fffa;
+
+      .light & {
+        color: #000d;
+      }
     }
 
     > span {
@@ -130,6 +146,10 @@ const SubgoalList = styled(OrderedList)`
 
     &.current > span {
       color: #fffa;
+
+      .light & {
+        color: #000d;
+      }
     }
 
     > span {
