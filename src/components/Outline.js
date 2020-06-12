@@ -27,7 +27,7 @@ export default function Outline({
         task.sections.map((section, i) => (
           <li key={i} className={sectionNo === i ? 'current' : ''}>
             <span>
-              {sectionNo < i ? <Checked>✓ </Checked> : null}
+              {sectionNo > i ? <Checked>✓ </Checked> : null}
               <span>{section.title}</span>
             </span>
             {sectionNo === i ? (
