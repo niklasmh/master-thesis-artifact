@@ -40,6 +40,20 @@ const StyledModule = styled(Module)`
   &.playing > .module-content > section:nth-of-type(2) {
     box-shadow: 0.5px 0 0 3px #d4c600;
   }
+  @keyframes fadeInOut {
+    0% {
+      box-shadow: 0.5px 0 0 3px #d4c60000;
+    }
+    50% {
+      box-shadow: 0.5px 0 0 3px #d4c600ff;
+    }
+    100% {
+      box-shadow: 0.5px 0 0 3px #d4c60000;
+    }
+  }
+  &.init > .module-content > section:nth-of-type(1) {
+    animation: fadeInOut 1s infinite;
+  }
 
   /*section:first-child > div > .monaco-editor {
     &,
@@ -738,12 +752,15 @@ function CodeEditor(props) {
     })
   }
 
+  const [dirty, setDirty] = useState(false)
   function handleEditorChange(_, value) {
     setEditorHasChanged(value !== editorValue)
+    setDirty(true)
   }
 
   function handleLoopEditorChange(_, value) {
     setLoopEditorHasChanged(value !== loopEditorValue)
+    setDirty(true)
   }
 
   useEffect(() => {
@@ -1194,7 +1211,7 @@ function CodeEditor(props) {
       width={codeEditorSize.w + 'px'}
       height={codeEditorSize.h + 'px'}
       before={
-        isEditorReady && isEngineReady ? (
+        isEditorReady && isEngineReady && dirty ? (
           <>
             <div style={{ flex: '1' }} />
             <Button
@@ -1225,7 +1242,9 @@ function CodeEditor(props) {
                   {' '}
                   <Icon name="arrow_forward" />
                 </>
-              ) : null}
+              ) : (
+                ' igjen'
+              )}
             </Button>
           </>
         ) : null
@@ -1237,7 +1256,15 @@ function CodeEditor(props) {
       //}
       outerShadow={false}
       {...props}
-      className={isPlaying ? (time < 0.1 ? 'start playing' : 'playing') : ''}
+      className={
+        isPlaying
+          ? time < 0.1
+            ? 'start playing'
+            : 'playing'
+          : dirty
+          ? ''
+          : 'init'
+      }
       content={
         <>
           <ControlledEditor
