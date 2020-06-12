@@ -1269,7 +1269,7 @@ function CodeEditor(props) {
             <>
               <LoopCodeTitle>
                 Kode som kjører hvert tidssteg, <code>dt</code>
-                <Button
+                {/*<Button
                   style={{ fontSize: '0.8rem' }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={async () => {
@@ -1324,7 +1324,7 @@ function CodeEditor(props) {
                       Spill av <i className="fas fa-play" />
                     </>
                   )}
-                </Button>
+                </Button>*/}
               </LoopCodeTitle>
               <ControlledEditor
                 width={codeEditorSize.w + 'px'}
