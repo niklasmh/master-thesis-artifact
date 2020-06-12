@@ -26,40 +26,45 @@ export default function Outline({
         task.sections &&
         task.sections.map((section, i) => (
           <li key={i} className={sectionNo === i ? 'current' : ''}>
-            <span>{section.title}</span>
-            <SubgoalList>
-              {section &&
-                section.subgoals &&
-                section.subgoals.map((subgoal, j) => (
-                  <li
-                    key={j}
-                    className={
-                      (sectionNo === i && subgoalNo === j ? 'current' : '') +
-                      (i + '-' + j in testsPassed
-                        ? testsPassed[i + '-' + j]
-                          ? ' passed'
-                          : testsPassed[i + '-' + j] === false
-                          ? ' failed'
-                          : ''
-                        : '')
-                    }
-                  >
-                    <span>
-                      {i + '-' + j in testsPassed ? (
-                        testsPassed[i + '-' + j] ? (
-                          <Checked>✓ </Checked>
-                        ) : testsPassed[i + '-' + j] === false ? (
-                          <Failed>✕ </Failed>
-                        ) : null
-                      ) : null}
-                      <SingleLineMarkdown>{subgoal.title}</SingleLineMarkdown>
-                      {sectionNo === i && subgoalNo === j ? (
-                        <span ref={anchor} />
-                      ) : null}
-                    </span>
-                  </li>
-                ))}
-            </SubgoalList>
+            <span>
+              {sectionNo < i ? <Checked>✓ </Checked> : null}
+              <span>{section.title}</span>
+            </span>
+            {sectionNo === i ? (
+              <SubgoalList>
+                {section &&
+                  section.subgoals &&
+                  section.subgoals.map((subgoal, j) => (
+                    <li
+                      key={j}
+                      className={
+                        (sectionNo === i && subgoalNo === j ? 'current' : '') +
+                        (i + '-' + j in testsPassed
+                          ? testsPassed[i + '-' + j]
+                            ? ' passed'
+                            : testsPassed[i + '-' + j] === false
+                            ? ' failed'
+                            : ''
+                          : '')
+                      }
+                    >
+                      <span>
+                        {i + '-' + j in testsPassed ? (
+                          testsPassed[i + '-' + j] ? (
+                            <Checked>✓ </Checked>
+                          ) : testsPassed[i + '-' + j] === false ? (
+                            <Failed>✕ </Failed>
+                          ) : null
+                        ) : null}
+                        <SingleLineMarkdown>{subgoal.title}</SingleLineMarkdown>
+                        {sectionNo === i && subgoalNo === j ? (
+                          <span ref={anchor} />
+                        ) : null}
+                      </span>
+                    </li>
+                  ))}
+              </SubgoalList>
+            ) : null}
           </li>
         ))}
     </SectionList>
