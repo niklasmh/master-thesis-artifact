@@ -72,6 +72,10 @@ const DarkArea = styled.div`
   background-color: #0005;
   padding: 1em;
   width: 100%;
+
+  .light & {
+    background-color: #fff5;
+  }
 `
 
 const StyledTask = styled(Card)`
