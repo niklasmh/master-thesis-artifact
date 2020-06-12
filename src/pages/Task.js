@@ -211,7 +211,7 @@ function TaskPage() {
               style={{
                 position: 'absolute',
                 top: 0,
-                left: 0,
+                right: 0,
                 height: '100%',
                 borderRadius: '6px',
               }}
@@ -220,7 +220,7 @@ function TaskPage() {
               style={{
                 flex: '1 0 auto',
                 flexFlow: 'column nowrap',
-                marginLeft: 'calc(320px + 3em)',
+                marginRight: 'calc(320px + 3em)',
               }}
             >
               {task.sections.slice(0, sectionNo + 1).map((section, i) => (
