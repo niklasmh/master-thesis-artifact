@@ -182,7 +182,7 @@ function TaskPage() {
         </Link>
       ) : null}
       {userData && userData.isTeacher ? (
-        <Link className="button" to={`/oppgave/ny/${id}`}>
+        <Link className="button" to={`/oppgave/endre/${id}`}>
           Lag en ny oppgave ut ifra denne <Icon name="file_copy" />
         </Link>
       ) : null}
