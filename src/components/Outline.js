@@ -22,6 +22,24 @@ export default function Outline({
     }
   }, [subgoalNo])
 
+  function sectionProgress(no, subgoals = []) {
+    if (subgoals.length > 0) {
+      const count = subgoals.reduce((acc, n, i) => {
+        const id = no + '-' + i
+        if (id in testsPassed) {
+          if (testsPassed[id] === false) {
+            return acc
+          }
+          return acc + 1
+        }
+        return acc
+      }, 0)
+      return count / subgoals.length
+    } else {
+      return 0
+    }
+  }
+
   return (
     <SectionList ref={list} {...props}>
       {task &&
@@ -29,6 +47,13 @@ export default function Outline({
         task.sections.map((section, i) => (
           <li key={i} className={sectionNo === i ? 'current' : ''}>
             <span onClick={() => onSectionSelect(i)}>
+              {sectionProgress(i, section.subgoals) !== 0 ? (
+                sectionProgress(i, section.subgoals) === 1 ? (
+                  <Checked>✓ </Checked>
+                ) : i < sectionNo ? (
+                  <Failed>✕ </Failed>
+                ) : null
+              ) : null}
               <span>{section.title}</span>
             </span>
             {sectionNo === i ? (
