@@ -172,9 +172,10 @@ function Values(props) {
       const type = typeof oldValue
       let value = ''
       if (typeof oldValue === '') {
-        value = prompt(`Sett en ny verdi til "${key}.${arg}":`, oldValue)
+        value =
+          prompt(`Sett en ny verdi til "${key}.${arg}":`, oldValue) || oldValue
       } else {
-        value = prompt(`Sett "${key}.${arg}" til:`)
+        value = prompt(`Sett "${key}.${arg}" til:`) || oldValue
       }
 
       switch (type) {
@@ -190,9 +191,9 @@ function Values(props) {
       const type = typeof oldValue
       let value = ''
       if (typeof oldValue === '') {
-        value = prompt(`Sett en ny verdi til "${key}":`, oldValue)
+        value = prompt(`Sett en ny verdi til "${key}":`, oldValue) || oldValue
       } else {
-        value = prompt(`Sett "${key}" til:`)
+        value = prompt(`Sett "${key}" til:`) || oldValue
       }
 
       switch (type) {
