@@ -337,57 +337,6 @@ function TaskPage() {
               </Subgoals>
             </div>
           </div>
-          {subgoalFinished ? (
-            subgoalNo === subgoalNoMax && sectionNo === sectionNoMax ? (
-              <SubTitle>Du er ferdig med alle deloppgavene!</SubTitle>
-            ) : (
-              <NextButton
-                onClick={() => {
-                  clearLog()
-                  clearValues()
-                  setSubgoalFinished(false)
-                  if (subgoalNo < subgoalNoMax) {
-                    console.log('Next subgoal')
-                    setSubgoalNo((n) => n + 1)
-                  } else {
-                    if (sectionNo < sectionNoMax) {
-                      console.log('Next section')
-                      setSubgoalNo(0)
-                      setSectionNo((n) => n + 1)
-                    } else {
-                      console.log('Task is done')
-                    }
-                  }
-                }}
-              >
-                Gå til neste deloppgave <Icon key="next" name="arrow_forward" />
-              </NextButton>
-            )
-          ) : attempts >= 3 ? (
-            <NextButton
-              onClick={() => {
-                try {
-                  const solutionCode =
-                    task.sections[sectionNo].subgoals[subgoalNo].solutionCode
-                  if (solutionCode) {
-                    dispatch({
-                      type: 'setCode',
-                      code: solutionCode,
-                      isSolution: true,
-                    })
-                    setSubgoalFinished(true)
-                  } else {
-                    console.log('Var visst ikke noen løsning på denne :/')
-                  }
-                } catch (ex) {
-                  console.log('Kunne ikke hente løsningen :(')
-                  console.error(ex)
-                }
-              }}
-            >
-              Se løsningen på oppgaven <Icon key="reveal" name="visibility" />
-            </NextButton>
-          ) : null}
           <TaskCodeEnvironment
             edit={edit}
             task={task}
@@ -521,6 +470,57 @@ function TaskPage() {
               ],
             }}
           />
+          {subgoalFinished ? (
+            subgoalNo === subgoalNoMax && sectionNo === sectionNoMax ? (
+              <SubTitle>Du er ferdig med alle deloppgavene!</SubTitle>
+            ) : (
+              <NextButton
+                onClick={() => {
+                  clearLog()
+                  clearValues()
+                  setSubgoalFinished(false)
+                  if (subgoalNo < subgoalNoMax) {
+                    console.log('Next subgoal')
+                    setSubgoalNo((n) => n + 1)
+                  } else {
+                    if (sectionNo < sectionNoMax) {
+                      console.log('Next section')
+                      setSubgoalNo(0)
+                      setSectionNo((n) => n + 1)
+                    } else {
+                      console.log('Task is done')
+                    }
+                  }
+                }}
+              >
+                Gå til neste deloppgave <Icon key="next" name="arrow_forward" />
+              </NextButton>
+            )
+          ) : attempts >= 3 ? (
+            <NextButton
+              onClick={() => {
+                try {
+                  const solutionCode =
+                    task.sections[sectionNo].subgoals[subgoalNo].solutionCode
+                  if (solutionCode) {
+                    dispatch({
+                      type: 'setCode',
+                      code: solutionCode,
+                      isSolution: true,
+                    })
+                    setSubgoalFinished(true)
+                  } else {
+                    console.log('Var visst ikke noen løsning på denne :/')
+                  }
+                } catch (ex) {
+                  console.log('Kunne ikke hente løsningen :(')
+                  console.error(ex)
+                }
+              }}
+            >
+              Se løsningen på oppgaven <Icon key="reveal" name="visibility" />
+            </NextButton>
+          ) : null}
         </>
       ) : null}
     </TaskContainer>
