@@ -120,6 +120,7 @@ const OrderedList = styled.ol`
 
     > span {
       margin: 0;
+      cursor: pointer;
 
       ::before {
         color: #fff4;
