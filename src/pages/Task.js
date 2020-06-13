@@ -98,6 +98,8 @@ const NextButton = styled.button`
   background-color: #0a0;
   color: #fff;
   font-size: 1.5em;
+  margin-top: -8px;
+  margin-bottom: 0;
 
   &:disabled {
     background-color: #aaa;
