@@ -21,6 +21,14 @@ const TaskContainer = styled.div`
   min-height: 100vh;
   min-width: 1200px;
   width: 100%;
+
+  & .section-name,
+  & .subgoal-name {
+    opacity: 0.5;
+  }
+  & .subgoal-name + span {
+    text-decoration: underline;
+  }
 `
 
 const Description = styled.div`
@@ -221,23 +229,41 @@ function TaskPage() {
                 flex: '1 0 auto',
                 flexFlow: 'column nowrap',
                 marginRight: 'calc(320px + 3em)',
+                maxWidth: 'calc(1200px - 320px)',
               }}
             >
-              {task.sections.slice(0, sectionNo + 1).map((section, i) => (
-                <SubTitle
-                  key={i}
-                  style={{ margin: 0, opacity: sectionNo === i ? 1 : 0.4 }}
-                >
-                  {sectionNo > i ? <Checked>✓ </Checked> : null}
-                  <SingleLineMarkdown>
-                    {`Seksjon ${i + 1}: ${section.title} (${
-                      sectionNo > i
-                        ? task.sections[i].subgoals.length
-                        : subgoalNo
-                    }/${task.sections[i].subgoals.length})`}
-                  </SingleLineMarkdown>
-                </SubTitle>
-              ))}
+              {
+                //task.sections.slice(0, sectionNo + 1).map((section, i) => (
+                task.sections.slice(0, sectionNo + 1).map((section, i) => {
+                  if (sectionNo !== i) {
+                    return null
+                  } else {
+                    return (
+                      <SubTitle
+                        key={i}
+                        style={{
+                          margin: 0,
+                          opacity: sectionNo === i ? 1 : 0.4,
+                        }}
+                      >
+                        {/*sectionNo > i ? <Checked>✓ </Checked> : null*/}
+                        <span>
+                          <span className="section-name">
+                            Seksjon {i + 1}:{' '}
+                          </span>
+                          <SingleLineMarkdown>
+                            {`${section.title} (${
+                              sectionNo > i
+                                ? task.sections[i].subgoals.length
+                                : subgoalNo
+                            }/${task.sections[i].subgoals.length})`}
+                          </SingleLineMarkdown>
+                        </span>
+                      </SubTitle>
+                    )
+                  }
+                })
+              }
               <div
                 ref={topOfSectionRef}
                 style={{ position: 'relative', top: '-75px' }}
@@ -257,65 +283,57 @@ function TaskPage() {
                 <div style={{ height: '1em' }} />
               )}
               <Subgoals>
-                {task.sections[sectionNo].subgoals.map((subgoal, i) => (
-                  <SubgoalDescription
-                    key={subgoal.title}
-                    className={
-                      subgoalNo === i
-                        ? 'current' +
-                          (subgoal.description ? ' description' : '')
-                        : ''
-                    }
-                  >
-                    {subgoalNo === i ? (
-                      <div
-                        ref={topOfSubgoalRef}
-                        style={{ position: 'relative', top: '-16px' }}
-                      />
-                    ) : null}
-                    {testsPassed[sectionNo + '-' + i] ? (
-                      <Checked>✓ </Checked>
-                    ) : testsPassed[sectionNo + '-' + i] === false ? (
-                      <Failed>✕ </Failed>
-                    ) : null}
-                    {subgoalNo === i && subgoal.description ? (
-                      <>
-                        {
-                          /**/ <SingleLineMarkdown>{`Deloppgave ${getAlpha(
-                            i + 1
-                          )}) ${subgoal.title}`}</SingleLineMarkdown> /**/
+                {task.sections[sectionNo].subgoals.map((subgoal, i) => {
+                  if (subgoalNo !== i) {
+                    return null
+                  } else {
+                    return (
+                      <SubgoalDescription
+                        key={subgoal.title}
+                        className={
+                          subgoalNo === i
+                            ? 'current' +
+                              (subgoal.description ? ' description' : '')
+                            : ''
                         }
-                        <Markdown
-                          style={{
-                            width: 'calc(100% - 3.3em)',
-                            fontSize: '0.7em',
-                            background: '#0002',
-                            borderRadius: '6px',
-                            padding: '0.5em 1em',
-                            margin: '1em auto 1em 3.3em',
-                          }}
-                        >
-                          {subgoal.description}
-                        </Markdown>
-                      </>
-                    ) : null}
-                    {subgoalNo === i &&
-                    subgoal.description ? /*<>
-                    {/*<Icon
-                      key={'sun'}
-                      name="subdirectory_arrow_right"
-                      style={{ marginLeft: '3.3em' }}
-                    />* /}
-                    <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
-                      subgoal.title
-                    }`}</SingleLineMarkdown>
-                  </>*/ null : (
-                      <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
-                        subgoal.title
-                      }`}</SingleLineMarkdown>
-                    )}
-                  </SubgoalDescription>
-                ))}
+                      >
+                        {subgoalNo === i ? (
+                          <div
+                            ref={topOfSubgoalRef}
+                            style={{ position: 'relative', top: '-16px' }}
+                          />
+                        ) : null}
+                        {testsPassed[sectionNo + '-' + i] ? (
+                          <Checked>✓ </Checked>
+                        ) : testsPassed[sectionNo + '-' + i] === false ? (
+                          <Failed>✕ </Failed>
+                        ) : null}
+                        <span>
+                          <span className="subgoal-name">
+                            Deloppgave {getAlpha(i + 1)})
+                          </span>{' '}
+                          <SingleLineMarkdown>
+                            {subgoal.title}
+                          </SingleLineMarkdown>
+                        </span>
+                        {subgoalNo === i && subgoal.description ? (
+                          <Markdown
+                            style={{
+                              width: 'calc(100% - 3.3em)',
+                              fontSize: '0.7em',
+                              background: '#0002',
+                              borderRadius: '6px',
+                              padding: '0.5em 1em',
+                              margin: '1em auto 1em 3.3em',
+                            }}
+                          >
+                            {subgoal.description}
+                          </Markdown>
+                        ) : null}
+                      </SubgoalDescription>
+                    )
+                  }
+                })}
               </Subgoals>
             </div>
           </div>
