@@ -198,6 +198,16 @@ function CodeEditor(props) {
           code,
           isSolution: false,
         })
+      } else {
+        try {
+          const id = window.localStorage.getItem('current-task-id') || ''
+          if (id) {
+            const storedCode = window.localStorage.getItem(id)
+            const storedLoopCode = window.localStorage.getItem(id + '-loop')
+            if (storedCode) setParsedCode(storedCode)
+            if (storedLoopCode) setParsedLoopCode(storedLoopCode)
+          }
+        } catch (ex) {}
       }
     }
   }, [code, isSolution])
@@ -756,6 +766,12 @@ function CodeEditor(props) {
   function handleEditorChange(_, value) {
     setEditorHasChanged(value !== editorValue)
     setDirty(true)
+    try {
+      const id = window.localStorage.getItem('current-task-id') || ''
+      if (id) {
+        window.localStorage.setItem(id, value)
+      }
+    } catch (ex) {}
     if (/=\s*[0-9]+,[0-9]+/.test(value)) {
       setParsedCode((c) => {
         return value.replace(/=(\s*[0-9]+),([0-9]+)/g, '=$1.$2')
@@ -766,6 +782,12 @@ function CodeEditor(props) {
   function handleLoopEditorChange(_, value) {
     setLoopEditorHasChanged(value !== loopEditorValue)
     setDirty(true)
+    try {
+      const id = window.localStorage.getItem('current-task-id') || ''
+      if (id) {
+        window.localStorage.setItem(id + '-loop', value)
+      }
+    } catch (ex) {}
   }
 
   useEffect(() => {

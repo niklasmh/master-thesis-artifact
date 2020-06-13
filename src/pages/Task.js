@@ -187,6 +187,15 @@ function TaskPage() {
     }
   }, [subgoalNo])
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        'current-task-id',
+        `${uid}-${id}-${sectionNo}-${subgoalNo}`
+      )
+    } catch (ex) {}
+  }, [subgoalNo, sectionNo, uid, id])
+
   if (loadingTaskData) {
     return (
       <TaskContainer>
