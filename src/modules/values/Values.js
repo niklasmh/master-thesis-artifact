@@ -128,7 +128,7 @@ const Figure = styled.span`
 `
 
 function Values(props) {
-  const { values, valuesSize } = useSelector((state) => state.task)
+  const { values, valuesSize, runCode } = useSelector((state) => state.task)
   const dispatch = useDispatch()
 
   function clearValues(values) {
@@ -143,6 +143,7 @@ function Values(props) {
       type: 'setValues',
       values: [],
     })
+    runCode('', false)
   }
 
   useEffect(() => {
@@ -162,6 +163,47 @@ function Values(props) {
       type: 'setValues',
       values: values.filter(([key, _]) => key !== valueKey),
     })
+    runCode('', false)
+  }
+
+  function manuallyChangeValue(key, arg = '') {
+    if (arg) {
+      const oldValue = values.find(([k]) => k === key)[1][arg]
+      const type = typeof oldValue
+      let value = ''
+      if (typeof oldValue === '') {
+        value = prompt(`Sett en ny verdi til "${key}.${arg}":`, oldValue)
+      } else {
+        value = prompt(`Sett "${key}.${arg}" til:`)
+      }
+
+      switch (type) {
+        case 'number':
+          runCode(`${key}.${arg} = ${parseFloat(value)}`, false)
+          break
+        default:
+          runCode(`${key}.${arg} = "${value}"`, false)
+          break
+      }
+    } else {
+      const oldValue = values.find(([k]) => k === key)[1]
+      const type = typeof oldValue
+      let value = ''
+      if (typeof oldValue === '') {
+        value = prompt(`Sett en ny verdi til "${key}":`, oldValue)
+      } else {
+        value = prompt(`Sett "${key}" til:`)
+      }
+
+      switch (type) {
+        case 'number':
+          runCode(`${key} = ${parseFloat(value)}`, false)
+          break
+        default:
+          runCode(`${key} = "${value}"`, false)
+          break
+      }
+    }
   }
 
   return (
@@ -199,7 +241,10 @@ function Values(props) {
               switch (typeof value) {
                 case 'string':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
                       <StringValue>"{value}"</StringValue>
@@ -209,7 +254,10 @@ function Values(props) {
                   )
                 case 'number':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
                       {comment}
@@ -218,7 +266,10 @@ function Values(props) {
                   )
                 case 'boolean':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
                       <BooleanValue>{value ? 'True' : 'False'}</BooleanValue>
@@ -230,17 +281,24 @@ function Values(props) {
                   try {
                     const type = value.__class__.__name__
                     if (classTypes.includes(type)) {
-                      const args = [
-                        'x',
-                        'y',
+                      const args = ['x', 'y', 'x1', 'y1', 'x2', 'y2']
+                        .filter((arg) => typeof value[arg] !== 'undefined')
+                        .map((arg) => (
+                          <SubVariable
+                            key={arg}
+                            onClick={() => manuallyChangeValue(key, arg)}
+                          >
+                            <Key>{arg}</Key>
+                            <Sign>=</Sign>
+                            <Value>{value[arg].toFixed(2)}</Value>
+                            {comment}
+                          </SubVariable>
+                        ))
+                      const optionalArgs = [
                         'vx',
                         'vy',
                         'ax',
                         'ay',
-                        'x1',
-                        'y1',
-                        'x2',
-                        'y2',
                         'r',
                         'm',
                         'w',
@@ -248,7 +306,10 @@ function Values(props) {
                       ]
                         .filter((arg) => value[arg])
                         .map((arg) => (
-                          <SubVariable key={arg}>
+                          <SubVariable
+                            key={arg}
+                            onClick={() => manuallyChangeValue(key, arg)}
+                          >
                             <Key>{arg}</Key>
                             <Sign>=</Sign>
                             <Value>{value[arg].toFixed(2)}</Value>
@@ -309,6 +370,7 @@ function Values(props) {
                           <ObjectValue>
                             {figure} <Viz>{type}(</Viz>
                             {args}
+                            {optionalArgs}
                             <Viz style={{ marginLeft: '0.66em' }}>)</Viz>
                           </ObjectValue>
                           {'\n'}
