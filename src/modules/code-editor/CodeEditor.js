@@ -756,6 +756,11 @@ function CodeEditor(props) {
   function handleEditorChange(_, value) {
     setEditorHasChanged(value !== editorValue)
     setDirty(true)
+    if (/=\s*[0-9]+,[0-9]+/.test(value)) {
+      setParsedCode((c) => {
+        return value.replace(/=(\s*[0-9]+),([0-9]+)/g, '=$1.$2')
+      })
+    }
   }
 
   function handleLoopEditorChange(_, value) {
