@@ -226,6 +226,18 @@ function TaskPage() {
               task={task}
               sectionNo={sectionNo}
               subgoalNo={subgoalNo}
+              onSectionSelect={(section) => {
+                if (sectionNo !== section) {
+                  setSubgoalNo(0)
+                  setSectionNo(section)
+                }
+              }}
+              onSubgoalSelect={(section, subgoal) => {
+                if (sectionNo !== section || subgoalNo !== subgoal) {
+                  setSectionNo(section)
+                  setSubgoalNo(subgoal)
+                }
+              }}
               testsPassed={testsPassed}
               style={{
                 position: 'absolute',

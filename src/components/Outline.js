@@ -7,6 +7,8 @@ export default function Outline({
   sectionNo = 0,
   subgoalNo = 0,
   testsPassed = {},
+  onSectionSelect = () => {},
+  onSubgoalSelect = () => {},
   ...props
 }) {
   const anchor = useRef(null)
@@ -26,8 +28,7 @@ export default function Outline({
         task.sections &&
         task.sections.map((section, i) => (
           <li key={i} className={sectionNo === i ? 'current' : ''}>
-            <span>
-              {sectionNo > i ? <Checked>✓ </Checked> : null}
+            <span onClick={() => onSectionSelect(i)}>
               <span>{section.title}</span>
             </span>
             {sectionNo === i ? (
@@ -48,7 +49,7 @@ export default function Outline({
                           : '')
                       }
                     >
-                      <span>
+                      <span onClick={() => onSubgoalSelect(i, j)}>
                         {i + '-' + j in testsPassed ? (
                           testsPassed[i + '-' + j] ? (
                             <Checked>✓ </Checked>
