@@ -123,6 +123,7 @@ function TaskPage() {
   const [subgoalNo, setSubgoalNo] = useState(0)
   const [sectionNoMax, setSectionNoMax] = useState(0)
   const [subgoalNoMax, setSubgoalNoMax] = useState(0)
+  const [highlightSection, setHighlightSection] = useState(true)
   const [subgoalFinished, setSubgoalFinished] = useState(false)
   const [testsPassed, setTestsPassed] = useState({})
   const topOfSectionRef = useRef(null)
@@ -151,6 +152,10 @@ function TaskPage() {
 
   useEffect(() => {
     if (task && task.sections && task.sections.length) {
+      setHighlightSection(sectionNo > 0)
+      setTimeout(() => {
+        setHighlightSection(false)
+      }, 1000)
       if (task.sections[sectionNo].subgoals) {
         setSubgoalNoMax(task.sections[sectionNo].subgoals.length - 1)
         if (topOfSectionRef.current) {
@@ -281,6 +286,11 @@ function TaskPage() {
                     textAlign: 'left',
                     fontSize: '1.25em',
                     margin: '1em auto',
+                    borderRadius: '1px',
+                    backgroundColor: highlightSection ? '#f80d' : 'transparent',
+                    boxShadow:
+                      '0 0 0 16px ' +
+                      (highlightSection ? '#f80d' : 'transparent'),
                   }}
                 >
                   {task.sections[sectionNo].description}
