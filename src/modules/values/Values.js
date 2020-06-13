@@ -171,7 +171,7 @@ function Values(props) {
       const oldValue = values.find(([k]) => k === key)[1][arg]
       const type = typeof oldValue
       let value = ''
-      if (typeof oldValue === '') {
+      if (typeof oldValue !== 'undefined') {
         value =
           prompt(`Sett en ny verdi til "${key}.${arg}":`, oldValue) || oldValue
       } else {
@@ -190,7 +190,7 @@ function Values(props) {
       const oldValue = values.find(([k]) => k === key)[1]
       const type = typeof oldValue
       let value = ''
-      if (typeof oldValue === '') {
+      if (typeof oldValue !== 'undefined') {
         value = prompt(`Sett en ny verdi til "${key}":`, oldValue) || oldValue
       } else {
         value = prompt(`Sett "${key}" til:`) || oldValue
@@ -321,6 +321,7 @@ function Values(props) {
                       if (type === 'Ball' || type === 'Planet') {
                         figure = (
                           <Figure
+                            onClick={() => manuallyChangeValue(key, 'color')}
                             title={value.color}
                             style={{
                               borderRadius: '50%',
@@ -333,6 +334,7 @@ function Values(props) {
                         const sideRatio = value.b / value.h
                         figure = (
                           <Figure
+                            onClick={() => manuallyChangeValue(key, 'color')}
                             title={value.color}
                             style={{
                               width: `${sideRatio > 1 ? 1 : sideRatio}em`,
@@ -348,6 +350,7 @@ function Values(props) {
                       if (type === 'Linje') {
                         figure = (
                           <Figure
+                            onClick={() => manuallyChangeValue(key, 'color')}
                             title={value.color}
                             style={{
                               width: '3px',
