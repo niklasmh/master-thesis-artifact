@@ -38,6 +38,7 @@ const Variable = styled.div`
   white-space: pre-wrap;
   word-break: break-word;
   position: relative;
+  cursor: text;
 
   &:hover > ${RemoveButton}::before {
     visibility: visible;
@@ -46,6 +47,7 @@ const Variable = styled.div`
 
 const SubVariable = styled.div`
   margin-left: 2em;
+  cursor: text;
 
   :not(:last-of-type)::after {
     content: ', ';
@@ -125,6 +127,7 @@ const Figure = styled.span`
   display: inline-block;
   background-color: white;
   vertical-align: middle;
+  cursor: pointer;
 `
 
 function Values(props) {
@@ -245,6 +248,7 @@ function Values(props) {
                     <Variable
                       key={key}
                       onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
                     >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
@@ -258,6 +262,7 @@ function Values(props) {
                     <Variable
                       key={key}
                       onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
                     >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
@@ -270,6 +275,7 @@ function Values(props) {
                     <Variable
                       key={key}
                       onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
                     >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
@@ -288,6 +294,7 @@ function Values(props) {
                           <SubVariable
                             key={arg}
                             onClick={() => manuallyChangeValue(key, arg)}
+                            title={`Trykk for å endre verdien til "${key}.${arg}"`}
                           >
                             <Key>{arg}</Key>
                             <Sign>=</Sign>
@@ -310,6 +317,7 @@ function Values(props) {
                           <SubVariable
                             key={arg}
                             onClick={() => manuallyChangeValue(key, arg)}
+                            title={`Trykk for å endre verdien til "${key}.${arg}"`}
                           >
                             <Key>{arg}</Key>
                             <Sign>=</Sign>
@@ -322,7 +330,7 @@ function Values(props) {
                         figure = (
                           <Figure
                             onClick={() => manuallyChangeValue(key, 'color')}
-                            title={value.color}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               borderRadius: '50%',
                               backgroundColor: value.color,
@@ -335,7 +343,7 @@ function Values(props) {
                         figure = (
                           <Figure
                             onClick={() => manuallyChangeValue(key, 'color')}
-                            title={value.color}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               width: `${sideRatio > 1 ? 1 : sideRatio}em`,
                               height: `${sideRatio < 1 ? 1 : 1 / sideRatio}em`,
@@ -351,7 +359,7 @@ function Values(props) {
                         figure = (
                           <Figure
                             onClick={() => manuallyChangeValue(key, 'color')}
-                            title={value.color}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               width: '3px',
                               transform: `scale(0.9) rotate(${
