@@ -138,6 +138,12 @@ const SectionList = styled(OrderedList)`
   background: #0002;
   border-radius: 6px;
   margin-top: 1em;
+  ::before {
+    content: 'Oppgavestruktur';
+    font-size: 1.5em;
+    color: #fff;
+    margin: 0.5em;
+  }
 
   .light & {
     background: #fff4;

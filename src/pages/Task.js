@@ -21,6 +21,7 @@ const TaskContainer = styled.div`
   min-height: 100vh;
   min-width: 1200px;
   width: 100%;
+  margin-left: 320px;
 
   & .section-name,
   & .subgoal-name {
@@ -206,6 +207,32 @@ function TaskPage() {
 
   return (
     <TaskContainer>
+      <Outline
+        task={task}
+        sectionNo={sectionNo}
+        subgoalNo={subgoalNo}
+        onSectionSelect={(section) => {
+          if (sectionNo !== section) {
+            setSubgoalNo(0)
+            setSectionNo(section)
+          }
+        }}
+        onSubgoalSelect={(section, subgoal) => {
+          if (sectionNo !== section || subgoalNo !== subgoal) {
+            setSectionNo(section)
+            setSubgoalNo(subgoal)
+          }
+        }}
+        testsPassed={testsPassed}
+        style={{
+          position: 'fixed',
+          top: '64px',
+          left: 0,
+          margin: 16,
+          height: 'calc(100% - 64px - 32px)',
+          borderRadius: '6px',
+        }}
+      />
       {task.author && task.author.id === uid ? (
         <Link className="button" to={`/oppgave/endre/${id}`}>
           Endre oppgaven <Icon name="edit" />
@@ -220,7 +247,9 @@ function TaskPage() {
         <SingleLineMarkdown>{task.title}</SingleLineMarkdown>
       </Title>
       {task.description ? (
-        <Description style={{ width: '100%', marginBottom: '1em' }}>
+        <Description
+          style={{ width: 'calc(1200px - 240px)', marginBottom: '1em' }}
+        >
           <Markdown>{task.description}</Markdown>
         </Description>
       ) : null}
@@ -233,37 +262,11 @@ function TaskPage() {
               position: 'relative',
             }}
           >
-            <Outline
-              task={task}
-              sectionNo={sectionNo}
-              subgoalNo={subgoalNo}
-              onSectionSelect={(section) => {
-                if (sectionNo !== section) {
-                  setSubgoalNo(0)
-                  setSectionNo(section)
-                }
-              }}
-              onSubgoalSelect={(section, subgoal) => {
-                if (sectionNo !== section || subgoalNo !== subgoal) {
-                  setSectionNo(section)
-                  setSubgoalNo(subgoal)
-                }
-              }}
-              testsPassed={testsPassed}
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                height: '100%',
-                borderRadius: '6px',
-              }}
-            />
             <div
               style={{
                 flex: '1 0 auto',
                 flexFlow: 'column nowrap',
-                marginRight: 'calc(320px + 3em)',
-                maxWidth: 'calc(1200px - 320px)',
+                maxWidth: 'calc(1200px - 240px)',
               }}
             >
               {
