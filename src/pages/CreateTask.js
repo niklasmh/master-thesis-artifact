@@ -1733,14 +1733,14 @@ function Subgoal({
             text: `Sjekk om '${name}' er lik ${value}`,
             type: 'check',
             icon: <i className="fas fa-ruler"></i>,
-            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'."`,
+            insert: `assert ${name} == ${value}, "Du må sette variabel '${name}' til ${value}."`,
           })
         } else if (/[0-9]*\.[0-9]+/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}' er lik ${value}`,
             type: 'check',
             icon: <i className="fas fa-ruler"></i>,
-            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'. Husk å bruke punktum og ikke komma."`,
+            insert: `assert ${name} == ${value}, "Du må sette variabel '${name}' til ${value}. Husk å bruke punktum og ikke komma."`,
           })
         } else if (/^(Ball|Planet|Kloss|Linje)\(/.test(value)) {
           buttons.push({
