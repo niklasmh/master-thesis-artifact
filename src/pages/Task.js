@@ -23,12 +23,12 @@ const TaskContainer = styled.div`
   width: 100%;
   margin-left: 320px;
 
-  & .section-name,
-  & .subgoal-name {
+  & .section-name {
+    /*, & .subgoal-name {*/
     opacity: 0.5;
   }
   & .subgoal-name + span {
-    text-decoration: underline;
+    /*text-decoration: underline;*/
   }
 `
 
