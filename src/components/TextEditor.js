@@ -136,6 +136,168 @@ def kvadrat(x):
 | 0.2 | 0.294      | 0.196    | 0.098 |
 | 0.3 | 0.588      | 0.441    | 0.147 |
 `
+export const addToDescriptionButtons = [
+  {
+    text: 'Kodeblokk',
+    icon: 'code',
+    insert: '```python\n# Skriv Python kode her\n```',
+  },
+  {
+    text: 'Likning',
+    icon: 'functions',
+    insert: '$a_y(t_{i+1}) = g - \\frac{D}{m}$',
+  },
+  {
+    text: 'Flerlinjet likning',
+    icon: 'functions',
+    insert: `$$\\begin{array}{c}
+a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
+v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
+s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
+\\end{array}$$`,
+  },
+  {
+    text: 'Tabell',
+    icon: 'view_list',
+    insert: `| Tid | Beregnet y | Eksakt y | Error |
+|:---:|:----------:|:--------:|:-----:|
+| 0   | 0          | 0        | 0     |
+| 0.1 | 0.098      | 0.049    | 0.049 |
+| 0.2 | 0.294      | 0.196    | 0.098 |
+| 0.3 | 0.588      | 0.441    | 0.147 |`,
+  },
+  {
+    text: 'Nummerert liste',
+    icon: 'format_list_numbered',
+    insert: `1. ...
+2. ...`,
+  },
+  {
+    text: 'Unummerert liste',
+    icon: 'format_list_bulleted',
+    insert: `* ...
+* ...`,
+  },
+  {
+    text: 'Bilde (via URL)',
+    icon: 'insert_photo',
+    insert: `![Leonhard Euler](https://upload.wikimedia.org/wikipedia/commons/6/60/Leonhard_Euler_2.jpg)`,
+  },
+  {
+    text: 'Lenke',
+    icon: 'link',
+    insert: `[Leonhard Euler](https://no.wikipedia.org/wiki/Leonhard_Euler)`,
+  },
+  {
+    text: 'Sitat',
+    icon: 'format_quote',
+    insert: `> Logic is the foundation of the certainty of all the knowledge we acquire\n>\n> -- _Leonhard Euler_`,
+  },
+]
+
+export const addTemplateToDescriptionButtons = [
+  {
+    text: 'Konstanter',
+    icon: 'square_foot',
+    insert: `For å lage en konstant kan man bruke \`=\`, slik:
+
+\`\`\`python
+navn_på_konstant = 1.23
+\`\`\`
+
+Legg merke til at desimaltall bruker punktum og ikke komma.`,
+  },
+  {
+    text: 'Lage en kloss',
+    icon: 'stop',
+    insert: `For å lage en kloss kan du gjøre slik:
+
+\`\`\`python
+kloss = Kloss(x=0, y=0, b=1, h=1, rot=0, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`b\` og \`h\` er bredden og høyden i meter. \`rot\` er rotasjonen i radianer, og \`color\` er fargen.`,
+  },
+  {
+    text: 'Lage en ball',
+    icon: 'fiber_manual_record',
+    insert: `For å lage en ball kan du gjøre slik:
+
+\`\`\`python
+ball = Ball(x=0, y=0, r=1, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter og \`color\` er fargen.`,
+  },
+  {
+    text: 'Lage en planet',
+    icon: 'public',
+    insert: `For å lage en planet kan du gjøre slik:
+
+\`\`\`python
+planet = Planet(x=0, y=0, r=1, m=1, color="blue")
+\`\`\`
+
+Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter, \`m\` er massen i kilogram og \`color\` er fargen.`,
+  },
+  {
+    text: 'Lage en linje',
+    icon: 'show_chart',
+    insert: `For å lage en linje kan du gjøre slik:
+
+\`\`\`python
+linje = Linje(x1=0, y1=0, x2=1, y2=1, w=3, color="black")
+\`\`\`
+
+Her er \`x1\` og \`y1\` startposisjonen i meter. \`x2\` og \`y2\` er sluttposisjonen i meter. \`w\` er bredden til linja i pixler på skjermen. \`color\` er fargen.`,
+  },
+  {
+    text: "Euler's metode",
+    insert: `Euler's metode fungerer slik:
+
+\`\`\`python
+ny_verdi = gammel_verdi + endring*tidssteg
+\`\`\`
+
+For å ta det inn i vårt eksempel, så kan vi gjøre dette med posisjon, fart og akselerasjon, hver for seg. Slik:
+
+\`\`\`python
+ay = g
+vy = vy + ay*dt # Her er 'vy' gammel verdi og 'ay' endringen
+y = y + vy*dt # Her er 'y' gammel verdi og 'vy' endringen
+\`\`\``,
+  },
+  {
+    text: 'Luftmotstand',
+    icon: <i className="fas fa-wind"></i>,
+    insert: `Luftmotstand er en kraft som alltid går i mot akselerasjonen:
+
+\`\`\`python
+ay = g - luftmotstand / masse # Viktig å huske at luftmotstand er en kraft, og må derfor deles på massen for å få akselerasjon
+\`\`\`
+
+Selve luftmotstanden kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
+
+\`\`\`python
+luftmotstand = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye luftmotstand
+\`\`\``,
+  },
+  {
+    text: 'Kontaktfriksjon',
+    icon: 'keyboard_backspace',
+    insert: `Kontaktfriksjon er en kraft som alltid går i mot akselerasjonen:
+
+\`\`\`python
+ay = g - friksjonskraft / masse # Viktig å huske at friksjonskraften er en kraft, og må derfor deles på massen for å få akselerasjon
+\`\`\`
+
+Selve friksjonskraften kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
+
+\`\`\`python
+friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye friksjonskraft
+\`\`\``,
+  },
+]
 
 export const TextEditor = forwardRef(
   (
@@ -171,169 +333,6 @@ export const TextEditor = forwardRef(
     useEffect(() => {
       setDescriptionRendered(md.render(savedPlaceholderValue.current))
     }, [savedPlaceholderValue])
-
-    const [addToDescriptionButtons] = useState([
-      {
-        text: 'Kodeblokk',
-        icon: 'code',
-        insert: '```python\n# Skriv Python kode her\n```',
-      },
-      {
-        text: 'Likning',
-        icon: 'functions',
-        insert: '$a_y(t_{i+1}) = g - \\frac{D}{m}$',
-      },
-      {
-        text: 'Flerlinjet likning',
-        icon: 'functions',
-        insert: `$$\\begin{array}{c}
-a_y(t_{i+1}) = g - \\frac{D}{m} \\\\
-v_y(t_{i+1}) = v_y(t_i) + a_y(t_{i+1}) * \\Delta t \\\\
-s_y(t_{i+1}) = s_y(t_i) + v_y(t_{i+1}) * \\Delta t
-\\end{array}$$`,
-      },
-      {
-        text: 'Tabell',
-        icon: 'view_list',
-        insert: `| Tid | Beregnet y | Eksakt y | Error |
-|:---:|:----------:|:--------:|:-----:|
-| 0   | 0          | 0        | 0     |
-| 0.1 | 0.098      | 0.049    | 0.049 |
-| 0.2 | 0.294      | 0.196    | 0.098 |
-| 0.3 | 0.588      | 0.441    | 0.147 |`,
-      },
-      {
-        text: 'Nummerert liste',
-        icon: 'format_list_numbered',
-        insert: `1. ...
-2. ...`,
-      },
-      {
-        text: 'Unummerert liste',
-        icon: 'format_list_bulleted',
-        insert: `* ...
-* ...`,
-      },
-      {
-        text: 'Bilde (via URL)',
-        icon: 'insert_photo',
-        insert: `![Leonhard Euler](https://upload.wikimedia.org/wikipedia/commons/6/60/Leonhard_Euler_2.jpg)`,
-      },
-      {
-        text: 'Lenke',
-        icon: 'link',
-        insert: `[Leonhard Euler](https://no.wikipedia.org/wiki/Leonhard_Euler)`,
-      },
-      {
-        text: 'Sitat',
-        icon: 'format_quote',
-        insert: `> Logic is the foundation of the certainty of all the knowledge we acquire\n>\n> -- _Leonhard Euler_`,
-      },
-    ])
-
-    const [addTemplateToDescriptionButtons] = useState([
-      {
-        text: 'Konstanter',
-        icon: 'square_foot',
-        insert: `For å lage en konstant kan man bruke \`=\`, slik:
-
-\`\`\`python
-navn_på_konstant = 1.23
-\`\`\`
-
-Legg merke til at desimaltall bruker punktum og ikke komma.`,
-      },
-      {
-        text: 'Lage en kloss',
-        icon: 'stop',
-        insert: `For å lage en kloss kan du gjøre slik:
-
-\`\`\`python
-kloss = Kloss(x=0, y=0, b=1, h=1, rot=0, color="blue")
-\`\`\`
-
-Her er \`x\` og \`y\` posisjonen i meter. \`b\` og \`h\` er bredden og høyden i meter. \`rot\` er rotasjonen i radianer, og \`color\` er fargen.`,
-      },
-      {
-        text: 'Lage en ball',
-        icon: 'fiber_manual_record',
-        insert: `For å lage en ball kan du gjøre slik:
-
-\`\`\`python
-ball = Ball(x=0, y=0, r=1, color="blue")
-\`\`\`
-
-Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter og \`color\` er fargen.`,
-      },
-      {
-        text: 'Lage en planet',
-        icon: 'public',
-        insert: `For å lage en planet kan du gjøre slik:
-
-\`\`\`python
-planet = Planet(x=0, y=0, r=1, m=1, color="blue")
-\`\`\`
-
-Her er \`x\` og \`y\` posisjonen i meter. \`r\` er radiusen i meter, \`m\` er massen i kilogram og \`color\` er fargen.`,
-      },
-      {
-        text: 'Lage en linje',
-        icon: 'show_chart',
-        insert: `For å lage en linje kan du gjøre slik:
-
-\`\`\`python
-linje = Linje(x1=0, y1=0, x2=1, y2=1, w=3, color="black")
-\`\`\`
-
-Her er \`x1\` og \`y1\` startposisjonen i meter. \`x2\` og \`y2\` er sluttposisjonen i meter. \`w\` er bredden til linja i pixler på skjermen. \`color\` er fargen.`,
-      },
-      {
-        text: "Euler's metode",
-        insert: `Euler's metode fungerer slik:
-
-\`\`\`python
-ny_verdi = gammel_verdi + endring*tidssteg
-\`\`\`
-
-For å ta det inn i vårt eksempel, så kan vi gjøre dette med posisjon, fart og akselerasjon, hver for seg. Slik:
-
-\`\`\`python
-ay = g
-vy = vy + ay*dt # Her er 'vy' gammel verdi og 'ay' endringen
-y = y + vy*dt # Her er 'y' gammel verdi og 'vy' endringen
-\`\`\``,
-      },
-      {
-        text: 'Luftmotstand',
-        icon: <i className="fas fa-wind"></i>,
-        insert: `Luftmotstand er en kraft som alltid går i mot akselerasjonen:
-
-\`\`\`python
-ay = g - luftmotstand / masse # Viktig å huske at luftmotstand er en kraft, og må derfor deles på massen for å få akselerasjon
-\`\`\`
-
-Selve luftmotstanden kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
-
-\`\`\`python
-luftmotstand = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye luftmotstand
-\`\`\``,
-      },
-      {
-        text: 'Kontaktfriksjon',
-        icon: 'keyboard_backspace',
-        insert: `Kontaktfriksjon er en kraft som alltid går i mot akselerasjonen:
-
-\`\`\`python
-ay = g - friksjonskraft / masse # Viktig å huske at friksjonskraften er en kraft, og må derfor deles på massen for å få akselerasjon
-\`\`\`
-
-Selve friksjonskraften kan beskrives på flere måter, men vanligvis kan man bruke denne tilnærmingen:
-
-\`\`\`python
-friksjonskraft = k*vy*vy # Her er k en konstant mellom 0 og 1 som beskriver hvor mye friksjonskraft
-\`\`\``,
-      },
-    ])
 
     return (
       <>

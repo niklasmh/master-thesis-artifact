@@ -16,6 +16,8 @@ import {
   TextEditor,
   ExtendedMarkdownEditor,
   parseMarkdownOnly,
+  addToDescriptionButtons,
+  addTemplateToDescriptionButtons,
 } from '../components/TextEditor'
 import TaskCodeEnvironment from '../modules'
 import { loopCodeSplit } from '../modules'
@@ -1270,6 +1272,21 @@ ${subgoals
     hiddenLoopCodeEditor.current = _editor
   }
 
+  function autofillSection(type) {
+    switch (type) {
+      case 'define constants':
+        if (title.current && !title.current.value) {
+          title.current.value = 'Definere konstanter'
+        }
+        if (descriptionRef.current && !descriptionRef.current.value) {
+          descriptionRef.current.value = 'Definere konstanter'
+        }
+        break
+      default:
+        break
+    }
+  }
+
   return (
     <StyledSection className={sectionOpen ? 'open' : 'closed'}>
       <SectionHead>
@@ -1286,6 +1303,30 @@ ${subgoals
           name={sectionOpen ? 'expand_more' : 'chevron_right'}
         />
       </SectionHead>
+      <div
+        style={{
+          display: 'flex',
+          flexFlow: 'row nowrap',
+          alignItems: 'center',
+        }}
+      >
+        <p>Forhåndsfyll seksjon: </p>
+        {[
+          [
+            'define constants',
+            'Definere konstanter',
+            addTemplateToDescriptionButtons[0].insert,
+          ],
+        ].map(([ID, text, desc], i) => (
+          <Button
+            key={i}
+            style={{ margin: 8 }}
+            onClick={() => autofillSection(ID)}
+          >
+            {text}
+          </Button>
+        ))}
+      </div>
       {sectionNo === 1 ? (
         <Help
           width="800px"
