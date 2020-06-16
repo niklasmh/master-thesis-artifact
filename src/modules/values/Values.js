@@ -38,6 +38,7 @@ const Variable = styled.div`
   white-space: pre-wrap;
   word-break: break-word;
   position: relative;
+  cursor: text;
 
   &:hover > ${RemoveButton}::before {
     visibility: visible;
@@ -46,6 +47,7 @@ const Variable = styled.div`
 
 const SubVariable = styled.div`
   margin-left: 2em;
+  cursor: text;
 
   :not(:last-of-type)::after {
     content: ', ';
@@ -125,10 +127,11 @@ const Figure = styled.span`
   display: inline-block;
   background-color: white;
   vertical-align: middle;
+  cursor: pointer;
 `
 
 function Values(props) {
-  const { values, valuesSize } = useSelector((state) => state.task)
+  const { values, valuesSize, runCode } = useSelector((state) => state.task)
   const dispatch = useDispatch()
 
   function clearValues(values) {
@@ -143,6 +146,7 @@ function Values(props) {
       type: 'setValues',
       values: [],
     })
+    runCode('', false)
   }
 
   useEffect(() => {
@@ -162,6 +166,48 @@ function Values(props) {
       type: 'setValues',
       values: values.filter(([key, _]) => key !== valueKey),
     })
+    runCode('', false)
+  }
+
+  function manuallyChangeValue(key, arg = '') {
+    if (arg) {
+      const oldValue = values.find(([k]) => k === key)[1][arg]
+      const type = typeof oldValue
+      let value = ''
+      if (typeof oldValue !== 'undefined') {
+        value =
+          prompt(`Sett en ny verdi til "${key}.${arg}":`, oldValue) || oldValue
+      } else {
+        value = prompt(`Sett "${key}.${arg}" til:`) || oldValue
+      }
+
+      switch (type) {
+        case 'number':
+          runCode(`${key}.${arg} = ${parseFloat(value)}`, false)
+          break
+        default:
+          runCode(`${key}.${arg} = "${value}"`, false)
+          break
+      }
+    } else {
+      const oldValue = values.find(([k]) => k === key)[1]
+      const type = typeof oldValue
+      let value = ''
+      if (typeof oldValue !== 'undefined') {
+        value = prompt(`Sett en ny verdi til "${key}":`, oldValue) || oldValue
+      } else {
+        value = prompt(`Sett "${key}" til:`) || oldValue
+      }
+
+      switch (type) {
+        case 'number':
+          runCode(`${key} = ${parseFloat(value)}`, false)
+          break
+        default:
+          runCode(`${key} = "${value}"`, false)
+          break
+      }
+    }
   }
 
   return (
@@ -199,7 +245,11 @@ function Values(props) {
               switch (typeof value) {
                 case 'string':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
                       <StringValue>"{value}"</StringValue>
@@ -209,7 +259,11 @@ function Values(props) {
                   )
                 case 'number':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign> <Value>{value}</Value>
                       {comment}
@@ -218,7 +272,11 @@ function Values(props) {
                   )
                 case 'boolean':
                   return (
-                    <Variable key={key}>
+                    <Variable
+                      key={key}
+                      onClick={() => manuallyChangeValue(key)}
+                      title={`Trykk for å endre verdien til "${key}"`}
+                    >
                       <RemoveButton onClick={() => clearValue(key)} />{' '}
                       <Key>{key}</Key> <Sign>=</Sign>{' '}
                       <BooleanValue>{value ? 'True' : 'False'}</BooleanValue>
@@ -230,17 +288,25 @@ function Values(props) {
                   try {
                     const type = value.__class__.__name__
                     if (classTypes.includes(type)) {
-                      const args = [
-                        'x',
-                        'y',
+                      const args = ['x', 'y', 'x1', 'y1', 'x2', 'y2']
+                        .filter((arg) => typeof value[arg] !== 'undefined')
+                        .map((arg) => (
+                          <SubVariable
+                            key={arg}
+                            onClick={() => manuallyChangeValue(key, arg)}
+                            title={`Trykk for å endre verdien til "${key}.${arg}"`}
+                          >
+                            <Key>{arg}</Key>
+                            <Sign>=</Sign>
+                            <Value>{value[arg].toFixed(2)}</Value>
+                            {comment}
+                          </SubVariable>
+                        ))
+                      const optionalArgs = [
                         'vx',
                         'vy',
                         'ax',
                         'ay',
-                        'x1',
-                        'y1',
-                        'x2',
-                        'y2',
                         'r',
                         'm',
                         'w',
@@ -248,7 +314,11 @@ function Values(props) {
                       ]
                         .filter((arg) => value[arg])
                         .map((arg) => (
-                          <SubVariable key={arg}>
+                          <SubVariable
+                            key={arg}
+                            onClick={() => manuallyChangeValue(key, arg)}
+                            title={`Trykk for å endre verdien til "${key}.${arg}"`}
+                          >
                             <Key>{arg}</Key>
                             <Sign>=</Sign>
                             <Value>{value[arg].toFixed(2)}</Value>
@@ -259,7 +329,8 @@ function Values(props) {
                       if (type === 'Ball' || type === 'Planet') {
                         figure = (
                           <Figure
-                            title={value.color}
+                            onClick={() => manuallyChangeValue(key, 'color')}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               borderRadius: '50%',
                               backgroundColor: value.color,
@@ -271,7 +342,8 @@ function Values(props) {
                         const sideRatio = value.b / value.h
                         figure = (
                           <Figure
-                            title={value.color}
+                            onClick={() => manuallyChangeValue(key, 'color')}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               width: `${sideRatio > 1 ? 1 : sideRatio}em`,
                               height: `${sideRatio < 1 ? 1 : 1 / sideRatio}em`,
@@ -286,7 +358,8 @@ function Values(props) {
                       if (type === 'Linje') {
                         figure = (
                           <Figure
-                            title={value.color}
+                            onClick={() => manuallyChangeValue(key, 'color')}
+                            title={`Denne fargen heter "${value.color}". Trykk for å endre fargen.`}
                             style={{
                               width: '3px',
                               transform: `scale(0.9) rotate(${
@@ -309,6 +382,7 @@ function Values(props) {
                           <ObjectValue>
                             {figure} <Viz>{type}(</Viz>
                             {args}
+                            {optionalArgs}
                             <Viz style={{ marginLeft: '0.66em' }}>)</Viz>
                           </ObjectValue>
                           {'\n'}

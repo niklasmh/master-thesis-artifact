@@ -16,6 +16,8 @@ import {
   TextEditor,
   ExtendedMarkdownEditor,
   parseMarkdownOnly,
+  addToDescriptionButtons,
+  addTemplateToDescriptionButtons,
 } from '../components/TextEditor'
 import TaskCodeEnvironment from '../modules'
 import { loopCodeSplit } from '../modules'
@@ -1270,6 +1272,23 @@ ${subgoals
     hiddenLoopCodeEditor.current = _editor
   }
 
+  function autofillSection(type) {
+    switch (type) {
+      case 'define constants':
+        if (title.current && !title.current.value) {
+          title.current.value = 'Definere konstanter'
+        }
+        if (descriptionRef.current && !descriptionRef.current.value) {
+          descriptionRef.current.value =
+            addTemplateToDescriptionButtons[0].insert
+          setDescriptionOpen(true)
+        }
+        break
+      default:
+        break
+    }
+  }
+
   return (
     <StyledSection className={sectionOpen ? 'open' : 'closed'}>
       <SectionHead>
@@ -1286,6 +1305,24 @@ ${subgoals
           name={sectionOpen ? 'expand_more' : 'chevron_right'}
         />
       </SectionHead>
+      <div
+        style={{
+          display: 'flex',
+          flexFlow: 'row nowrap',
+          alignItems: 'center',
+        }}
+      >
+        <p>Forhåndsfyll seksjon: </p>
+        {[['define constants', 'Definere konstanter']].map(([ID, text], i) => (
+          <Button
+            key={i}
+            style={{ margin: 8 }}
+            onClick={() => autofillSection(ID)}
+          >
+            {text}
+          </Button>
+        ))}
+      </div>
       {sectionNo === 1 ? (
         <Help
           width="800px"
@@ -1718,7 +1755,10 @@ function Subgoal({
     const buttons = []
     code.split(`\n`).forEach((line) => {
       if (/^[\w_][\w_0-9]* *=/.test(line)) {
-        const [name, value] = line.split('=').map((e) => e.trim())
+        const [name, value] = line
+          .split('#')[0]
+          .split('=')
+          .map((e) => e.trim())
         buttons.push({
           text: `Sjekk om '${name}' er definert`,
           type: 'check',
@@ -1730,14 +1770,14 @@ function Subgoal({
             text: `Sjekk om '${name}' er lik ${value}`,
             type: 'check',
             icon: <i className="fas fa-ruler"></i>,
-            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'."`,
+            insert: `assert ${name} == ${value}, "Du må sette variabel '${name}' til ${value}."`,
           })
         } else if (/[0-9]*\.[0-9]+/.test(value)) {
           buttons.push({
             text: `Sjekk om '${name}' er lik ${value}`,
             type: 'check',
             icon: <i className="fas fa-ruler"></i>,
-            insert: `assert ${name} == ${value}, "Du må sette verdien ${value} til variabel '${name}'. Husk å bruke punktum og ikke komma."`,
+            insert: `assert ${name} == ${value}, "Du må sette variabel '${name}' til ${value}. Husk å bruke punktum og ikke komma."`,
           })
         } else if (/^(Ball|Planet|Kloss|Linje)\(/.test(value)) {
           buttons.push({

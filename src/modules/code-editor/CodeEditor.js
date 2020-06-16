@@ -40,6 +40,20 @@ const StyledModule = styled(Module)`
   &.playing > .module-content > section:nth-of-type(2) {
     box-shadow: 0.5px 0 0 3px #d4c600;
   }
+  @keyframes fadeInOut {
+    0% {
+      box-shadow: 0.5px 0 0 3px #d4c60000;
+    }
+    50% {
+      box-shadow: 0.5px 0 0 3px #d4c600ff;
+    }
+    100% {
+      box-shadow: 0.5px 0 0 3px #d4c60000;
+    }
+  }
+  &.init > .module-content > section:nth-of-type(1) {
+    animation: fadeInOut 1s infinite;
+  }
 
   /*section:first-child > div > .monaco-editor {
     &,
@@ -184,6 +198,16 @@ function CodeEditor(props) {
           code,
           isSolution: false,
         })
+      } else {
+        try {
+          const id = window.localStorage.getItem('current-task-id') || ''
+          if (id) {
+            const storedCode = window.localStorage.getItem(id)
+            const storedLoopCode = window.localStorage.getItem(id + '-loop')
+            if (storedCode) setParsedCode(storedCode)
+            if (storedLoopCode) setParsedLoopCode(storedLoopCode)
+          }
+        } catch (ex) {}
       }
     }
   }, [code, isSolution])
@@ -738,12 +762,32 @@ function CodeEditor(props) {
     })
   }
 
+  const [dirty, setDirty] = useState(false)
   function handleEditorChange(_, value) {
     setEditorHasChanged(value !== editorValue)
+    setDirty(true)
+    try {
+      const id = window.localStorage.getItem('current-task-id') || ''
+      if (id) {
+        window.localStorage.setItem(id, value)
+      }
+    } catch (ex) {}
+    if (/=\s*[0-9]+,[0-9]+/.test(value)) {
+      setParsedCode((c) => {
+        return value.replace(/=(\s*[0-9]+),([0-9]+)/g, '=$1.$2')
+      })
+    }
   }
 
   function handleLoopEditorChange(_, value) {
     setLoopEditorHasChanged(value !== loopEditorValue)
+    setDirty(true)
+    try {
+      const id = window.localStorage.getItem('current-task-id') || ''
+      if (id) {
+        window.localStorage.setItem(id + '-loop', value)
+      }
+    } catch (ex) {}
   }
 
   useEffect(() => {
@@ -1194,7 +1238,7 @@ function CodeEditor(props) {
       width={codeEditorSize.w + 'px'}
       height={codeEditorSize.h + 'px'}
       before={
-        isEditorReady && isEngineReady ? (
+        isEditorReady && isEngineReady && dirty ? (
           <>
             <div style={{ flex: '1' }} />
             <Button
@@ -1225,7 +1269,9 @@ function CodeEditor(props) {
                   {' '}
                   <Icon name="arrow_forward" />
                 </>
-              ) : null}
+              ) : (
+                ' igjen'
+              )}
             </Button>
           </>
         ) : null
@@ -1237,7 +1283,15 @@ function CodeEditor(props) {
       //}
       outerShadow={false}
       {...props}
-      className={isPlaying ? (time < 0.1 ? 'start playing' : 'playing') : ''}
+      className={
+        isPlaying
+          ? time < 0.1
+            ? 'start playing'
+            : 'playing'
+          : dirty
+          ? ''
+          : 'init'
+      }
       content={
         <>
           <ControlledEditor
@@ -1269,7 +1323,7 @@ function CodeEditor(props) {
             <>
               <LoopCodeTitle>
                 Kode som kjører hvert tidssteg, <code>dt</code>
-                <Button
+                {/*<Button
                   style={{ fontSize: '0.8rem' }}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={async () => {
@@ -1324,7 +1378,7 @@ function CodeEditor(props) {
                       Spill av <i className="fas fa-play" />
                     </>
                   )}
-                </Button>
+                </Button>*/}
               </LoopCodeTitle>
               <ControlledEditor
                 width={codeEditorSize.w + 'px'}

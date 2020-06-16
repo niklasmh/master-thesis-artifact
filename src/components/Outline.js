@@ -7,6 +7,8 @@ export default function Outline({
   sectionNo = 0,
   subgoalNo = 0,
   testsPassed = {},
+  onSectionSelect = () => {},
+  onSubgoalSelect = () => {},
   ...props
 }) {
   const anchor = useRef(null)
@@ -20,46 +22,75 @@ export default function Outline({
     }
   }, [subgoalNo])
 
+  function sectionProgress(no, subgoals = []) {
+    if (subgoals.length > 0) {
+      const count = subgoals.reduce((acc, n, i) => {
+        const id = no + '-' + i
+        if (id in testsPassed) {
+          if (testsPassed[id] === false) {
+            return acc
+          }
+          return acc + 1
+        }
+        return acc
+      }, 0)
+      return count / subgoals.length
+    } else {
+      return 0
+    }
+  }
+
   return (
     <SectionList ref={list} {...props}>
       {task &&
         task.sections &&
         task.sections.map((section, i) => (
           <li key={i} className={sectionNo === i ? 'current' : ''}>
-            <span>{section.title}</span>
-            <SubgoalList>
-              {section &&
-                section.subgoals &&
-                section.subgoals.map((subgoal, j) => (
-                  <li
-                    key={j}
-                    className={
-                      (sectionNo === i && subgoalNo === j ? 'current' : '') +
-                      (i + '-' + j in testsPassed
-                        ? testsPassed[i + '-' + j]
-                          ? ' passed'
-                          : testsPassed[i + '-' + j] === false
-                          ? ' failed'
-                          : ''
-                        : '')
-                    }
-                  >
-                    <span>
-                      {i + '-' + j in testsPassed ? (
-                        testsPassed[i + '-' + j] ? (
-                          <Checked>✓ </Checked>
-                        ) : testsPassed[i + '-' + j] === false ? (
-                          <Failed>✕ </Failed>
-                        ) : null
-                      ) : null}
-                      <SingleLineMarkdown>{subgoal.title}</SingleLineMarkdown>
-                      {sectionNo === i && subgoalNo === j ? (
-                        <span ref={anchor} />
-                      ) : null}
-                    </span>
-                  </li>
-                ))}
-            </SubgoalList>
+            <span onClick={() => onSectionSelect(i)}>
+              {sectionProgress(i, section.subgoals) !== 0 ? (
+                sectionProgress(i, section.subgoals) === 1 ? (
+                  <Checked>✓ </Checked>
+                ) : i < sectionNo ? (
+                  <Failed>✕ </Failed>
+                ) : null
+              ) : null}
+              <span>{section.title}</span>
+            </span>
+            {sectionNo === i ? (
+              <SubgoalList>
+                {section &&
+                  section.subgoals &&
+                  section.subgoals.map((subgoal, j) => (
+                    <li
+                      key={j}
+                      className={
+                        (sectionNo === i && subgoalNo === j ? 'current' : '') +
+                        (i + '-' + j in testsPassed
+                          ? testsPassed[i + '-' + j]
+                            ? ' passed'
+                            : testsPassed[i + '-' + j] === false
+                            ? ' failed'
+                            : ''
+                          : '')
+                      }
+                    >
+                      <span onClick={() => onSubgoalSelect(i, j)}>
+                        {i + '-' + j in testsPassed ? (
+                          testsPassed[i + '-' + j] ? (
+                            <Checked>✓ </Checked>
+                          ) : testsPassed[i + '-' + j] === false ? (
+                            <Failed>✕ </Failed>
+                          ) : null
+                        ) : null}
+                        <SingleLineMarkdown>{subgoal.title}</SingleLineMarkdown>
+                        {sectionNo === i && subgoalNo === j ? (
+                          <span ref={anchor} />
+                        ) : null}
+                      </span>
+                    </li>
+                  ))}
+              </SubgoalList>
+            ) : null}
           </li>
         ))}
     </SectionList>
@@ -76,6 +107,10 @@ const OrderedList = styled.ol`
   overflow-y: auto;
   margin: 0;
 
+  .light & {
+    color: #000d;
+  }
+
   > li {
     display: flex;
     flex-flow: column nowrap;
@@ -85,9 +120,14 @@ const OrderedList = styled.ol`
 
     > span {
       margin: 0;
+      cursor: pointer;
 
       ::before {
         color: #fff4;
+
+        .light & {
+          color: #000d;
+        }
       }
     }
   }
@@ -98,12 +138,26 @@ const SectionList = styled(OrderedList)`
   background: #0002;
   border-radius: 6px;
   margin-top: 1em;
+  ::before {
+    content: 'Oppgavestruktur';
+    font-size: 1.5em;
+    color: #fff;
+    margin: 0.5em;
+  }
+
+  .light & {
+    background: #fff4;
+  }
 
   > li {
     counter-increment: section-counter;
 
     &.current > span {
       color: #fffa;
+
+      .light & {
+        color: #000d;
+      }
     }
 
     > span {
@@ -125,6 +179,10 @@ const SubgoalList = styled(OrderedList)`
 
     &.current > span {
       color: #fffa;
+
+      .light & {
+        color: #000d;
+      }
     }
 
     > span {

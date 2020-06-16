@@ -24,7 +24,7 @@ export default function TaskList({ taskIDs }) {
         <span>Laster inn opplegg ...</span>
       ) : error ? null : (
         tasks.map((c) => (
-          <Task key={c.title} image={c.image || ''} id={c.id} name={c.title} />
+          <Task key={c.id} image={c.image || ''} id={c.id} name={c.title} />
         ))
       )}
     </StyledTaskList>
@@ -72,6 +72,10 @@ const DarkArea = styled.div`
   background-color: #0005;
   padding: 1em;
   width: 100%;
+
+  .light & {
+    background-color: #fff5;
+  }
 `
 
 const StyledTask = styled(Card)`

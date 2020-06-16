@@ -129,6 +129,16 @@ export default function Help({
     }
   }, [isMarkdown, title, children])
 
+  useEffect(() => {
+    const listener = () => {
+      setOpen(false)
+    }
+    window.addEventListener('click', listener)
+    return () => {
+      window.removeEventListener('click', listener)
+    }
+  }, [])
+
   return (
     <HelpContainer
       absolute={absolute}
@@ -140,6 +150,7 @@ export default function Help({
       y={y}
       z={z}
       center={center}
+      onClick={(e) => e.stopPropagation()}
     >
       <HelpContent {...props} open={open} width={width}>
         {title ? <h1>{title}</h1> : null}

@@ -29,7 +29,7 @@ let prevLogSize = { w: 0, h: 0 }
 const defaultInitialLayout = [
   {
     i: 'code-editor',
-    x: 0,
+    x: 3,
     y: 0,
     w: 6,
     h: 6,
@@ -59,7 +59,7 @@ const defaultInitialLayout = [
   },
   {
     i: 'values',
-    x: 6,
+    x: 0,
     y: 0,
     w: 3,
     h: 3,
@@ -69,7 +69,7 @@ const defaultInitialLayout = [
   },
   {
     i: 'log',
-    x: 6,
+    x: 0,
     y: 3,
     w: 3,
     h: 3,

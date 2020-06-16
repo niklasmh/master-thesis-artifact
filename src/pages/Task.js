@@ -21,6 +21,15 @@ const TaskContainer = styled.div`
   min-height: 100vh;
   min-width: 1200px;
   width: 100%;
+  margin-left: 320px;
+
+  & .section-name {
+    /*, & .subgoal-name {*/
+    opacity: 0.5;
+  }
+  & .subgoal-name + span {
+    /*text-decoration: underline;*/
+  }
 `
 
 const Description = styled.div`
@@ -90,6 +99,14 @@ const NextButton = styled.button`
   background-color: #0a0;
   color: #fff;
   font-size: 1.5em;
+  margin-top: -8px;
+  margin-bottom: 0;
+
+  &:disabled {
+    background-color: #aaa;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `
 
 const getAlpha = (n) => String.fromCharCode(97 + ((n - 1) % 26))
@@ -109,6 +126,7 @@ function TaskPage() {
   const [subgoalNo, setSubgoalNo] = useState(0)
   const [sectionNoMax, setSectionNoMax] = useState(0)
   const [subgoalNoMax, setSubgoalNoMax] = useState(0)
+  const [highlightSection, setHighlightSection] = useState(true)
   const [subgoalFinished, setSubgoalFinished] = useState(false)
   const [testsPassed, setTestsPassed] = useState({})
   const topOfSectionRef = useRef(null)
@@ -137,6 +155,10 @@ function TaskPage() {
 
   useEffect(() => {
     if (task && task.sections && task.sections.length) {
+      setHighlightSection(sectionNo > 0)
+      setTimeout(() => {
+        setHighlightSection(false)
+      }, 1000)
       if (task.sections[sectionNo].subgoals) {
         setSubgoalNoMax(task.sections[sectionNo].subgoals.length - 1)
         if (topOfSectionRef.current) {
@@ -166,6 +188,15 @@ function TaskPage() {
     }
   }, [subgoalNo])
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        'current-task-id',
+        `${uid}-${id}-${sectionNo}-${subgoalNo}`
+      )
+    } catch (ex) {}
+  }, [subgoalNo, sectionNo, uid, id])
+
   if (loadingTaskData) {
     return (
       <TaskContainer>
@@ -176,13 +207,39 @@ function TaskPage() {
 
   return (
     <TaskContainer>
+      <Outline
+        task={task}
+        sectionNo={sectionNo}
+        subgoalNo={subgoalNo}
+        onSectionSelect={(section) => {
+          if (sectionNo !== section) {
+            setSubgoalNo(0)
+            setSectionNo(section)
+          }
+        }}
+        onSubgoalSelect={(section, subgoal) => {
+          if (sectionNo !== section || subgoalNo !== subgoal) {
+            setSectionNo(section)
+            setSubgoalNo(subgoal)
+          }
+        }}
+        testsPassed={testsPassed}
+        style={{
+          position: 'fixed',
+          top: '64px',
+          left: 0,
+          margin: 16,
+          height: 'calc(100% - 64px - 32px)',
+          borderRadius: '6px',
+        }}
+      />
       {task.author && task.author.id === uid ? (
         <Link className="button" to={`/oppgave/endre/${id}`}>
           Endre oppgaven <Icon name="edit" />
         </Link>
       ) : null}
       {userData && userData.isTeacher ? (
-        <Link className="button" to={`/oppgave/ny/${id}`}>
+        <Link className="button" to={`/oppgave/endre/${id}`}>
           Lag en ny oppgave ut ifra denne <Icon name="file_copy" />
         </Link>
       ) : null}
@@ -190,7 +247,9 @@ function TaskPage() {
         <SingleLineMarkdown>{task.title}</SingleLineMarkdown>
       </Title>
       {task.description ? (
-        <Description style={{ width: '100%', marginBottom: '1em' }}>
+        <Description
+          style={{ width: 'calc(1200px - 240px)', marginBottom: '1em' }}
+        >
           <Markdown>{task.description}</Markdown>
         </Description>
       ) : null}
@@ -203,41 +262,45 @@ function TaskPage() {
               position: 'relative',
             }}
           >
-            <Outline
-              task={task}
-              sectionNo={sectionNo}
-              subgoalNo={subgoalNo}
-              testsPassed={testsPassed}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                height: '100%',
-                borderRadius: '6px',
-              }}
-            />
             <div
               style={{
                 flex: '1 0 auto',
                 flexFlow: 'column nowrap',
-                marginLeft: 'calc(320px + 3em)',
+                maxWidth: 'calc(1200px - 240px)',
               }}
             >
-              {task.sections.slice(0, sectionNo + 1).map((section, i) => (
-                <SubTitle
-                  key={i}
-                  style={{ margin: 0, opacity: sectionNo === i ? 1 : 0.4 }}
-                >
-                  {sectionNo > i ? <Checked>✓ </Checked> : null}
-                  <SingleLineMarkdown>
-                    {`Seksjon ${i + 1}: ${section.title} (${
-                      sectionNo > i
-                        ? task.sections[i].subgoals.length
-                        : subgoalNo
-                    }/${task.sections[i].subgoals.length})`}
-                  </SingleLineMarkdown>
-                </SubTitle>
-              ))}
+              {
+                //task.sections.slice(0, sectionNo + 1).map((section, i) => (
+                task.sections.slice(0, sectionNo + 1).map((section, i) => {
+                  if (sectionNo !== i) {
+                    return null
+                  } else {
+                    return (
+                      <SubTitle
+                        key={i}
+                        style={{
+                          margin: 0,
+                          opacity: sectionNo === i ? 1 : 0.4,
+                        }}
+                      >
+                        {/*sectionNo > i ? <Checked>✓ </Checked> : null*/}
+                        <span>
+                          <span className="section-name">
+                            Seksjon {i + 1}:{' '}
+                          </span>
+                          <SingleLineMarkdown>
+                            {`${section.title} (${
+                              sectionNo > i
+                                ? task.sections[i].subgoals.length
+                                : subgoalNo
+                            }/${task.sections[i].subgoals.length})`}
+                          </SingleLineMarkdown>
+                        </span>
+                      </SubTitle>
+                    )
+                  }
+                })
+              }
               <div
                 ref={topOfSectionRef}
                 style={{ position: 'relative', top: '-75px' }}
@@ -249,6 +312,11 @@ function TaskPage() {
                     textAlign: 'left',
                     fontSize: '1.25em',
                     margin: '1em auto',
+                    borderRadius: '1px',
+                    backgroundColor: highlightSection ? '#f80d' : 'transparent',
+                    boxShadow:
+                      '0 0 0 16px ' +
+                      (highlightSection ? '#f80d' : 'transparent'),
                   }}
                 >
                   {task.sections[sectionNo].description}
@@ -257,65 +325,57 @@ function TaskPage() {
                 <div style={{ height: '1em' }} />
               )}
               <Subgoals>
-                {task.sections[sectionNo].subgoals.map((subgoal, i) => (
-                  <SubgoalDescription
-                    key={subgoal.title}
-                    className={
-                      subgoalNo === i
-                        ? 'current' +
-                          (subgoal.description ? ' description' : '')
-                        : ''
-                    }
-                  >
-                    {subgoalNo === i ? (
-                      <div
-                        ref={topOfSubgoalRef}
-                        style={{ position: 'relative', top: '-16px' }}
-                      />
-                    ) : null}
-                    {testsPassed[sectionNo + '-' + i] ? (
-                      <Checked>✓ </Checked>
-                    ) : testsPassed[sectionNo + '-' + i] === false ? (
-                      <Failed>✕ </Failed>
-                    ) : null}
-                    {subgoalNo === i && subgoal.description ? (
-                      <>
-                        {
-                          /**/ <SingleLineMarkdown>{`Deloppgave ${getAlpha(
-                            i + 1
-                          )}) ${subgoal.title}`}</SingleLineMarkdown> /**/
+                {task.sections[sectionNo].subgoals.map((subgoal, i) => {
+                  if (subgoalNo !== i) {
+                    return null
+                  } else {
+                    return (
+                      <SubgoalDescription
+                        key={subgoal.title}
+                        className={
+                          subgoalNo === i
+                            ? 'current' +
+                              (subgoal.description ? ' description' : '')
+                            : ''
                         }
-                        <Markdown
-                          style={{
-                            width: 'calc(100% - 3.3em)',
-                            fontSize: '0.7em',
-                            background: '#0002',
-                            borderRadius: '6px',
-                            padding: '0.5em 1em',
-                            margin: '1em auto 1em 3.3em',
-                          }}
-                        >
-                          {subgoal.description}
-                        </Markdown>
-                      </>
-                    ) : null}
-                    {subgoalNo === i &&
-                    subgoal.description ? /*<>
-                    {/*<Icon
-                      key={'sun'}
-                      name="subdirectory_arrow_right"
-                      style={{ marginLeft: '3.3em' }}
-                    />* /}
-                    <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
-                      subgoal.title
-                    }`}</SingleLineMarkdown>
-                  </>*/ null : (
-                      <SingleLineMarkdown>{`Deloppgave ${getAlpha(i + 1)}) ${
-                        subgoal.title
-                      }`}</SingleLineMarkdown>
-                    )}
-                  </SubgoalDescription>
-                ))}
+                      >
+                        {subgoalNo === i ? (
+                          <div
+                            ref={topOfSubgoalRef}
+                            style={{ position: 'relative', top: '-16px' }}
+                          />
+                        ) : null}
+                        {testsPassed[sectionNo + '-' + i] ? (
+                          <Checked>✓ </Checked>
+                        ) : testsPassed[sectionNo + '-' + i] === false ? (
+                          <Failed>✕ </Failed>
+                        ) : null}
+                        <span>
+                          <span className="subgoal-name">
+                            Deloppgave {getAlpha(i + 1)})
+                          </span>{' '}
+                          <SingleLineMarkdown>
+                            {subgoal.title}
+                          </SingleLineMarkdown>
+                        </span>
+                        {subgoalNo === i && subgoal.description ? (
+                          <Markdown
+                            style={{
+                              width: 'calc(100% - 3.3em)',
+                              fontSize: '0.7em',
+                              background: '#0002',
+                              borderRadius: '6px',
+                              padding: '0.5em 1em',
+                              margin: '1em auto 1em 3.3em',
+                            }}
+                          >
+                            {subgoal.description}
+                          </Markdown>
+                        ) : null}
+                      </SubgoalDescription>
+                    )
+                  }
+                })}
               </Subgoals>
             </div>
           </div>
@@ -369,7 +429,11 @@ function TaskPage() {
             >
               Se løsningen på oppgaven <Icon key="reveal" name="visibility" />
             </NextButton>
-          ) : null}
+          ) : (
+            <NextButton disabled>
+              Gå til neste deloppgave <Icon key="next" name="arrow_forward" />
+            </NextButton>
+          )}
           <TaskCodeEnvironment
             edit={edit}
             task={task}
