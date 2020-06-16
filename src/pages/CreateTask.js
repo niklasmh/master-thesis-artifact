@@ -1279,7 +1279,9 @@ ${subgoals
           title.current.value = 'Definere konstanter'
         }
         if (descriptionRef.current && !descriptionRef.current.value) {
-          descriptionRef.current.value = 'Definere konstanter'
+          descriptionRef.current.value =
+            addTemplateToDescriptionButtons[0].insert
+          setDescriptionOpen(true)
         }
         break
       default:
@@ -1311,13 +1313,7 @@ ${subgoals
         }}
       >
         <p>Forhåndsfyll seksjon: </p>
-        {[
-          [
-            'define constants',
-            'Definere konstanter',
-            addTemplateToDescriptionButtons[0].insert,
-          ],
-        ].map(([ID, text, desc], i) => (
+        {[['define constants', 'Definere konstanter']].map(([ID, text], i) => (
           <Button
             key={i}
             style={{ margin: 8 }}
