@@ -55,6 +55,12 @@ const StyledModule = styled(Module)`
     animation: fadeInOut 1s infinite;
   }
 
+  & .input {
+    background: #0f02;
+    border: 1px solid #0f0a;
+    border-radius: 2px;
+  }
+
   /*section:first-child > div > .monaco-editor {
     &,
     .overflow-guard {
@@ -171,6 +177,10 @@ function CodeEditor(props) {
   const [loopEditorHasChanged, setLoopEditorHasChanged] = useState('')
   const [editorValue, setEditorValue] = useState('')
   const [editorHasChanged, setEditorHasChanged] = useState('')
+  const [viewZones, setViewZones] = useState(null)
+  const [loopViewZones, setLoopViewZones] = useState(null)
+  const decorationIDs = useRef([])
+  const loopDecorationIDs = useRef([])
 
   const [parsedCode, setParsedCode] = useState('')
   const [parsedLoopCode, setParsedLoopCode] = useState('')
@@ -496,6 +506,84 @@ function CodeEditor(props) {
     }
   }
 
+  function updateZones(value) {
+    const zones = []
+    if (value) {
+      let prevLine = ''
+      value.split('\n').forEach((line, i) => {
+        if (/\.\.\./.test(line)) {
+          line
+            .split(/\.\.\./)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (/\?\?\?/.test(line)) {
+          line
+            .split(/\?\?\?/)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        prevLine = line
+      })
+    }
+    setViewZones(zones)
+  }
+
+  function updateLoopZones(value) {
+    const zones = []
+    if (value) {
+      let prevLine = ''
+      value.split('\n').forEach((line, i) => {
+        if (/\.\.\./.test(line)) {
+          line
+            .split(/\.\.\./)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (/\?\?\?/.test(line)) {
+          line
+            .split(/\?\?\?/)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        prevLine = line
+      })
+    }
+    setLoopViewZones(zones)
+  }
+
   function handleEditorDidMount(_valueGetter, _editor) {
     setIsEditorReady(true)
     const types = {
@@ -751,6 +839,7 @@ function CodeEditor(props) {
       type: 'setEditor',
       editor: _editor,
     })
+    updateZones(editor.current.getValue())
   }
 
   function handleLoopEditorDidMount(_valueGetter, _editor) {
@@ -760,6 +849,7 @@ function CodeEditor(props) {
       type: 'setLoopEditor',
       loopEditor: _editor,
     })
+    updateLoopZones(loopEditor.current.getValue())
   }
 
   const [dirty, setDirty] = useState(false)
@@ -777,6 +867,7 @@ function CodeEditor(props) {
         return value.replace(/=(\s*[0-9]+),([0-9]+)/g, '=$1.$2')
       })
     }
+    updateZones(value)
   }
 
   function handleLoopEditorChange(_, value) {
@@ -788,7 +879,76 @@ function CodeEditor(props) {
         window.localStorage.setItem(id + '-loop', value)
       }
     } catch (ex) {}
+    updateLoopZones(value)
   }
+
+  useEffect(() => {
+    if (editor.current && viewZones !== null) {
+      const newDecorations = []
+      viewZones.forEach(
+        ({
+          type,
+          description,
+          inputs = [],
+          style = '',
+          lineNumber,
+          column = 1,
+        }) => {
+          if (type === 'input') {
+            newDecorations.push({
+              range: new window.monaco.Range(
+                lineNumber,
+                column,
+                lineNumber,
+                column + 3
+              ),
+              options: {
+                inlineClassName: 'input',
+              },
+            })
+          }
+        }
+      )
+      decorationIDs.current = editor.current.deltaDecorations(
+        decorationIDs.current,
+        newDecorations
+      )
+    }
+  }, [viewZones])
+
+  useEffect(() => {
+    if (loopEditor.current && loopViewZones !== null) {
+      const newDecorations = []
+      loopViewZones.forEach(
+        ({
+          type,
+          description,
+          inputs = [],
+          style = '',
+          lineNumber,
+          column = 1,
+        }) => {
+          if (type === 'input') {
+            newDecorations.push({
+              range: new window.monaco.Range(
+                lineNumber,
+                column,
+                lineNumber,
+                column + 3
+              ),
+              options: {
+                inlineClassName: 'input',
+              },
+            })
+          }
+        }
+      )
+      loopDecorationIDs.current = loopEditor.current.deltaDecorations(
+        loopDecorationIDs.current,
+        newDecorations
+      )
+    }
+  }, [loopViewZones])
 
   useEffect(() => {
     if (isPlaying) {
