@@ -16,8 +16,8 @@ const StyledModule = styled(Module)`
       top: 0;
       left: 0;
 
-      :first-of-type {
-        opacity: 1;
+      :last-of-type {
+        opacity: 0.8;
       }
     }
   }
@@ -51,15 +51,6 @@ function Goal({ ...props }) {
         type: 'setGoalCanvasContext',
         context: canvas.current.getContext('2d'),
       })
-      canvas.current.addEventListener('wheel', (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-        prevScale.current -= e.deltaY / 1000
-        dispatch({
-          type: 'setScale',
-          solutionScale: prevScale.current,
-        })
-      })
     }
   }, [canvas, dispatch])
 
@@ -72,6 +63,15 @@ function Goal({ ...props }) {
       dispatch({
         type: 'setTraceGoalCanvasContext',
         context: traceCanvas.current.getContext('2d'),
+      })
+      traceCanvas.current.addEventListener('wheel', (e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        prevScale.current -= e.deltaY / 1000
+        dispatch({
+          type: 'setScale',
+          solutionScale: prevScale.current,
+        })
       })
     }
   }, [traceCanvas, dispatch])
@@ -96,51 +96,51 @@ function Goal({ ...props }) {
       content={
         <>
           <canvas
-            ref={traceCanvas}
+            ref={canvas}
             width={goalCanvasSize.w}
             height={goalCanvasSize.h}
           />
           <canvas
-            ref={canvas}
+            ref={traceCanvas}
             width={goalCanvasSize.w}
             height={goalCanvasSize.h}
             onMouseDown={(e) => {
               setMouseDown(true)
               const { left, top } = canvas.current.getBoundingClientRect()
-              setCanvasPosition({ x: left, y: top })
+              setCanvasPosition({ x: left, y: 0 })
               setStartPosition(solutionPosition)
-              setMouseDownPosition({ x: e.clientX - left, y: e.clientY - top })
+              setMouseDownPosition({ x: e.clientX - left, y: -e.clientY })
               setMousePosition({
                 x: e.clientX - left,
-                y: e.clientY - top,
+                y: -e.clientY,
               })
             }}
             onMouseMove={(e) => {
               setMousePosition({
                 x: e.clientX - canvasPosition.x,
-                y: e.clientY - canvasPosition.y,
+                y: -e.clientY - canvasPosition.y,
               })
             }}
             onMouseUp={(e) => {
               setMouseDown(false)
               setMousePosition({
                 x: e.clientX - canvasPosition.x,
-                y: e.clientY - canvasPosition.y,
+                y: -e.clientY - canvasPosition.y,
               })
               setMouseUpPosition({
                 x: e.clientX - canvasPosition.x,
-                y: e.clientY - canvasPosition.y,
+                y: -e.clientY - canvasPosition.y,
               })
             }}
             onMouseOut={(e) => {
               setMouseDown(false)
               setMousePosition({
                 x: e.clientX - canvasPosition.x,
-                y: e.clientY - canvasPosition.y,
+                y: -e.clientY - canvasPosition.y,
               })
               setMouseUpPosition({
                 x: e.clientX - canvasPosition.x,
-                y: e.clientY - canvasPosition.y,
+                y: -e.clientY - canvasPosition.y,
               })
             }}
           />
