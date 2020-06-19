@@ -657,7 +657,7 @@ def distanse(x1, y1, x2, y2):
           + Legg til ny seksjon
         </AddNewSection>
       </div>
-      {false && (
+      {true && (
         <TaskCodeEnvironment
           style={{ fontSize: '1rem' }}
           edit={true}
