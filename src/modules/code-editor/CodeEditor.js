@@ -61,6 +61,10 @@ const StyledModule = styled(Module)`
     border-radius: 2px;
   }
 
+  button.has-new-code {
+    animation: fadeInOut 1s infinite;
+  }
+
   /*section:first-child > div > .monaco-editor {
     &,
     .overflow-guard {
@@ -1398,10 +1402,13 @@ function CodeEditor(props) {
       width={codeEditorSize.w + 'px'}
       height={codeEditorSize.h + 'px'}
       before={
-        isEditorReady && isEngineReady && dirty ? (
+        isEditorReady && isEngineReady ? (
           <>
             <div style={{ flex: '1' }} />
             <Button
+              className={
+                editorHasChanged || loopEditorHasChanged ? 'has-new-code' : ''
+              }
               onMouseDown={(e) => e.stopPropagation()}
               onClick={async () => {
                 if (editor.current) removeMarkRangeInEditor(editor.current)
@@ -1423,14 +1430,14 @@ function CodeEditor(props) {
                 })
               }}
             >
-              Test koden
+              Kjør koden
               {editorHasChanged || loopEditorHasChanged ? (
                 <>
                   {' '}
                   <Icon name="arrow_forward" />
                 </>
               ) : (
-                ' igjen'
+                ''
               )}
             </Button>
           </>
