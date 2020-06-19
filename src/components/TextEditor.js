@@ -1115,7 +1115,7 @@ g = ... # Sted eleven skal fylle inn kode
         }
         if (/\.\.\./.test(line)) {
           line
-            .split('...')
+            .split(/\.\.\./)
             .slice(0, -1)
             .reduce((col, n) => {
               const newCol = col + n.length
@@ -1124,12 +1124,12 @@ g = ... # Sted eleven skal fylle inn kode
                 lineNumber: i + 1,
                 column: newCol,
               })
-              return newCol
+              return newCol + 3
             }, 1)
         }
         if (/\?\?\?/.test(line)) {
           line
-            .split('???')
+            .split(/\?\?\?/)
             .slice(0, -1)
             .reduce((col, n) => {
               const newCol = col + n.length
@@ -1138,7 +1138,7 @@ g = ... # Sted eleven skal fylle inn kode
                 lineNumber: i + 1,
                 column: newCol,
               })
-              return newCol
+              return newCol + 3
             }, 1)
         }
         if (isHiddenCode) {
