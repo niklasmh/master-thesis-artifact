@@ -180,7 +180,7 @@ export default function CreateTaskPage() {
     {}
   )
   const [sectionToJSONFunctions, setSectionToJSONFunctions] = useState({})
-  const [mode, setMode] = useState('editor')
+  const [mode, setMode] = useState('gui')
   const testTaskAnchor = useRef(null)
 
   function handleHiddenCodeEditorDidMount(_valueGetter) {
