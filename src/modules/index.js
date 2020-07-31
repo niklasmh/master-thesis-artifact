@@ -29,7 +29,7 @@ let prevLogSize = { w: 0, h: 0 }
 const defaultInitialLayout = [
   {
     i: 'code-editor',
-    x: 3,
+    x: 0,
     y: 0,
     w: 6,
     h: 6,
@@ -39,7 +39,7 @@ const defaultInitialLayout = [
   },
   {
     i: 'result',
-    x: 9,
+    x: 6,
     y: 0,
     w: 3,
     h: 3,
@@ -50,16 +50,6 @@ const defaultInitialLayout = [
   {
     i: 'goal',
     x: 9,
-    y: 3,
-    w: 3,
-    h: 3,
-    minW: 2,
-    minH: 2,
-    maxH: 10,
-  },
-  {
-    i: 'values',
-    x: 0,
     y: 0,
     w: 3,
     h: 3,
@@ -68,8 +58,18 @@ const defaultInitialLayout = [
     maxH: 10,
   },
   {
+    i: 'values',
+    x: 6,
+    y: 3,
+    w: 3,
+    h: 3,
+    minW: 2,
+    minH: 2,
+    maxH: 10,
+  },
+  {
     i: 'log',
-    x: 0,
+    x: 9,
     y: 3,
     w: 3,
     h: 3,
@@ -277,7 +277,10 @@ export default function TaskCodeEnvironment({
   const [currentHiddenCode, setCurrentHiddenCode] = useState('')
   const [currentSolutionCode, setCurrentSolutionCode] = useState([''])
   const [width] = useState(1200)
-  //console.log(task)
+
+  //useEffect(() => {
+  //  console.log(JSON.stringify(task.sections, null, 2))
+  //}, [task])
 
   useEffect(() => {
     setLayout(initialLayout)

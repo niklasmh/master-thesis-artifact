@@ -55,6 +55,16 @@ const StyledModule = styled(Module)`
     animation: fadeInOut 1s infinite;
   }
 
+  & .input {
+    background: #0f02;
+    border: 1px solid #0f0a;
+    border-radius: 2px;
+  }
+
+  button.has-new-code {
+    animation: fadeInOut 1s infinite;
+  }
+
   /*section:first-child > div > .monaco-editor {
     &,
     .overflow-guard {
@@ -171,6 +181,10 @@ function CodeEditor(props) {
   const [loopEditorHasChanged, setLoopEditorHasChanged] = useState('')
   const [editorValue, setEditorValue] = useState('')
   const [editorHasChanged, setEditorHasChanged] = useState('')
+  const [viewZones, setViewZones] = useState(null)
+  const [loopViewZones, setLoopViewZones] = useState(null)
+  const decorationIDs = useRef([])
+  const loopDecorationIDs = useRef([])
 
   const [parsedCode, setParsedCode] = useState('')
   const [parsedLoopCode, setParsedLoopCode] = useState('')
@@ -274,14 +288,14 @@ function CodeEditor(props) {
       y <= h - offset - cy;
       y += dist * jump, i += jump
     ) {
-      ctx.fillText(i * unit[1] + unit[0], x, cy + y + sizeH)
+      ctx.fillText(-i * unit[1] + unit[0], x, cy + y + sizeH)
     }
     for (
       let y = ccy - dist * jump, i = -jump, x = textXPos;
       y > textOffset - cy;
       y -= dist * jump, i -= jump
     ) {
-      ctx.fillText(i * unit[1] + unit[0], x, cy + y + sizeH)
+      ctx.fillText(-i * unit[1] + unit[0], x, cy + y + sizeH)
     }
     ctx.textAlign = 'left'
     for (
@@ -300,16 +314,17 @@ function CodeEditor(props) {
     }
   }
 
-  const positionRef = useRef(0)
+  const positionRef = useRef({ x: 0, y: 0 })
   const scaleRef = useRef(0)
-  const solutionPositionRef = useRef(0)
+  const solutionPositionRef = useRef({ x: 0, y: 0 })
   const solutionScaleRef = useRef(0)
   function renderToCanvas(ctx, result, solution = false) {
     if (ctx && ctx !== null) {
       ctx.fillStyle = 'transparent'
       const w = ctx.canvas.width
       const h = ctx.canvas.height
-      ctx.clearRect(0, 0, w, h)
+      ctx.fillStyle = '#ddd'
+      ctx.fillRect(0, 0, w, h)
       const [ccx, ccy] = [w / 2, h / 2]
       const { x: cx, y: cy } = solution
         ? solutionPositionRef.current
@@ -319,7 +334,7 @@ function CodeEditor(props) {
         ctx.beginPath()
         ctx.arc(
           cx + ccx + self.x * scale,
-          cy + ccy + self.y * scale,
+          h - cy - ccy - self.y * scale,
           self.r * scale,
           0,
           2 * Math.PI,
@@ -341,19 +356,19 @@ function CodeEditor(props) {
         const y2 = ch * cosA - cw * sinA
         ctx.moveTo(
           cx + ccx + self.x * scale + x1,
-          cy + ccy + self.y * scale + y1
+          h - cy - ccy - self.y * scale - y1
         )
         ctx.lineTo(
           cx + ccx + self.x * scale + x2,
-          cy + ccy + self.y * scale + y2
+          h - cy - ccy - self.y * scale - y2
         )
         ctx.lineTo(
           cx + ccx + self.x * scale - x1,
-          cy + ccy + self.y * scale - y1
+          h - cy - ccy - self.y * scale + y1
         )
         ctx.lineTo(
           cx + ccx + self.x * scale - x2,
-          cy + ccy + self.y * scale - y2
+          h - cy - ccy - self.y * scale + y2
         )
         ctx.fillStyle = self.color || '#0aa'
         ctx.closePath()
@@ -362,8 +377,8 @@ function CodeEditor(props) {
       ctx.drawLine = (self) => {
         ctx.beginPath()
         ctx.lineWidth = self.w
-        ctx.moveTo(cx + ccx + self.x1 * scale, cy + ccy + self.y1 * scale)
-        ctx.lineTo(cx + ccx + self.x2 * scale, cy + ccy + self.y2 * scale)
+        ctx.moveTo(cx + ccx + self.x1 * scale, h - cy - ccy - self.y1 * scale)
+        ctx.lineTo(cx + ccx + self.x2 * scale, h - cy - ccy - self.y2 * scale)
         ctx.strokeStyle = self.color || '#0aa'
         ctx.stroke()
       }
@@ -383,15 +398,14 @@ function CodeEditor(props) {
         : positionRef.current
       const scale = solution ? solutionScaleRef.current : scaleRef.current
       if ('clear' in result && result.clear) {
-        ctx.fillStyle = '#ddd'
-        ctx.fillRect(0, 0, w, h)
+        ctx.clearRect(0, 0, w, h)
         drawGrid(ctx, {
           w,
           h,
           ccx,
-          ccy,
+          ccy: -ccy,
           cx,
-          cy,
+          cy: h - cy,
           scale,
         })
       }
@@ -403,7 +417,7 @@ function CodeEditor(props) {
         ctx.beginPath()
         ctx.arc(
           cx + ccx + self.x * scale,
-          cy + ccy + self.y * scale,
+          h - cy + ccy + self.y * scale,
           self.r * scale,
           0,
           2 * Math.PI,
@@ -421,23 +435,23 @@ function CodeEditor(props) {
         const ch = (self.h * scale) / 2
         const x1 = cw * cosA - ch * sinA
         const x2 = cw * cosA + ch * sinA
-        const y1 = -ch * cosA - cw * sinA
-        const y2 = ch * cosA - cw * sinA
+        const y1 = ch * cosA + cw * sinA
+        const y2 = -ch * cosA + cw * sinA
         ctx.moveTo(
           cx + ccx + self.x * scale + x1,
-          cy + ccy + self.y * scale + y1
+          h - cy - ccy - self.y * scale + y1
         )
         ctx.lineTo(
           cx + ccx + self.x * scale + x2,
-          cy + ccy + self.y * scale + y2
+          h - cy - ccy - self.y * scale + y2
         )
         ctx.lineTo(
           cx + ccx + self.x * scale - x1,
-          cy + ccy + self.y * scale - y1
+          h - cy - ccy - self.y * scale - y1
         )
         ctx.lineTo(
           cx + ccx + self.x * scale - x2,
-          cy + ccy + self.y * scale - y2
+          h - cy - ccy - self.y * scale - y2
         )
         ctx.fillStyle = self.color || '#0aa'
         ctx.closePath()
@@ -446,8 +460,8 @@ function CodeEditor(props) {
       ctx.drawLine = (self) => {
         ctx.beginPath()
         ctx.lineWidth = self.w
-        ctx.moveTo(cx + ccx + self.x1 * scale, cy + ccy + self.y1 * scale)
-        ctx.lineTo(cx + ccx + self.x2 * scale, cy + ccy + self.y2 * scale)
+        ctx.moveTo(cx + ccx + self.x1 * scale, h - cy - ccy - self.y1 * scale)
+        ctx.lineTo(cx + ccx + self.x2 * scale, h - cy - ccy - self.y2 * scale)
         ctx.strokeStyle = self.color || '#0aa'
         ctx.stroke()
       }
@@ -494,6 +508,84 @@ function CodeEditor(props) {
         }
       }
     }
+  }
+
+  function updateZones(value) {
+    const zones = []
+    if (value) {
+      let prevLine = ''
+      value.split('\n').forEach((line, i) => {
+        if (/\.\.\./.test(line)) {
+          line
+            .split(/\.\.\./)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (/\?\?\?/.test(line)) {
+          line
+            .split(/\?\?\?/)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        prevLine = line
+      })
+    }
+    setViewZones(zones)
+  }
+
+  function updateLoopZones(value) {
+    const zones = []
+    if (value) {
+      let prevLine = ''
+      value.split('\n').forEach((line, i) => {
+        if (/\.\.\./.test(line)) {
+          line
+            .split(/\.\.\./)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (/\?\?\?/.test(line)) {
+          line
+            .split(/\?\?\?/)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        prevLine = line
+      })
+    }
+    setLoopViewZones(zones)
   }
 
   function handleEditorDidMount(_valueGetter, _editor) {
@@ -751,6 +843,7 @@ function CodeEditor(props) {
       type: 'setEditor',
       editor: _editor,
     })
+    updateZones(editor.current.getValue())
   }
 
   function handleLoopEditorDidMount(_valueGetter, _editor) {
@@ -760,6 +853,7 @@ function CodeEditor(props) {
       type: 'setLoopEditor',
       loopEditor: _editor,
     })
+    updateLoopZones(loopEditor.current.getValue())
   }
 
   const [dirty, setDirty] = useState(false)
@@ -777,6 +871,7 @@ function CodeEditor(props) {
         return value.replace(/=(\s*[0-9]+),([0-9]+)/g, '=$1.$2')
       })
     }
+    updateZones(value)
   }
 
   function handleLoopEditorChange(_, value) {
@@ -788,7 +883,76 @@ function CodeEditor(props) {
         window.localStorage.setItem(id + '-loop', value)
       }
     } catch (ex) {}
+    updateLoopZones(value)
   }
+
+  useEffect(() => {
+    if (editor.current && viewZones !== null) {
+      const newDecorations = []
+      viewZones.forEach(
+        ({
+          type,
+          description,
+          inputs = [],
+          style = '',
+          lineNumber,
+          column = 1,
+        }) => {
+          if (type === 'input') {
+            newDecorations.push({
+              range: new window.monaco.Range(
+                lineNumber,
+                column,
+                lineNumber,
+                column + 3
+              ),
+              options: {
+                inlineClassName: 'input',
+              },
+            })
+          }
+        }
+      )
+      decorationIDs.current = editor.current.deltaDecorations(
+        decorationIDs.current,
+        newDecorations
+      )
+    }
+  }, [viewZones])
+
+  useEffect(() => {
+    if (loopEditor.current && loopViewZones !== null) {
+      const newDecorations = []
+      loopViewZones.forEach(
+        ({
+          type,
+          description,
+          inputs = [],
+          style = '',
+          lineNumber,
+          column = 1,
+        }) => {
+          if (type === 'input') {
+            newDecorations.push({
+              range: new window.monaco.Range(
+                lineNumber,
+                column,
+                lineNumber,
+                column + 3
+              ),
+              options: {
+                inlineClassName: 'input',
+              },
+            })
+          }
+        }
+      )
+      loopDecorationIDs.current = loopEditor.current.deltaDecorations(
+        loopDecorationIDs.current,
+        newDecorations
+      )
+    }
+  }, [loopViewZones])
 
   useEffect(() => {
     if (isPlaying) {
@@ -1238,10 +1402,13 @@ function CodeEditor(props) {
       width={codeEditorSize.w + 'px'}
       height={codeEditorSize.h + 'px'}
       before={
-        isEditorReady && isEngineReady && dirty ? (
+        isEditorReady && isEngineReady ? (
           <>
             <div style={{ flex: '1' }} />
             <Button
+              className={
+                editorHasChanged || loopEditorHasChanged ? 'has-new-code' : ''
+              }
               onMouseDown={(e) => e.stopPropagation()}
               onClick={async () => {
                 if (editor.current) removeMarkRangeInEditor(editor.current)
@@ -1263,14 +1430,14 @@ function CodeEditor(props) {
                 })
               }}
             >
-              Test koden
+              Kjør koden
               {editorHasChanged || loopEditorHasChanged ? (
                 <>
                   {' '}
                   <Icon name="arrow_forward" />
                 </>
               ) : (
-                ' igjen'
+                ''
               )}
             </Button>
           </>

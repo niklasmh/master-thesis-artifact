@@ -7,7 +7,7 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/vs2015.css'
 import { lightCodeTheme } from '../utils/light-code-theme'
 
-import { TextArea, RadioGroup, CodeEditor } from './Form'
+import { Button, Input, TextArea, RadioGroup, CodeEditor } from './Form'
 import Icon from './Icon'
 
 const md = mdIt({
@@ -942,5 +942,463 @@ export function ExtendedMarkdownEditor({
         ) : null}
       </ExtendedMarkdownRenderer>
     </StyledExtendedMarkdownEditor>
+  )
+}
+
+const StyledSingleEditorTaskCreator = styled(StyledExtendedMarkdownEditor)`
+  & .contentWidgets {
+    .node {
+      width: 482px;
+      padding-top: 6px;
+    }
+    .description {
+      font-style: italic;
+      margin: 6px 0 4px;
+    }
+    button {
+      background: #333;
+      margin: 2px 4px;
+    }
+  }
+
+  & .loop-content {
+    background: #0882;
+  }
+
+  & .input {
+    background: #0f02;
+    border: 1px solid #0f0a;
+    border-radius: 2px;
+  }
+
+  & .hidden-code {
+    background: #f802;
+  }
+
+  & .hidden-code-start,
+  & .hidden-code-end {
+    color: #fff4 !important;
+  }
+
+  & .loop-code {
+    background: #0882;
+  }
+
+  & .loop-code-start,
+  & .loop-code-end {
+    color: #fff4 !important;
+  }
+
+  & .selected-area {
+    margin-left: 1em;
+    margin-top: -2px;
+
+    button {
+      background: #333;
+      margin: 0 4px;
+      white-space: nowrap;
+      font-size: 0.6em;
+    }
+  }
+`
+const SingleEditorTaskCreatorController = styled(ExtendedMarkdownRenderer)`
+  padding-left: 2em;
+
+  button {
+    font-size: 1em;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+`
+
+export function SingleEditorTaskCreator(props) {
+  const editor = useRef(null)
+  const [viewZones, setViewZones] = useState([])
+  const [hasRange, setHasRange] = useState(false)
+  const viewZonesIDs = useRef([])
+  const widgetIDs = useRef([])
+  const decorationIDs = useRef([])
+  const selectWidget = useRef(null)
+  const inputWidgets = useRef([])
+  //const [value, setValue] = useState('# Skriv inn din Python 3 kode her ...\n')
+  const [value, setValue] = useState(`#### SKJULT KODE START ####
+# Kode som skal skjules
+#### SKJULT KODE SLUTT ####
+
+# Kode til eleven går her
+g = ... # Sted eleven skal fylle inn kode
+
+#### LØKKE START #### def loop(t):
+#### SKJULT KODE START ####
+# Kode som skal skjules i løkke
+#### SKJULT KODE SLUTT ####
+
+# Bruk variabel \`t\` for tid, og \`dt\` for tidssteg
+#### LØKKE SLUTT ####
+`)
+
+  function handleEditorDidMount(_, _editor) {
+    editor.current = _editor
+    const domNode = document.createElement('div')
+    domNode.classList.add('selected-area')
+    const domHideButton = document.createElement('button')
+    domHideButton.innerHTML = 'Skjul kode'
+    //domNode.appendChild(domHideButton)
+    const widget = {
+      domNode,
+      getPosition: () => ({
+        position: { lineNumber: 1, column: 1 },
+        preference: [
+          window.monaco.editor.ContentWidgetPositionPreference.BELOW,
+        ],
+      }),
+      getId: () => 'select.widget',
+      getDomNode: () => domNode,
+    }
+    selectWidget.current = widget
+    editor.current.addContentWidget(widget)
+    editor.current.onDidChangeCursorSelection(({ selection }) => {
+      setHasRange(
+        selection.startLineNumber !== selection.endLineNumber ||
+          selection.startColumn !== selection.endColumn
+      )
+      selectWidget.current.getPosition = () => ({
+        position: {
+          lineNumber: selection.endLineNumber,
+          column: editor.current
+            .getModel()
+            .getLineLength(selection.endLineNumber),
+        },
+        preference: [
+          window.monaco.editor.ContentWidgetPositionPreference.EXACT,
+        ],
+      })
+      editor.current.layoutContentWidget(selectWidget.current)
+    })
+    onChangeHandler(null, editor.current.getValue())
+  }
+
+  function onChangeHandler(_, value) {
+    setValue(value)
+    const zones = []
+    if (value) {
+      let isLoopCode = false
+      let isForloop = false
+      let isHiddenCode = false
+      let prevLine = ''
+      let emptyLineCount = 0
+      value.split('\n').forEach((line, i) => {
+        if (/^for /.test(line)) {
+          isForloop = true
+          zones.push({
+            type: 'for-loop',
+            lineNumber: i + 1,
+            style: 'color: red',
+            description: 'Skal løkken under simulere tidssteg?',
+            inputs: [
+              {
+                label: 'Ja',
+                onClick: () => console.log('jaaaa'),
+              },
+              {
+                label: 'Nei',
+                onClick: () => console.log('neii :('),
+              },
+            ],
+          })
+          zones.push({
+            type: 'for-loop-content',
+            lineNumber: i + 1,
+          })
+        }
+        if (/\.\.\./.test(line)) {
+          line
+            .split(/\.\.\./)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (/\?\?\?/.test(line)) {
+          line
+            .split(/\?\?\?/)
+            .slice(0, -1)
+            .reduce((col, n) => {
+              const newCol = col + n.length
+              zones.push({
+                type: 'input',
+                lineNumber: i + 1,
+                column: newCol,
+              })
+              return newCol + 3
+            }, 1)
+        }
+        if (isHiddenCode) {
+          if (/^#### SKJULT KODE SLUTT/.test(line)) {
+            isHiddenCode = false
+            zones.push({
+              type: 'hidden-code-end',
+              lineNumber: i + 1,
+            })
+          } else {
+            zones.push({
+              type: 'hidden-code',
+              lineNumber: i + 1,
+            })
+          }
+        }
+        if (!isHiddenCode && /^#### SKJULT KODE START/.test(line)) {
+          isHiddenCode = true
+          zones.push({
+            type: 'hidden-code-start',
+            lineNumber: i + 1,
+          })
+        }
+        if (isLoopCode) {
+          if (/^#### LØKKE SLUTT/.test(line)) {
+            isLoopCode = false
+            zones.push({
+              type: 'loop-code-end',
+              lineNumber: i + 1,
+            })
+          } else {
+            zones.push({
+              type: 'loop-code',
+              lineNumber: i + 1,
+            })
+          }
+        }
+        if (!isLoopCode && /^#### LØKKE START/.test(line)) {
+          isLoopCode = true
+          zones.push({
+            type: 'loop-code-start',
+            lineNumber: i + 1,
+          })
+        }
+        if (isForloop) {
+          if (/\s+/.test(line)) {
+            for (let j = 1 - emptyLineCount; j <= 1; j++) {
+              zones.push({
+                type: 'for-loop-content',
+                lineNumber: j + i + 1,
+              })
+            }
+            emptyLineCount = 0
+          } else if (!line.trim()) {
+            emptyLineCount++
+          } else {
+            if (!prevLine.trim()) zones.pop()
+            isForloop = false
+            emptyLineCount = 0
+          }
+        }
+        prevLine = line
+      })
+    }
+    setViewZones(zones)
+  }
+
+  useEffect(() => {
+    if (editor.current) {
+      editor.current.changeViewZones((changeAccessor) => {
+        viewZonesIDs.current.forEach((id) => {
+          changeAccessor.removeZone(id)
+        })
+        widgetIDs.current.forEach((id) => {
+          editor.current.removeContentWidget(id)
+        })
+        const newDecorations = []
+        viewZones.forEach(
+          ({
+            type,
+            description,
+            inputs = [],
+            style = '',
+            lineNumber,
+            column = 1,
+          }) => {
+            const domNode = document.createElement('div')
+            domNode.style = style
+            domNode.classList.add('node')
+            if (type === 'for-loop') {
+              const domDescription = document.createElement('span')
+              domDescription.classList.add('description')
+              domDescription.innerHTML = description
+              domNode.appendChild(domDescription)
+              const domBreak = document.createElement('br')
+              domNode.appendChild(domBreak)
+              inputs.forEach(({ label, type = 'button', onClick }) => {
+                const domInput = document.createElement('button')
+                domInput.innerHTML = label
+                domInput.onclick = onClick
+                domNode.appendChild(domInput)
+              })
+              viewZonesIDs.current.push(
+                changeAccessor.addZone({
+                  afterLineNumber: lineNumber - 1,
+                  heightInLines: 3,
+                  domNode: document.createElement('div'),
+                })
+              )
+              const widget = {
+                domNode,
+                getPosition: () => ({
+                  position: { lineNumber: lineNumber - 1, column: 0 },
+                  preference: [
+                    window.monaco.editor.ContentWidgetPositionPreference.BELOW,
+                  ],
+                }),
+                getId: () => lineNumber,
+                getDomNode: () => domNode,
+              }
+              editor.current.addContentWidget(widget)
+              widgetIDs.current.push(widget)
+            }
+            if (type === 'input') {
+              newDecorations.push({
+                range: new window.monaco.Range(
+                  lineNumber,
+                  column,
+                  lineNumber,
+                  column + 3
+                ),
+                options: {
+                  inlineClassName: 'input',
+                },
+              })
+            }
+            if (type === 'for-loop-content') {
+              newDecorations.push({
+                range: new window.monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  className: 'loop-content',
+                },
+              })
+            }
+            if (type === 'hidden-code') {
+              newDecorations.push({
+                range: new window.monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  className: 'hidden-code',
+                },
+              })
+            }
+            if (type === 'hidden-code-start' || type === 'hidden-code-end') {
+              newDecorations.push({
+                range: new window.monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  inlineClassName: type,
+                },
+              })
+            }
+            if (type === 'loop-code') {
+              newDecorations.push({
+                range: new window.monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  className: 'loop-code',
+                },
+              })
+            }
+            if (type === 'loop-code-start' || type === 'loop-code-end') {
+              newDecorations.push({
+                range: new window.monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: {
+                  isWholeLine: true,
+                  inlineClassName: type,
+                },
+              })
+            }
+          }
+        )
+        decorationIDs.current = editor.current.deltaDecorations(
+          decorationIDs.current,
+          newDecorations
+        )
+      })
+    }
+  }, [viewZones])
+
+  return (
+    <StyledSingleEditorTaskCreator {...props}>
+      <CodeEditorWrapper>
+        <h2>Legg inn koden til eleven her</h2>
+        <CodeEditor
+          width={'550px'}
+          height={'640px'}
+          language="python"
+          value={value}
+          onChange={onChangeHandler}
+          editorDidMount={handleEditorDidMount}
+        />
+      </CodeEditorWrapper>
+      <SingleEditorTaskCreatorController>
+        <h2>Detaljer om seksjonen</h2>
+        <Input size="2em" placeholder="Tittel på seksjon" />
+        <br />
+        <button
+          disabled={!hasRange}
+          onClick={() => {
+            const {
+              startLineNumber,
+              endLineNumber,
+              startColumn,
+              endColumn,
+            } = editor.current.getSelection()
+            const lines = editor.current.getValue().split('\n')
+            const startLine =
+              startLineNumber +
+              (lines[Math.max(0, startLineNumber - 1)].trim() === '' ? 1 : 0)
+            const beforeContent = lines.slice(0, startLine - 1)
+            const endLine = endLineNumber - (endColumn === 1 ? 1 : 0)
+            const content = lines.slice(startLine - 1, endLine)
+            const afterContent = lines.slice(endLine)
+            editor.current.setValue(
+              [
+                beforeContent.join('\n'),
+                '#### SKJULT KODE START ####',
+                content.join('\n'),
+                '#### SKJULT KODE SLUTT ####',
+                afterContent.join('\n'),
+              ].join('\n')
+            )
+          }}
+        >
+          Marker kode som skal være skjult fra eleven
+        </button>
+        <button
+          onClick={() => {
+            editor.current.trigger('keyboard', 'type', {
+              text: '...',
+            })
+          }}
+        >
+          Marker del av koden hvor eleven skal fylle inn{' '}
+          <span
+            style={{
+              fontFamily: 'monospace',
+              background: '#0f02',
+              border: '1px solid #0f0a',
+              borderRadius: '2px',
+            }}
+          >
+            ...
+          </span>
+        </button>
+        <h3>Deloppgaver til seksjonen</h3>
+        <Input size="1.5em" placeholder="Tittel på deloppgave" />
+      </SingleEditorTaskCreatorController>
+    </StyledSingleEditorTaskCreator>
   )
 }

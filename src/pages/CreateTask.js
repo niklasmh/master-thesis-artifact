@@ -15,6 +15,7 @@ import { Button, Input, RadioGroup, CodeEditor } from '../components/Form'
 import {
   TextEditor,
   ExtendedMarkdownEditor,
+  SingleEditorTaskCreator,
   parseMarkdownOnly,
   addToDescriptionButtons,
   addTemplateToDescriptionButtons,
@@ -99,444 +100,6 @@ assert ball.y == solution("ball.y"), "Husk å sette ballens fart til 2 m/s"
 print(f"Du klarte deloppgave {section}. {subgoal})!")
 `,
   testCode: '',
-  testMarkdown: `# Ball i fritt fall
-
-Her skal du simulere en ball som faller i fritt fall.
-
-## Lage konstanter
-
-For å lage en konstant må du lage en variabel. Det gjøres slik:
-
-\`\`\`python
-variabelnavn = 1.23
-\`\`\`
-
-Her blir variabelen \`variabelnavn\` satt til desimaltallet \`1.23\`.
-
-### Lag gravitasjonskonstanten \`g\` og sett den til \`9.81\`
-
-Du kan lage en ball med å skrive:
-
-\`\`\`python skjult
-ball = Ball(x=0, y=0, r=1)
-dt = 0.1
-t_tot = 2
-g = 0
-
-#### ELEVENS KODE PLASSERES HER ####
-
-def loop(t):
-    ball.y = -1/2*g*t**2
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
-if not defined('g'):
-  print("Du må definere 'g'") # Sender tilbakemelding til eleven
-  return False # Testen feiler her
-
-# Sjekke om en variabel ikke er lik fasitverdien
-if g != 9.81:
-  print("Du må sette verdien 9.81 til variabel 'g'. Husk å bruke punktum og ikke komma.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-### Lag konstanten \`dt\` og sett den til \`0.01\`
-
-\`\`\`python skjult
-ball = Ball(x=0, y=0, r=1)
-dt = 0.1
-t_tot = 2
-g = 0
-
-#### ELEVENS KODE PLASSERES HER ####
-
-def loop(t):
-    ball.y = -1/2*g*t**2
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
-if not defined('dt'):
-  print("Du må definere 'dt'") # Sender tilbakemelding til eleven
-  return False # Testen feiler her
-
-# Sjekke om en variabel ikke er lik fasitverdien
-if dt != 0.01:
-  print("Du må sette verdien 0.01 til variabel 'dt'. Husk å bruke punktum og ikke komma.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven! La du merke til at simuleringen ble mindre hakkete?")
-return True
-\`\`\`
-
-## Lag ballen
-
-Sålangt har vi bare satt noen konstanter. Nå skal vi lage den ballen som ble vist i de forrige deloppgavene.
-
-For å lage en ball kan man skrive:
-
-\`\`\`python
-ball = Ball(x=0, y=0) # Hvor x og y er posisjonen i rommet.
-\`\`\`
-
-### Lage en ball i punkt (0,0)
-
-\`\`\`python startkode
-g = 9.81
-dt = 0.01
-
-# Sett inn koden her
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ball = Ball(x=0, y=0)
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# For å sjekke om en variabel er definert (alltid lurt å gi tilbakemelding på dette)
-if not defined('ball'):
-  print("Du må definere 'ball'") # Sender tilbakemelding til eleven
-  return False # Testen feiler her
-
-# Sjekke om en variabel ikke er lik fasitverdien
-if ball.x != 0 or ball.y != 0:
-  print("Du må plassere ballen i punkt (0,0)")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-### Endre ballens farge til "red"
-
-For å endre fargen på ballen kan du legge til et til argument, \`color\`, til \`Ball(x=0, y=0, ...)\` slik:
-
-\`\`\`python
-ball = Ball(x=0, y=0, color="blue")
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ball = Ball(x=0, y=0, color="red")
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# Sjekke om en variabel ikke er lik fasitverdien
-if ball.color != "red":
-  print("Du må sette verdien "red" til ballen. Les instruksjonen.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven! Så du hvordan fargen endret seg?")
-return True
-\`\`\`
-
-### Sette radiusen til ballen til \`0.5\`
-
-For å endre radius kan man bruke argumentet: \`r\`. Det brukes slik:
-
-\`\`\`python
-ball = Ball(x=0, y=0, color="red", r=1)
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-if ball.r != 0.5:
-  print("Du må sette verdien 0.5 til ballradiusen. Husk å bruke punktum og ikke komma.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-## Bevege ballen basert på tid
-
-Nå begynner morroa. Vi skal få ballen til å bevege seg. For å få ballen til å bevege seg må man kunne kjøre en kode veldig mange ganger, og for hver gang må ballens posisjon endre seg.
-
-For å gjøre dette enkelt kan du bruke det nederste kodefeltet til å legge inn kode som skal kjøres mange ganger. Det kan brukes slik:
-
-\`\`\`python
-ball.y = t # t er tid i sekunder
-\`\`\`
-
-### Sett ballens y, \`ball.y\`, til tid \`t\`
-
-\`\`\`python startkode
-g = 9.81
-dt = 0.01
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-ball.y = t
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# Kjør loop 10 ganger
-runLoopNTimes(10)
-
-if ball.y != 0.01*10:
-  print("Du må sette ball.y til tid t.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-### Sett ballens y til likningen for fritt fall
-
-Likningen for fritt fall er:
-
-$$y=\frac{1}{2}gt^2+v_0*t+y_0$$
-
-Dette kan skrives om til kode, slik:
-
-\`\`\`python
-y = 1/2*g*t**2 + v_0*t + y_0
-\`\`\`
-
-\`\`\`python startkode
-g = 9.81
-dt = 0.01
-v_0 = 0
-y_0 = 0
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-ball.y = t
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-v_0 = 0
-y_0 = 0
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-ball.y = 1/2*g*t**2 + v_0*t + y_0
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-# Kjør loop 10 ganger
-runLoopNTimes(10)
-
-if ball.y != 1/2*9.81*(0.01*10)**2:
-  print("Kopier likningen fra instruksjonen.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-## Legge til luftmotstand
-
-Denne delen kan være litt vanskelig, fordi vi må bruke en ny metode for å simulere fallet. Vi skal bruke en metode som heter Euler's metode. Kort sagt fungerer den slik:
-
-\`\`\`python
-ny_verdi = gammel_verdi + endring*tidssteg
-\`\`\`
-
-For å ta det inn i vårt eksempel, så kan vi gjøre dette med posisjon, fart og akselerasjon, hver for seg. Slik:
-
-\`\`\`python
-ay = ay + 0*dt # Ingen endring uten luftmotstand
-vy = vy + ay*dt # Husk at "a" er [m/s^2], så når den ganges 
-med dt, som er [s], så blir den [m/s] som er fart
-y = y + vy*dt # Igjen, ganger med dt
-\`\`\`
-
-### Endre bevegelsen til Euler's metode
-
-\`\`\`python startkode
-g = 9.81
-dt = 0.01
-
-ay = g
-vy = 0
-y = 0
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-# Fyll inn i variablene under
-ay = ay
-vy = vy + 
-y = y + 
-
-ball.y = y
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ay = g
-vy = 0
-y = 0
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-# Fyll inn i variablene under
-ay = ay
-vy = vy + ay*dt
-y = y + vy*dt
-
-ball.y = y
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-runLoopNTimes(10)
-solution = runSolutionLoopNTimes(10)
-
-if ball.y != solution("ball")["y"]:
-  print("Kopier likningen fra instruksjonen.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte oppgaven!")
-return True
-\`\`\`
-
-### Legge til luftmotstand til akselerasjon
-
-Nå kommer den delen som er veldig vanskelig matematisk, men veldig enkel med programmering: legge til luftmotstand.
-
-Her skal vi bare legge til en motstand i akselerasjonen. Dette kan nå gjøres slik:
-
-\`\`\`python
-ay = ay - motstand
-\`\`\`
-
-Motstanden regnes ut ifra en konstant og kvadratet av farten:
-
-\`\`\`python
-motstand = k*vy**2
-\`\`\`
-
-\`\`\`python startkode
-g = 9.81
-dt = 0.01
-
-ay = g
-vy = 0
-y = 0
-
-k = 0.3
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-motstand = # Fyll inn her
-ay = ay - motstand
-vy = vy + ay*dt
-y = y + vy*dt
-
-ball.y = y
-\`\`\`
-
-\`\`\`python løsning
-g = 9.81
-dt = 0.01
-
-ay = g
-vy = 0
-y = 0
-
-k = 0.3
-
-ball = Ball(x=0, y=0, color="red", r=0.5)
-
-#### LOOP ####
-
-motstand = k*vy**2
-ay = ay - motstand
-vy = vy + ay*dt
-y = y + vy*dt
-
-ball.y = y
-\`\`\`
-
-\`\`\`python test
-# Returner True / False ut ifra om testen er passert
-
-runLoopNTimes(10)
-solution = runSolutionLoopNTimes(10)
-
-if ball.y != solution("ball")["y"]:
-  print("Kopier likningen fra instruksjonen.")
-  return False
-
-# Her kan du printe ut en tilpasset melding til eleven. Gjerne bruk denne til motivasjon.
-print("Du klarte hele oppgaven! Gratulerer!")
-return True
-\`\`\`
-
-`,
 }
 
 const addCode = (code, type, hideIfNone = false) => {
@@ -617,7 +180,7 @@ export default function CreateTaskPage() {
     {}
   )
   const [sectionToJSONFunctions, setSectionToJSONFunctions] = useState({})
-  const [useMarkdownOnly, setUseMarkdownOnly] = useState(false)
+  const [mode, setMode] = useState('gui')
   const testTaskAnchor = useRef(null)
 
   function handleHiddenCodeEditorDidMount(_valueGetter) {
@@ -774,15 +337,38 @@ ${sections
     }
   }, [sectionNo, subgoalNo, updatedTask])
 
+  function changeMode() {
+    setMode((mode) => {
+      switch (mode) {
+        case 'markdown':
+          return 'gui'
+          break
+        case 'gui':
+          return 'editor'
+          break
+        case 'editor':
+          return 'markdown'
+          break
+        default:
+          return 'editor'
+          break
+      }
+    })
+  }
+
   useEffect(() => {
-    if (useMarkdownOnly) {
+    if (mode === 'markdown') {
       // Convert GUI to Markdown
       const markdown = buildMarkdownFromGUI(
         sections,
         sectionToMarkdownFunctions
       )
       setExtendedMarkdownEditorValue(markdown)
-    } else if (!newlyHydrated && extendedMarkdownEditorValue) {
+    } else if (
+      mode === 'gui' &&
+      !newlyHydrated &&
+      extendedMarkdownEditorValue
+    ) {
       // Hydrate GUI
       const result = parseMarkdownOnly(extendedMarkdownEditorValue)
       setNewlyHydrated(true)
@@ -803,25 +389,24 @@ ${sections
         setSections(result.sections.map(() => randomString()))
       }
     }
-  }, [useMarkdownOnly, sectionToMarkdownFunctions])
+  }, [mode, sectionToMarkdownFunctions])
 
   return (
     <Container>
       {isNew ? (
         <SubTitle style={{ fontSize: '2.5rem' }}>
           Lag en ny opp
-          <span onClick={() => setUseMarkdownOnly((use) => !use)}>g</span>
+          <span onClick={changeMode}>g</span>
           ave{isNew && id ? ` fra "${firstTitle.current}"` : ''}
         </SubTitle>
       ) : (
         <SubTitle style={{ fontSize: '2.5rem' }}>
-          En<span onClick={() => setUseMarkdownOnly((use) => !use)}>d</span>re "
-          {firstTitle.current}"
+          En<span onClick={changeMode}>d</span>re "{firstTitle.current}"
         </SubTitle>
       )}
       <div
         style={{
-          display: useMarkdownOnly ? 'flex' : 'none',
+          display: mode === 'markdown' ? 'flex' : 'none',
           fontSize: '1rem',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -835,7 +420,35 @@ ${sections
       </div>
       <div
         style={{
-          display: !useMarkdownOnly ? 'inherit' : 'none',
+          display: mode === 'editor' ? 'flex' : 'none',
+          fontSize: '1rem',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          width: '100%',
+        }}
+      >
+        <Input
+          size="3em"
+          width="100%"
+          align="center"
+          shadow={true}
+          autoFocus={true}
+          defaultValue={defaultTitle}
+          placeholder="Skriv inn tittel ..."
+        />
+        <Input
+          size="1.5em"
+          width="100%"
+          align="center"
+          shadow={true}
+          defaultValue={defaultDecription}
+          placeholder="Legg til en kort beskrivelse ..."
+        />
+        <SingleEditorTaskCreator />
+      </div>
+      <div
+        style={{
+          display: mode === 'gui' ? 'inherit' : 'none',
           width: '100%',
           position: 'relative',
           flexDirection: 'inherit',
@@ -1044,49 +657,51 @@ def distanse(x1, y1, x2, y2):
           + Legg til ny seksjon
         </AddNewSection>
       </div>
-      <TaskCodeEnvironment
-        style={{ fontSize: '1rem' }}
-        edit={true}
-        task={task}
-        updatedTask={updatedTask}
-        subgoalNo={taskSubgoalNo}
-        sectionNo={taskSectionNo}
-        subgoalNoMax={100000}
-        sectionNoMax={100000}
-        onFinishedSubgoal={(
-          sectionNo,
-          subgoalNo,
-          sectionNoMax,
-          subgoalNoMax
-        ) => {
-          //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
-        }}
-        onUnFinishedSubgoal={(
-          sectionNo,
-          subgoalNo,
-          sectionNoMax,
-          subgoalNoMax
-        ) => {
-          //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
-        }}
-        engine={{
-          scripts: [
-            {
-              src: 'https://pyodide.cdn.iodide.io/pyodide.js',
-              onload: () => {
-                if (window.languagePluginLoader) {
-                  window.languagePluginLoader.then(() => {
-                    dispatch({
-                      type: 'setIsEngineReady',
-                      isReady: true,
+      {true && (
+        <TaskCodeEnvironment
+          style={{ fontSize: '1rem' }}
+          edit={true}
+          task={task}
+          updatedTask={updatedTask}
+          subgoalNo={taskSubgoalNo}
+          sectionNo={taskSectionNo}
+          subgoalNoMax={100000}
+          sectionNoMax={100000}
+          onFinishedSubgoal={(
+            sectionNo,
+            subgoalNo,
+            sectionNoMax,
+            subgoalNoMax
+          ) => {
+            //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
+          }}
+          onUnFinishedSubgoal={(
+            sectionNo,
+            subgoalNo,
+            sectionNoMax,
+            subgoalNoMax
+          ) => {
+            //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
+          }}
+          engine={{
+            scripts: [
+              {
+                src: 'https://pyodide.cdn.iodide.io/pyodide.js',
+                onload: () => {
+                  if (window.languagePluginLoader) {
+                    window.languagePluginLoader.then(() => {
+                      dispatch({
+                        type: 'setIsEngineReady',
+                        isReady: true,
+                      })
                     })
-                  })
-                }
+                  }
+                },
               },
-            },
-          ],
-        }}
-      />
+            ],
+          }}
+        />
+      )}
       <div ref={testTaskAnchor} />
       <SubTitle>Ferdig med å lage oppgaven?</SubTitle>
       <AddNewSection onClick={saveTask}>Lagre</AddNewSection>

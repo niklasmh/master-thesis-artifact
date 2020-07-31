@@ -407,6 +407,7 @@ function TaskPage() {
             )
           ) : attempts >= 3 ? (
             <NextButton
+              style={{ backgroundColor: '#f80' }}
               onClick={() => {
                 try {
                   const solutionCode =
