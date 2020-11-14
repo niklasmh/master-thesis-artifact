@@ -3027,6 +3027,11 @@ cli-width@^2.0.0:
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
   integrity sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=
 
+client-side-python-runner@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/client-side-python-runner/-/client-side-python-runner-1.0.1.tgz#0bb103de6b2f14a8642ce97c75b6b6624e890679"
+  integrity sha512-WKCN6Zxyn6yH+MhAIuPTfh3sTaWOaARLumrQ54hZ78iTW7fPTbIC6PEhCwr2pFjz/ivM1/zpz2XrrbDqcHEmcw==
+
 cliui@^3.0.3:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-3.2.0.tgz#120601537a916d29940f934da3b48d585a39213d"

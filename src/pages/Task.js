@@ -494,6 +494,8 @@ function TaskPage() {
                 }
               }
             }}
+            engine="pyodide"
+            /*
             engine={{
               scripts: [
                 {
@@ -565,8 +567,10 @@ function TaskPage() {
                     })
                   },
                 },*/
+            /*
               ],
             }}
+            */
           />
         </>
       ) : null}

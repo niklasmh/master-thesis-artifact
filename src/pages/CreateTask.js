@@ -683,6 +683,8 @@ def distanse(x1, y1, x2, y2):
           ) => {
             //console.log(sectionNo, subgoalNo, sectionNoMax, subgoalNoMax)
           }}
+          engine="pyodide"
+          /*
           engine={{
             scripts: [
               {
@@ -700,6 +702,7 @@ def distanse(x1, y1, x2, y2):
               },
             ],
           }}
+          */
         />
       )}
       <div ref={testTaskAnchor} />

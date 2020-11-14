@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import GridLayout from 'react-grid-layout'
 import { useDispatch, useSelector } from 'react-redux'
+import { loadEngine } from 'client-side-python-runner'
 
 import { SubTitle, Paragraph } from '../components/Typography'
 
@@ -286,9 +287,20 @@ export default function TaskCodeEnvironment({
     setLayout(initialLayout)
   }, [initialLayout])
 
-  const scriptsLoaded = useRef(new Set())
-  const attepmtedToLoad = useRef(false)
+  //const scriptsLoaded = useRef(new Set())
+  //const attepmtedToLoad = useRef(false)
   useEffect(() => {
+    if (engine) {
+      loadEngine(engine).then((didLoad) => {
+        if (didLoad) {
+          dispatch({
+            type: 'setIsEngineReady',
+            isReady: true,
+          })
+        }
+      })
+    }
+    /*
     if (!attepmtedToLoad.current && engine.scripts && true) {
       async function loadScripts(scripts) {
         for (let {
@@ -322,7 +334,7 @@ export default function TaskCodeEnvironment({
       }
       attepmtedToLoad.current = true
       loadScripts(engine.scripts)
-    }
+    }*/
   }, [engine])
 
   useEffect(() => {

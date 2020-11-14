@@ -42,10 +42,10 @@ export default function LoadingPage() {
             Laster <Loading />
           </>
         ) : (
-          popular.title
+          popular?.title
         )}
       </SubTitle>
-      {loadingPopular ? null : popular.tasks.length ? (
+      {loadingPopular ? null : popular?.tasks.length ? (
         <TaskList taskIDs={popular.tasks.map((task) => task.id)} />
       ) : null}
     </Container>
